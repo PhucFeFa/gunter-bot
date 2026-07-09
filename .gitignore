@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Environment variables - NEVER commit these!
+.env
+
+# Firebase Service Account - NEVER commit this!
+serviceAccountKey.json
+*.json.bak
+
+# Temp video downloads
+temp/
+*.mp4
+*.webm
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

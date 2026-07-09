@@ -1,0 +1,81 @@
+/**
+ * events/ready.js
+ * Fires once when the bot successfully connects to Discord.
+ */
+
+const { Events, ActivityType } = require('discord.js');
+const { db } = require('../utils/firebase');
+
+module.exports = {
+    name: Events.ClientReady,
+    once: true,
+
+    execute(client) {
+        console.log(`[BOT] Logged in as: ${client.user.tag}`);
+        console.log(`[BOT] Serving ${client.guilds.cache.size} guild(s).`);
+
+        client.user.setPresence({
+            activities: [{ name: '/avatar | /daily | /slots', type: ActivityType.Playing }],
+            status: 'online',
+        });
+        
+        // Khởi tạo Ticket Panel tự động
+        const { initTicketPanel } = require('../utils/ticketSystem');
+        initTicketPanel(client);
+
+        // Cập nhật Server Stats ngầm mỗi 15 phút (900000ms)
+        setInterval(async () => {
+            try {
+                const snapshot = await db.collection('server_configs').where('feature_stats', '==', true).get();
+                if (snapshot.empty) return;
+
+                snapshot.forEach(async (doc) => {
+                    const guildId = doc.id;
+                    const config = doc.data();
+                    const stats = config.stats_data;
+                    if (!stats) return;
+
+                    const guild = client.guilds.cache.get(guildId);
+                    if (!guild) return;
+
+                    // Tải lại bộ đếm member của Discord
+                    await guild.members.fetch();
+
+                    // Cập nhật tổng thành viên (Cả người và bot)
+                    if (stats.all_members_id) {
+                        const allMemChan = guild.channels.cache.get(stats.all_members_id);
+                        if (allMemChan && allMemChan.name !== `All members: ${guild.memberCount}`) {
+                            await allMemChan.setName(`All members: ${guild.memberCount}`).catch(() => {});
+                        }
+                    }
+
+                    // Cập nhật người thực (Không tính bot)
+                    if (stats.members_id) {
+                        const memChan = guild.channels.cache.get(stats.members_id);
+                        const realMemberCount = guild.members.cache.filter(m => !m.user.bot).size;
+                        if (memChan && memChan.name !== `Members: ${realMemberCount}`) {
+                            await memChan.setName(`Members: ${realMemberCount}`).catch(() => {});
+                        }
+                    }
+
+                    // Cập nhật từng Role
+                    if (stats.roles) {
+                        for (const [channelId, roleId] of Object.entries(stats.roles)) {
+                            const roleChan = guild.channels.cache.get(channelId);
+                            const role = guild.roles.cache.get(roleId);
+                            if (roleChan && role) {
+                                const roleCount = guild.members.cache.filter(m => m.roles.cache.has(role.id)).size;
+                                const newName = `${role.name}: ${roleCount}`;
+                                if (roleChan.name !== newName) {
+                                    await roleChan.setName(newName).catch(() => {});
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (err) {
+                console.error('[STATS] Lỗi khi cập nhật Server Stats:', err.message);
+            }
+        }, 15 * 60 * 1000); // 15 phút
+    },
+};

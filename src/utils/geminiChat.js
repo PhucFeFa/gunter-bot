@@ -1,13 +1,17 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const axios = require('axios');
 
+// Lấy API Key từ biến môi trường
+const defaultApiKey = process.env.GEMINI_API_KEY || '';
+const genAI = new GoogleGenerativeAI(defaultApiKey);
+
 // Hỗ trợ nhiều API Key (Ngăn cách bằng dấu phẩy)
 const apiKeysString = process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || '';
 const API_KEYS = apiKeysString.split(',').map(k => k.trim()).filter(k => k.length > 0);
 let currentKeyIndex = 0;
 
-function getCurrentGenAI() {
-    if (API_KEYS.length === 0) throw new Error("Chưa cấu hình GEMINI_API_KEY");
+function getDynamicGenAI() {
+    if (API_KEYS.length === 0) return genAI; // Fallback về mặc định
     return new GoogleGenerativeAI(API_KEYS[currentKeyIndex]);
 }
 
@@ -124,12 +128,12 @@ async function handleGeminiChat(message, client) {
         let success = false;
 
         // Cơ chế Fallback 2 Lớp: Thử lần lượt các Model, nếu hết thì đổi sang API Key khác
-        for (let keyAttempt = 0; keyAttempt < API_KEYS.length; keyAttempt++) {
-            const genAI = getCurrentGenAI();
+        for (let keyAttempt = 0; keyAttempt < Math.max(1, API_KEYS.length); keyAttempt++) {
+            const dynamicGenAI = API_KEYS.length > 0 ? getDynamicGenAI() : genAI;
 
             for (let i = currentModelIndex; i < MODELS.length; i++) {
                 const currentModelName = MODELS[i];
-                const model = genAI.getGenerativeModel({
+                const model = dynamicGenAI.getGenerativeModel({
                     model: currentModelName,
                     systemInstruction: SYSTEM_PROMPT
                 });
@@ -148,7 +152,6 @@ async function handleGeminiChat(message, client) {
                     chatHistory.set(userId, userHistory);
 
                     if (currentModelIndex !== i) {
-                        console.log(`[GEMINI] Đã chuyển sang Model: ${currentModelName}`);
                         currentModelIndex = i;
                     }
 
@@ -165,11 +168,10 @@ async function handleGeminiChat(message, client) {
 
             if (success) break;
 
-            // Nếu vòng lặp Model kết thúc mà vẫn chưa success, nghĩa là API Key này đã tịt ngòi toàn bộ model
             if (API_KEYS.length > 1) {
                 currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
                 console.warn(`[GEMINI] Đã xoay vòng sang API Key tiếp theo: Key [${currentKeyIndex}]`);
-                currentModelIndex = 0; // Reset lại danh sách model cho Key mới
+                currentModelIndex = 0;
             }
         }
 
@@ -290,12 +292,12 @@ async function getGeminiResponse(prompt, customSystemPrompt = null) {
     let success = false;
     const finalSystemPrompt = customSystemPrompt || SYSTEM_PROMPT;
 
-    for (let keyAttempt = 0; keyAttempt < API_KEYS.length; keyAttempt++) {
-        const genAI = getCurrentGenAI();
+    for (let keyAttempt = 0; keyAttempt < Math.max(1, API_KEYS.length); keyAttempt++) {
+        const dynamicGenAI = API_KEYS.length > 0 ? getDynamicGenAI() : genAI;
 
         for (let i = currentModelIndex; i < MODELS.length; i++) {
             const currentModelName = MODELS[i];
-            const model = genAI.getGenerativeModel({
+            const model = dynamicGenAI.getGenerativeModel({
                 model: currentModelName,
                 systemInstruction: finalSystemPrompt
             });

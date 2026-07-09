@@ -89,7 +89,7 @@ async function checkFreeGames(client) {
     }
 }
 
-module.exports = (client) => {
+function initGameNotifier(client) {
     // Chạy mỗi 30 phút một lần (ở phút thứ 0 và 30)
     cron.schedule('*/30 * * * *', () => {
         checkFreeGames(client);
@@ -99,4 +99,6 @@ module.exports = (client) => {
     setTimeout(() => {
         checkFreeGames(client);
     }, 10000);
-};
+}
+
+module.exports = { initGameNotifier };

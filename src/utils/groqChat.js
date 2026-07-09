@@ -1,7 +1,18 @@
 const axios = require('axios');
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const GROQ_MODEL = 'llama-3.3-70b-versatile'; // Đã cập nhật lên LLaMA 3.3 mới nhất của Groq
+const GROQ_MODELS = ['llama-3.3-70b-versatile', 'llama3-70b-8192', 'mixtral-8x7b-32768', 'llama3-8b-8192'];
+
+// Hỗ trợ nhiều API Key cho Groq
+const groqApiKeysString = process.env.GROQ_API_KEYS || process.env.GROQ_API_KEY || '';
+const GROQ_API_KEYS = groqApiKeysString.split(',').map(k => k.trim()).filter(k => k.length > 0);
+let currentGroqKeyIndex = 0;
+let currentGroqModelIndex = 0;
+
+function getCurrentGroqKey() {
+    if (GROQ_API_KEYS.length === 0) throw new Error("Chưa cấu hình GROQ_API_KEY");
+    return GROQ_API_KEYS[currentGroqKeyIndex];
+}
 
 const SYSTEM_PROMPT = `Bạn là Gunter, con chim cánh cụt nguy hiểm nhất Ooo (Adventure Time), thú cưng của Phúc Lâm. Bạn đang hỗ trợ người dùng trong kênh Ticket. Trí tuệ của bạn siêu phàm, cục súc, mõm hỗn và xấc xược.
 Quy tắc:
@@ -36,20 +47,63 @@ async function handleGroqChat(message, client) {
         // Giữ tối đa 10 tin nhắn gần nhất
         if (history.length > 15) history.splice(1, 2);
 
-        const response = await axios.post(GROQ_API_URL, {
-            model: GROQ_MODEL,
-            messages: history,
-            max_tokens: 500,
-            temperature: 0.8
-        }, {
-            headers: {
-                'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-                'Content-Type': 'application/json'
-            },
-            timeout: 10000
-        });
+        let replyText = '';
+        let success = false;
 
-        const replyText = response.data.choices[0].message.content;
+        // Vòng lặp fallback: Thử từng Model, nếu tất cả Model trên 1 Key tịt ngòi, đổi API Key khác
+        for (let keyAttempt = 0; keyAttempt < Math.max(1, GROQ_API_KEYS.length); keyAttempt++) {
+            const currentApiKey = GROQ_API_KEYS.length > 0 ? getCurrentGroqKey() : process.env.GROQ_API_KEY;
+
+            for (let i = currentGroqModelIndex; i < GROQ_MODELS.length; i++) {
+                const currentModelName = GROQ_MODELS[i];
+
+                try {
+                    const response = await axios.post(GROQ_API_URL, {
+                        model: currentModelName,
+                        messages: history,
+                        max_tokens: 500,
+                        temperature: 0.8
+                    }, {
+                        headers: {
+                            'Authorization': `Bearer ${currentApiKey}`,
+                            'Content-Type': 'application/json'
+                        },
+                        timeout: 10000
+                    });
+
+                    replyText = response.data.choices[0].message.content;
+
+                    if (currentGroqModelIndex !== i) {
+                        currentGroqModelIndex = i;
+                    }
+
+                    success = true;
+                    break; // Thành công thì thoát vòng lặp
+                } catch (err) {
+                    const errMsg = err.response?.data?.error?.message || err.message;
+                    if (errMsg.includes('429') || errMsg.includes('Too Many Requests') || errMsg.includes('quota')) {
+                        console.warn(`[GROQ] Key [${currentGroqKeyIndex}] - Model ${currentModelName} hết Quota.`);
+                    } else {
+                        throw err;
+                    }
+                }
+            }
+
+            if (success) break;
+
+            // Nếu toàn bộ model thất bại (thường do hết quota), xoay vòng sang Key tiếp theo
+            if (GROQ_API_KEYS.length > 1) {
+                currentGroqKeyIndex = (currentGroqKeyIndex + 1) % GROQ_API_KEYS.length;
+                console.warn(`[GROQ] Đã xoay vòng sang API Key tiếp theo: Key [${currentGroqKeyIndex}]`);
+                currentGroqModelIndex = 0;
+            }
+        }
+
+        if (!success) {
+            currentGroqModelIndex = 0;
+            return await message.reply('Não phụ (Groq) của tao đang bị khóa mõm vì cạn kiệt API Quota trên toàn bộ tài khoản. Mai quay lại nhé 💀');
+        }
+
         history.push({ role: 'assistant', content: replyText });
 
         // Nếu câu trả lời quá dài (Discord giới hạn 2000 ký tự), cắt ra
@@ -64,7 +118,7 @@ async function handleGroqChat(message, client) {
         }
     } catch (error) {
         console.error('[GROQ] Lỗi xử lý chat:', error.response?.data || error.message);
-        await message.reply('Não phụ (Groq) của tao đang bị đơ mẹ rồi, đợi lúc khác nhé 💀');
+        await message.reply('Não phụ (Groq) của tao đang bị đơ cmnr, đợi lúc khác nhé 💀');
     }
 }
 

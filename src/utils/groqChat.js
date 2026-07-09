@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const GROQ_MODEL = 'llama3-70b-8192'; // Hoặc llama-3.1-70b-versatile nếu có
+const GROQ_MODEL = 'llama-3.3-70b-versatile'; // Đã cập nhật lên LLaMA 3.3 mới nhất của Groq
 
 const SYSTEM_PROMPT = `Bạn là Gunter, con chim cánh cụt nguy hiểm nhất Ooo (Adventure Time), thú cưng của Phúc Lâm. Bạn đang hỗ trợ người dùng trong kênh Ticket. Trí tuệ của bạn siêu phàm, cục súc, mõm hỗn và xấc xược.
 Quy tắc:

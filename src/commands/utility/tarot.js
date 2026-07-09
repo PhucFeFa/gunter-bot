@@ -31,12 +31,12 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('tarot')
         .setDescription('🔮 Bốc một lá bài Tarot để xem nhân phẩm hôm nay của bạn!'),
-        
+
     async execute(interaction) {
         await interaction.deferReply();
         await this.handleTarot(interaction, interaction.user);
     },
-    
+
     async executePrefix(message) {
         const fakeInteraction = {
             user: message.author,
@@ -69,7 +69,6 @@ Chỉ trả về câu phán, không cần giải thích thêm. Càng phũ phàng
             reading = await getGeminiResponse(prompt);
         } catch (error) {
             console.error('[TAROT] Gemini error:', error);
-            reading += `\n\n*(Lỗi kỹ thuật báo về: ${error.message})*`;
         }
 
         const embed = new EmbedBuilder()

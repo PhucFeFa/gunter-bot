@@ -175,8 +175,9 @@ async function handleGeminiChat(message, client) {
                     success = true;
                     break;
                 } catch (err) {
-                    if (err.message && (err.message.includes('429') || err.message.includes('Too Many Requests') || err.message.includes('Quota'))) {
-                        console.warn(`[GEMINI] Key [${currentKeyIndex}] - Model ${currentModelName} hết Quota.`);
+                    const msg = err.message || '';
+                    if (msg.includes('429') || msg.includes('Too Many Requests') || msg.includes('Quota') || msg.includes('503') || msg.includes('500') || msg.includes('Service Unavailable') || msg.includes('overloaded')) {
+                        console.warn(`[GEMINI] Key [${currentKeyIndex}] - Model ${currentModelName} gặp lỗi: ${msg.substring(0, 50)}... -> Đang thử model tiếp theo.`);
                     } else {
                         throw err;
                     }
@@ -340,8 +341,9 @@ async function getGeminiResponse(prompt, customSystemPrompt = null) {
                 success = true;
                 break;
             } catch (err) {
-                if (err.message && (err.message.includes('429') || err.message.includes('Too Many Requests') || err.message.includes('Quota'))) {
-                    console.warn(`[GEMINI_API] Key [${currentKeyIndex}] - Model ${currentModelName} hết Quota.`);
+                const msg = err.message || '';
+                if (msg.includes('429') || msg.includes('Too Many Requests') || msg.includes('Quota') || msg.includes('503') || msg.includes('500') || msg.includes('Service Unavailable') || msg.includes('overloaded')) {
+                    console.warn(`[GEMINI_API] Key [${currentKeyIndex}] - Model ${currentModelName} gặp lỗi: ${msg.substring(0, 50)}... -> Đang thử model tiếp theo.`);
                 } else {
                     throw err;
                 }

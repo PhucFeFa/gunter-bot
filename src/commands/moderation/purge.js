@@ -34,28 +34,7 @@ module.exports = {
                 setTimeout(() => replyMsg.delete().catch(() => {}), 3000);
             }
 
-            // Ghi Log nếu có Modlog
-            const config = await getConfig(interaction.guildId);
-            const caseNumber = await incrementCaseCount(interaction.guildId);
-
-            if (config.modlog_channel_id) {
-                const modlogChannel = interaction.guild.channels.cache.get(config.modlog_channel_id);
-                if (modlogChannel) {
-                    const embed = new EmbedBuilder()
-                        .setColor(0xFFA500) // Màu cam cho purge
-                        .setAuthor({
-                            name: `Hồ Sơ Hành Động | Case #${caseNumber}`,
-                            iconURL: interaction.guild.iconURL() || interaction.client.user.displayAvatarURL()
-                        })
-                        .setDescription(`**Hành động:** Dọn dẹp tin nhắn (Purge)\n**Kênh:** <#${interaction.channel.id}>\n**Số lượng:** ${deleted.size} tin nhắn`)
-                        .addFields(
-                            { name: '🛡️ Người thi hành', value: `${interaction.user} (\`${interaction.user.username}\`)`, inline: true }
-                        )
-                        .setTimestamp();
-
-                    await modlogChannel.send({ embeds: [embed] }).catch(() => { });
-                }
-            }
+            // (Đã gỡ bỏ ghi Log purge vào kênh Modlog theo yêu cầu của Admin)
 
         } catch (error) {
             console.error('[PURGE]', error);

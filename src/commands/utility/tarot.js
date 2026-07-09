@@ -69,6 +69,7 @@ Chỉ trả về câu phán, không cần giải thích thêm. Càng phũ phàng
             reading = await getGeminiResponse(prompt);
         } catch (error) {
             console.error('[TAROT] Gemini error:', error);
+            reading += `\n\n*(Lỗi kỹ thuật báo về: ${error.message})*`;
         }
 
         const embed = new EmbedBuilder()

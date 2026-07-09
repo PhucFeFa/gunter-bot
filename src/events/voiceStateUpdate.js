@@ -8,13 +8,33 @@ const { getConfig } = require('../utils/configDB');
 
 // Bộ nhớ tạm lưu lại ID của các phòng được tạo ra tự động
 const tempChannels = new Set();
+// Bộ nhớ tạm lưu thời gian tham gia Voice của mỗi user (để tính leaderboard)
+const voiceSessions = new Map();
 
 module.exports = {
     name: Events.VoiceStateUpdate,
     once: false,
 
     async execute(oldState, newState, client) {
-        // Lấy config
+        // --- THEO DÕI THỐNG KÊ VOICE ---
+        // Người dùng VỪA tham gia kênh voice (trước đó không ở kênh nào)
+        if (!oldState.channelId && newState.channelId) {
+            voiceSessions.set(newState.id, Date.now());
+        }
+        // Người dùng RỜI KHỎI kênh voice (hiện tại không ở kênh nào)
+        else if (oldState.channelId && !newState.channelId) {
+            if (voiceSessions.has(oldState.id)) {
+                const joinTime = voiceSessions.get(oldState.id);
+                const duration = Date.now() - joinTime;
+                
+                const { addVoiceTime } = require('../utils/economyDB');
+                addVoiceTime(oldState.id, duration).catch(e => console.error('[STATS] Lỗi cộng giờ voice:', e));
+                
+                voiceSessions.delete(oldState.id);
+            }
+        }
+
+        // Lấy config cho J2C
         const config = await getConfig(newState.guild.id);
         if (!config.feature_j2c || !config.j2c_channel_id) return;
 

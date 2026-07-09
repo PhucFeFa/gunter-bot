@@ -40,6 +40,10 @@ module.exports = {
         // BẢO MẬT: Chỉ hoạt động trên 1 server duy nhất
         if (message.guild.id !== process.env.DISCORD_GUILD_ID) return;
 
+        // --- THEO DÕI THỐNG KÊ NHẮN TIN ---
+        const { incrementMsgCount } = require('../utils/economyDB');
+        incrementMsgCount(message.author.id).catch(e => console.error('[STATS] Lỗi đếm tin nhắn:', e));
+
         const config = await getConfig(message.guild.id);
         const prefix = config.prefix || 'g!';
 

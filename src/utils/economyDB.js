@@ -27,7 +27,13 @@ async function getUser(userId) {
     const snap = await ref.get();
 
     if (!snap.exists) {
-        const defaultData = { userId, balance: STARTING_BALANCE, lastDaily: null };
+        const defaultData = { 
+            userId, 
+            balance: STARTING_BALANCE, 
+            lastDaily: null,
+            msg_count: 0,
+            voice_time: 0
+        };
         await ref.set(defaultData);
         return defaultData;
     }
@@ -68,4 +74,38 @@ async function claimDaily(userId) {
     return { success: true, newBalance, remaining: 0 };
 }
 
-module.exports = { getUser, updateBalance, claimDaily, DAILY_AMOUNT, STARTING_BALANCE };
+/**
+ * Tăng số lượng tin nhắn của user
+ */
+async function incrementMsgCount(userId) {
+    const ref = db.collection(USERS_COLLECTION).doc(userId);
+    const user = await getUser(userId);
+    await ref.update({ msg_count: (user.msg_count || 0) + 1 });
+}
+
+/**
+ * Cộng thêm thời gian Voice (tính bằng mili giây)
+ */
+async function addVoiceTime(userId, ms) {
+    if (ms <= 0) return;
+    const ref = db.collection(USERS_COLLECTION).doc(userId);
+    const user = await getUser(userId);
+    await ref.update({ voice_time: (user.voice_time || 0) + ms });
+}
+
+/**
+ * Lấy danh sách Top theo trường dữ liệu
+ * @param {string} field - 'balance', 'msg_count', hoặc 'voice_time'
+ */
+async function getTopUsers(field, limitCount = 10) {
+    const snapshot = await db.collection(USERS_COLLECTION)
+        .orderBy(field, 'desc')
+        .limit(limitCount)
+        .get();
+        
+    const top = [];
+    snapshot.forEach(doc => top.push(doc.data()));
+    return top;
+}
+
+module.exports = { getUser, updateBalance, claimDaily, incrementMsgCount, addVoiceTime, getTopUsers, DAILY_AMOUNT, STARTING_BALANCE };

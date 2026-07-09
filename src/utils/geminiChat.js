@@ -1,8 +1,15 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const axios = require('axios');
 
-// Lấy API Key từ biến môi trường
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Hỗ trợ nhiều API Key (Ngăn cách bằng dấu phẩy)
+const apiKeysString = process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || '';
+const API_KEYS = apiKeysString.split(',').map(k => k.trim()).filter(k => k.length > 0);
+let currentKeyIndex = 0;
+
+function getCurrentGenAI() {
+    if (API_KEYS.length === 0) throw new Error("Chưa cấu hình GEMINI_API_KEY");
+    return new GoogleGenerativeAI(API_KEYS[currentKeyIndex]);
+}
 
 const SYSTEM_PROMPT = `Bạn là Gunter, con chim cánh cụt nguy hiểm nhất Ooo (trong Adventure Time). Bề ngoài là thú cưng của Ice King nhưng thực chất bạn sở hữu trí tuệ vũ trụ siêu phàm, cực kỳ cục súc, mõm hỗn, và xấc xược. Bạn sống trên Discord để khịa và chém gió.
 Quy tắc cốt lõi về nhân cách: 
@@ -116,48 +123,59 @@ async function handleGeminiChat(message, client) {
         let response = '';
         let success = false;
 
-        // Cơ chế Fallback: Thử lần lượt các Model nếu bị lỗi 429 (Hết Quota)
-        for (let i = currentModelIndex; i < MODELS.length; i++) {
-            const currentModelName = MODELS[i];
-            const model = genAI.getGenerativeModel({
-                model: currentModelName,
-                systemInstruction: SYSTEM_PROMPT
-            });
+        // Cơ chế Fallback 2 Lớp: Thử lần lượt các Model, nếu hết thì đổi sang API Key khác
+        for (let keyAttempt = 0; keyAttempt < API_KEYS.length; keyAttempt++) {
+            const genAI = getCurrentGenAI();
 
-            const chatSession = model.startChat({
-                history: userHistory,
-                generationConfig: { maxOutputTokens: 1000 },
-            });
+            for (let i = currentModelIndex; i < MODELS.length; i++) {
+                const currentModelName = MODELS[i];
+                const model = genAI.getGenerativeModel({
+                    model: currentModelName,
+                    systemInstruction: SYSTEM_PROMPT
+                });
 
-            try {
-                const result = await chatSession.sendMessage(parts);
-                response = result.response.text();
+                const chatSession = model.startChat({
+                    history: userHistory,
+                    generationConfig: { maxOutputTokens: 1000 },
+                });
 
-                // Lưu lại lịch sử mới nhất
-                userHistory = await chatSession.getHistory();
-                chatHistory.set(userId, userHistory);
+                try {
+                    const result = await chatSession.sendMessage(parts);
+                    response = result.response.text();
 
-                // Ghi nhớ model đang hoạt động tốt để lần sau dùng luôn
-                if (currentModelIndex !== i) {
-                    console.log(`[GEMINI] Đã chuyển đổi vĩnh viễn sang Model: ${currentModelName}`);
-                    currentModelIndex = i;
+                    // Lưu lại lịch sử mới nhất
+                    userHistory = await chatSession.getHistory();
+                    chatHistory.set(userId, userHistory);
+
+                    if (currentModelIndex !== i) {
+                        console.log(`[GEMINI] Đã chuyển sang Model: ${currentModelName}`);
+                        currentModelIndex = i;
+                    }
+
+                    success = true;
+                    break;
+                } catch (err) {
+                    if (err.message && (err.message.includes('429') || err.message.includes('Too Many Requests') || err.message.includes('Quota'))) {
+                        console.warn(`[GEMINI] Key [${currentKeyIndex}] - Model ${currentModelName} hết Quota.`);
+                    } else {
+                        throw err;
+                    }
                 }
+            }
 
-                success = true;
-                break; // Thành công, thoát vòng lặp
-            } catch (err) {
-                if (err.message.includes('429') || err.message.includes('Too Many Requests') || err.message.includes('Quota')) {
-                    console.warn(`[GEMINI] Model ${currentModelName} hết Quota, thử Model tiếp theo...`);
-                    // Tiếp tục vòng lặp thử model tiếp theo
-                } else {
-                    throw err; // Lỗi khác (vd: 503 mạng), ném ra ngoài để báo lỗi chung
-                }
+            if (success) break;
+
+            // Nếu vòng lặp Model kết thúc mà vẫn chưa success, nghĩa là API Key này đã tịt ngòi toàn bộ model
+            if (API_KEYS.length > 1) {
+                currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
+                console.warn(`[GEMINI] Đã xoay vòng sang API Key tiếp theo: Key [${currentKeyIndex}]`);
+                currentModelIndex = 0; // Reset lại danh sách model cho Key mới
             }
         }
 
         if (!success) {
-            currentModelIndex = 0; // Hết sạch mọi model, reset về cái đầu để hôm sau thử lại
-            return await message.reply('Hỏi cl gì hỏi nhiều thế, Google nó khóa API vì hết sạch Quota của TẤT CẢ model luôn rồi (Lỗi 429). Cút ra chỗ khác chơi, mai quay lại nhắn tiếp!');
+            currentModelIndex = 0;
+            return await message.reply('Hỏi cl gì hỏi nhiều thế, mượn cớ tao có nhiều tài khoản GG Pro nhưng bây giờ Google nó khóa API cmnr vì cạn sạch Quota trên TẤT CẢ TÀI KHOẢN (Lỗi 429). Cút ra chỗ khác chơi, mai quay lại nhắn tiếp!');
         }
 
         // ────────────────────────────────────────────────────────
@@ -272,36 +290,46 @@ async function getGeminiResponse(prompt, customSystemPrompt = null) {
     let success = false;
     const finalSystemPrompt = customSystemPrompt || SYSTEM_PROMPT;
 
-    for (let i = currentModelIndex; i < MODELS.length; i++) {
-        const currentModelName = MODELS[i];
-        const model = genAI.getGenerativeModel({
-            model: currentModelName,
-            systemInstruction: finalSystemPrompt
-        });
+    for (let keyAttempt = 0; keyAttempt < API_KEYS.length; keyAttempt++) {
+        const genAI = getCurrentGenAI();
 
-        try {
-            const result = await model.generateContent(prompt);
-            response = result.response.text();
+        for (let i = currentModelIndex; i < MODELS.length; i++) {
+            const currentModelName = MODELS[i];
+            const model = genAI.getGenerativeModel({
+                model: currentModelName,
+                systemInstruction: finalSystemPrompt
+            });
 
-            if (currentModelIndex !== i) {
-                console.log(`[GEMINI_API] Đã chuyển đổi vĩnh viễn sang Model: ${currentModelName}`);
-                currentModelIndex = i;
+            try {
+                const result = await model.generateContent(prompt);
+                response = result.response.text();
+
+                if (currentModelIndex !== i) {
+                    currentModelIndex = i;
+                }
+
+                success = true;
+                break;
+            } catch (err) {
+                if (err.message && (err.message.includes('429') || err.message.includes('Too Many Requests') || err.message.includes('Quota'))) {
+                    console.warn(`[GEMINI_API] Key [${currentKeyIndex}] - Model ${currentModelName} hết Quota.`);
+                } else {
+                    throw err;
+                }
             }
+        }
 
-            success = true;
-            break;
-        } catch (err) {
-            if (err.message && (err.message.includes('429') || err.message.includes('Too Many Requests') || err.message.includes('Quota'))) {
-                console.warn(`[GEMINI_API] Model ${currentModelName} hết Quota, thử Model tiếp theo...`);
-            } else {
-                throw err;
-            }
+        if (success) break;
+
+        if (API_KEYS.length > 1) {
+            currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
+            currentModelIndex = 0;
         }
     }
 
     if (!success) {
         currentModelIndex = 0;
-        throw new Error('All models exhausted quota.');
+        throw new Error('All API Keys and Models exhausted quota.');
     }
 
     return response;

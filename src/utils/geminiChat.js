@@ -1,4 +1,4 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require('@google/generative-ai');
 const axios = require('axios');
 
 // Lấy API Key từ biến môi trường
@@ -14,6 +14,13 @@ function getDynamicGenAI() {
     if (API_KEYS.length === 0) return genAI; // Fallback về mặc định
     return new GoogleGenerativeAI(API_KEYS[currentKeyIndex]);
 }
+
+const safetySettings = [
+    { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+    { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+    { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+    { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+];
 
 const SYSTEM_PROMPT = `Bạn là Gunter, con chim cánh cụt nguy hiểm nhất Ooo (trong Adventure Time). Bề ngoài là thú cưng của Ice King nhưng thực chất bạn sở hữu trí tuệ vũ trụ siêu phàm, cực kỳ cục súc, mõm hỗn, và xấc xược. Bạn sống trên Discord để khịa và chém gió.
 Quy tắc cốt lõi về nhân cách: 
@@ -135,7 +142,8 @@ async function handleGeminiChat(message, client) {
                 const currentModelName = MODELS[i];
                 const model = dynamicGenAI.getGenerativeModel({
                     model: currentModelName,
-                    systemInstruction: SYSTEM_PROMPT
+                    systemInstruction: SYSTEM_PROMPT,
+                    safetySettings
                 });
 
                 const chatSession = model.startChat({
@@ -308,7 +316,8 @@ async function getGeminiResponse(prompt, customSystemPrompt = null) {
             const currentModelName = MODELS[i];
             const model = dynamicGenAI.getGenerativeModel({
                 model: currentModelName,
-                systemInstruction: finalSystemPrompt
+                systemInstruction: finalSystemPrompt,
+                safetySettings
             });
 
             try {

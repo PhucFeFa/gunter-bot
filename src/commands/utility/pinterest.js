@@ -58,7 +58,7 @@ module.exports = {
             const generateEmbed = (index) => {
                 return new EmbedBuilder()
                     .setColor(0xE60023) // Màu đỏ đặc trưng của Pinterest
-                    .setAuthor({ name: 'Pinterest Search', iconURL: 'https://i.imgur.com/K3C23D8.png' })
+                    .setAuthor({ name: 'Pinterest Search' }) // Đã xóa icon lỗi
                     .setTitle(`Kết quả cho: ${keyword}`)
                     .setDescription(`Ảnh **${index + 1}** / ${validImages.length}`)
                     .setImage(validImages[index])

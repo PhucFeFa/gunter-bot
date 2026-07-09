@@ -34,12 +34,11 @@ GIAO TIẾP (UI/UX):
 - Thấy ảnh thì chê bai hoặc nhận xét gắt vào.
 - Trả lời CHẮP VÁ, NGẮN GỌN kiểu Discord, đéo viết đoạn văn dài lê thê.`;
 
-const model = genAI.getGenerativeModel({ 
-    model: 'gemini-2.5-flash-lite',
-    systemInstruction: SYSTEM_PROMPT
-});
+// Danh sách các model theo thứ tự ưu tiên
+const MODELS = ['gemini-3.1-flash-lite', 'gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-2.5-flash-lite'];
+let currentModelIndex = 0;
 
-// Lưu trữ lịch sử chat của từng người dùng để giữ ngữ cảnh (Context Retention)
+// Lưu trữ lịch sử chat (Mảng thô) của từng người dùng để giữ ngữ cảnh
 const chatHistory = new Map();
 
 // Chống spam: Lưu trạng thái đang xử lý và thời gian cooldown
@@ -87,28 +86,24 @@ async function handleGeminiChat(message, client) {
         // Bật hiệu ứng "Bot đang gõ..."
         await message.channel.sendTyping();
 
-        // Khởi tạo lịch sử chat nếu chưa có
+        // Khởi tạo mảng lịch sử nếu chưa có
         if (!chatHistory.has(userId)) {
-            chatHistory.set(userId, model.startChat({
-                history: [],
-                generationConfig: { maxOutputTokens: 1000 },
-            }));
+            chatHistory.set(userId, []);
         }
 
-        const chatSession = chatHistory.get(userId);
+        let userHistory = chatHistory.get(userId);
 
         // Xử lý nếu người dùng có gửi kèm ảnh (Vision)
         const parts = [finalPrompt];
         
         if (message.attachments.size > 0) {
             const attachment = message.attachments.first();
-            // Kiểm tra xem có phải là ảnh không
             if (attachment.contentType && attachment.contentType.startsWith('image/')) {
                 try {
-                    const response = await axios.get(attachment.url, { responseType: 'arraybuffer' });
+                    const imgResp = await axios.get(attachment.url, { responseType: 'arraybuffer' });
                     parts.push({
                         inlineData: {
-                            data: Buffer.from(response.data).toString('base64'),
+                            data: Buffer.from(imgResp.data).toString('base64'),
                             mimeType: attachment.contentType
                         }
                     });
@@ -118,9 +113,52 @@ async function handleGeminiChat(message, client) {
             }
         }
 
-        // Gửi tin nhắn (gồm cả chữ và ảnh nếu có) tới Gemini
-        const result = await chatSession.sendMessage(parts);
-        let response = result.response.text();
+        let response = '';
+        let success = false;
+
+        // Cơ chế Fallback: Thử lần lượt các Model nếu bị lỗi 429 (Hết Quota)
+        for (let i = currentModelIndex; i < MODELS.length; i++) {
+            const currentModelName = MODELS[i];
+            const model = genAI.getGenerativeModel({ 
+                model: currentModelName, 
+                systemInstruction: SYSTEM_PROMPT 
+            });
+
+            const chatSession = model.startChat({
+                history: userHistory,
+                generationConfig: { maxOutputTokens: 1000 },
+            });
+
+            try {
+                const result = await chatSession.sendMessage(parts);
+                response = result.response.text();
+
+                // Lưu lại lịch sử mới nhất
+                userHistory = await chatSession.getHistory();
+                chatHistory.set(userId, userHistory);
+                
+                // Ghi nhớ model đang hoạt động tốt để lần sau dùng luôn
+                if (currentModelIndex !== i) {
+                    console.log(`[GEMINI] Đã chuyển đổi vĩnh viễn sang Model: ${currentModelName}`);
+                    currentModelIndex = i;
+                }
+                
+                success = true;
+                break; // Thành công, thoát vòng lặp
+            } catch (err) {
+                if (err.message.includes('429') || err.message.includes('Too Many Requests') || err.message.includes('Quota')) {
+                    console.warn(`[GEMINI] Model ${currentModelName} hết Quota, thử Model tiếp theo...`);
+                    // Tiếp tục vòng lặp thử model tiếp theo
+                } else {
+                    throw err; // Lỗi khác (vd: 503 mạng), ném ra ngoài để báo lỗi chung
+                }
+            }
+        }
+
+        if (!success) {
+            currentModelIndex = 0; // Hết sạch mọi model, reset về cái đầu để hôm sau thử lại
+            return await message.reply('Hỏi cl gì hỏi nhiều thế, Google nó khóa API vì hết sạch Quota của TẤT CẢ model luôn rồi (Lỗi 429). Cút ra chỗ khác chơi, mai quay lại nhắn tiếp!');
+        }
 
         // ────────────────────────────────────────────────────────
         // XỬ LÝ QUYỀN LỰC (ACTION PARSING)
@@ -221,10 +259,7 @@ async function handleGeminiChat(message, client) {
             return await message.reply('Mạng mẽo Google đang nghẽn vcl (Lỗi 503). Đợi 1 tí rồi nhắn lại cho tao nhé, đang lag đéo load nổi =)))');
         }
         
-        if (error.message.includes('429') || error.message.includes('Too Many Requests') || error.message.includes('Quota exceeded')) {
-            return await message.reply('Hỏi cl gì hỏi nhiều thế, Google nó khóa API vì hết Quota miễn phí cmnr (Lỗi 429). Đợi một lúc rồi hẵng nhắn tiếp!');
-        }
-
+        // Các lỗi 429 đã được bắt ở vòng lặp fallback bên trên rồi, nếu xuống tới đây thì là lỗi khác.
         await message.reply('Lỗi mẹ rồi, đéo rep được. Chắc não tao vừa bị thằng nào hack 💀');
     } finally {
         // Luôn luôn mở khóa cho người dùng khi xử lý xong (dù thành công hay thất bại)

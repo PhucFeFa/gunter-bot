@@ -25,10 +25,23 @@ async function handleTicketButton(interaction) {
             const ticketNumber = await incrementTicketCount(guild.id);
             const formattedNumber = String(ticketNumber).padStart(4, '0'); // Ví dụ: 0001
             
-            // Tạo kênh Private
+            // Tìm hoặc tạo Danh mục (Category) TICKETS
+            let ticketCategory = guild.channels.cache.find(c => c.name.toLowerCase() === 'tickets' && c.type === ChannelType.GuildCategory);
+            if (!ticketCategory) {
+                ticketCategory = await guild.channels.create({
+                    name: 'TICKETS',
+                    type: ChannelType.GuildCategory,
+                    permissionOverwrites: [
+                        { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] }
+                    ]
+                });
+            }
+
+            // Tạo kênh Private trong Category
             const ticketChannel = await guild.channels.create({
                 name: `ticket-${formattedNumber}-${user.username}`,
                 type: ChannelType.GuildText,
+                parent: ticketCategory.id,
                 permissionOverwrites: [
                     { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] }, // Ẩn với everyone
                     { id: user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages] }, // Cho phép người tạo

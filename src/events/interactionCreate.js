@@ -31,10 +31,6 @@ module.exports = {
                 const { handleTicketSelect } = require('../utils/ticketSystem');
                 return await handleTicketSelect(interaction);
             }
-            if (interaction.customId === 'help_category_select') {
-                const { handleHelpSelect } = require('../utils/helpSystem');
-                return await handleHelpSelect(interaction, client);
-            }
         }
 
         if (!interaction.isChatInputCommand()) return;

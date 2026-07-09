@@ -26,7 +26,7 @@ function initRandomEvents(client) {
         } catch (error) {
             console.error('[RandomEvents] Lỗi khi chạy random event:', error);
         }
-    }, 45 * 60 * 1000); // 45 phút
+    }, 3 * 60 * 60 * 1000); // 3 tiếng
 }
 
 async function triggerRandomJoke(client) {
@@ -37,7 +37,7 @@ async function triggerRandomJoke(client) {
 Yêu cầu: Không quá dài (1-2 câu), giống phong cách gen Z, dùng teencode hoặc mỉa mai nhẹ nhàng. Bắt đầu ngay, không cần giải thích.`;
     
     try {
-        const joke = await getGeminiResponse(prompt, 'gemini-1.5-flash');
+        const joke = await getGeminiResponse(prompt);
         await channel.send(joke);
     } catch (e) {
         console.error('Lỗi lấy Joke:', e);
@@ -55,7 +55,7 @@ Tiêu đề: <Một câu ngắn gọn>
 Nội dung: <Đoạn văn ngắn châm ngòi thảo luận, lầy lội>`;
 
     try {
-        const response = await getGeminiResponse(prompt, 'gemini-1.5-flash');
+        const response = await getGeminiResponse(prompt);
         
         const titleMatch = response.match(/Tiêu đề:\s*(.*)/i);
         const contentMatch = response.match(/Nội dung:\s*([\s\S]*)/i);

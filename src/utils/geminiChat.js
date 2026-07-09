@@ -34,8 +34,8 @@ GIAO TIẾP (UI/UX):
 - Thấy ảnh thì chê bai hoặc nhận xét gắt vào.
 - Trả lời CHẮP VÁ, NGẮN GỌN kiểu Discord, đéo viết đoạn văn dài lê thê.`;
 
-// Danh sách các model theo thứ tự ưu tiên
-const MODELS = ['gemini-3.1-flash-lite', 'gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-2.5-flash-lite'];
+// Danh sách các model theo thứ tự ưu tiên (Tự động chuyển đổi nếu hết Quota)
+const MODELS = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro'];
 let currentModelIndex = 0;
 
 // Lưu trữ lịch sử chat (Mảng thô) của từng người dùng để giữ ngữ cảnh
@@ -68,10 +68,10 @@ async function handleGeminiChat(message, client) {
     userLocks.add(userId);
 
     try {
-        
+
         // Loại bỏ phần tag bot khỏi nội dung tin nhắn
         let content = message.content.replace(new RegExp(`<@!?${client.user.id}>`, 'g'), '').trim();
-        
+
         // Thay thế tag ID của người khác thành tên thật và ID để bot xử lý
         message.mentions.users.forEach(u => {
             if (u.id !== client.user.id) {
@@ -95,7 +95,7 @@ async function handleGeminiChat(message, client) {
 
         // Xử lý nếu người dùng có gửi kèm ảnh (Vision)
         const parts = [finalPrompt];
-        
+
         if (message.attachments.size > 0) {
             const attachment = message.attachments.first();
             if (attachment.contentType && attachment.contentType.startsWith('image/')) {
@@ -119,9 +119,9 @@ async function handleGeminiChat(message, client) {
         // Cơ chế Fallback: Thử lần lượt các Model nếu bị lỗi 429 (Hết Quota)
         for (let i = currentModelIndex; i < MODELS.length; i++) {
             const currentModelName = MODELS[i];
-            const model = genAI.getGenerativeModel({ 
-                model: currentModelName, 
-                systemInstruction: SYSTEM_PROMPT 
+            const model = genAI.getGenerativeModel({
+                model: currentModelName,
+                systemInstruction: SYSTEM_PROMPT
             });
 
             const chatSession = model.startChat({
@@ -136,13 +136,13 @@ async function handleGeminiChat(message, client) {
                 // Lưu lại lịch sử mới nhất
                 userHistory = await chatSession.getHistory();
                 chatHistory.set(userId, userHistory);
-                
+
                 // Ghi nhớ model đang hoạt động tốt để lần sau dùng luôn
                 if (currentModelIndex !== i) {
                     console.log(`[GEMINI] Đã chuyển đổi vĩnh viễn sang Model: ${currentModelName}`);
                     currentModelIndex = i;
                 }
-                
+
                 success = true;
                 break; // Thành công, thoát vòng lặp
             } catch (err) {
@@ -171,7 +171,7 @@ async function handleGeminiChat(message, client) {
             const targetData = match[2].trim();
             const actionReason = match[3] ? match[3].trim() : 'Bố mày ngứa mắt thì phạt, hỏi nhiều 🐧';
             const actionTime = match[4] ? parseInt(match[4], 10) : (action === 'MUTE' ? 10 : 0);
-            
+
             // Xóa đoạn mã lệnh khỏi câu trả lời để không hiện ra ngoài chat
             response = response.replace(actionRegex, '').trim();
 
@@ -179,7 +179,7 @@ async function handleGeminiChat(message, client) {
                 try {
                     const targetMember = await message.guild.members.fetch(targetData).catch(() => null);
                     if (targetMember) {
-                        
+
                         // Kiểm tra nếu người đó có quyền cao hơn Bot
                         if (targetMember.id === message.guild.ownerId || targetMember.permissions.has('Administrator') || targetMember.roles.highest.position >= message.guild.members.me.roles.highest.position) {
                             response += `\n\n*Đm thằng ranh con <@${targetMember.id}>, thấy role cao hơn tao định giỡn mặt à? May cho mày là Discord đéo cho tao động vào mày đấy nhé 💀*`;
@@ -189,7 +189,7 @@ async function handleGeminiChat(message, client) {
                                 await targetMember.roles.add('1524641571990142986');
                                 if (actionTime > 0) {
                                     setTimeout(async () => {
-                                        try { await targetMember.roles.remove('1524641571990142986'); } catch(e){}
+                                        try { await targetMember.roles.remove('1524641571990142986'); } catch (e) { }
                                     }, actionTime * 60 * 1000);
                                 }
                             } else if (action === 'UNPRISON') {
@@ -197,7 +197,7 @@ async function handleGeminiChat(message, client) {
                             } else if (action === 'KICK') {
                                 await targetMember.kick(actionReason);
                             } else if (action === 'MUTE') {
-                                await targetMember.timeout(actionTime * 60 * 1000, actionReason); 
+                                await targetMember.timeout(actionTime * 60 * 1000, actionReason);
                             }
 
                             // Gửi Log
@@ -211,7 +211,7 @@ async function handleGeminiChat(message, client) {
                                 if (modlogChannel) {
                                     const actionNames = { PRISON: `Giam giữ (${actionTime > 0 ? actionTime + ' phút' : 'Vĩnh viễn'})`, UNPRISON: 'Ân xá (Unprison)', KICK: 'Kích xuất (Kick)', MUTE: `Khóa mõm (${actionTime} phút)` };
                                     const embed = new EmbedBuilder()
-                                        .setColor(action === 'UNPRISON' ? 0x00FF00 : 0xFF0000) 
+                                        .setColor(action === 'UNPRISON' ? 0x00FF00 : 0xFF0000)
                                         .setAuthor({
                                             name: `Hồ Sơ Xử Phạt (Bởi AI) | Case #${caseNumber}`,
                                             iconURL: client.user.displayAvatarURL()
@@ -254,11 +254,11 @@ async function handleGeminiChat(message, client) {
 
     } catch (error) {
         console.error('[GEMINI] Lỗi xử lý chat:', error.message);
-        
+
         if (error.message.includes('503') || error.message.includes('Service Unavailable')) {
             return await message.reply('Mạng mẽo Google đang nghẽn vcl (Lỗi 503). Đợi 1 tí rồi nhắn lại cho tao nhé, đang lag đéo load nổi =)))');
         }
-        
+
         // Các lỗi 429 đã được bắt ở vòng lặp fallback bên trên rồi, nếu xuống tới đây thì là lỗi khác.
         await message.reply('Lỗi mẹ rồi, đéo rep được. Chắc não tao vừa bị thằng nào hack 💀');
     } finally {
@@ -267,4 +267,44 @@ async function handleGeminiChat(message, client) {
     }
 }
 
-module.exports = { handleGeminiChat };
+async function getGeminiResponse(prompt, customSystemPrompt = null) {
+    let response = '';
+    let success = false;
+    const finalSystemPrompt = customSystemPrompt || SYSTEM_PROMPT;
+
+    for (let i = currentModelIndex; i < MODELS.length; i++) {
+        const currentModelName = MODELS[i];
+        const model = genAI.getGenerativeModel({
+            model: currentModelName,
+            systemInstruction: finalSystemPrompt
+        });
+
+        try {
+            const result = await model.generateContent(prompt);
+            response = result.response.text();
+
+            if (currentModelIndex !== i) {
+                console.log(`[GEMINI_API] Đã chuyển đổi vĩnh viễn sang Model: ${currentModelName}`);
+                currentModelIndex = i;
+            }
+
+            success = true;
+            break;
+        } catch (err) {
+            if (err.message && (err.message.includes('429') || err.message.includes('Too Many Requests') || err.message.includes('Quota'))) {
+                console.warn(`[GEMINI_API] Model ${currentModelName} hết Quota, thử Model tiếp theo...`);
+            } else {
+                throw err;
+            }
+        }
+    }
+
+    if (!success) {
+        currentModelIndex = 0;
+        throw new Error('All models exhausted quota.');
+    }
+
+    return response;
+}
+
+module.exports = { handleGeminiChat, getGeminiResponse };

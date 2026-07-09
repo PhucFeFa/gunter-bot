@@ -59,7 +59,7 @@ Chỉ trả về câu phán, không cần giải thích thêm. Thêm nhiều emo
 
         let reading = "Vũ trụ đang bận chạy KPI, không có tín hiệu trả về. Hãy thử lại sau nhé!";
         try {
-            reading = await getGeminiResponse(prompt, 'gemini-1.5-flash');
+            reading = await getGeminiResponse(prompt);
         } catch (error) {
             console.error('[TAROT] Gemini error:', error);
         }

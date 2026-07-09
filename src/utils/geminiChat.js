@@ -53,7 +53,7 @@ GIAO TIẾP (UI/UX):
 - TƯƠNG TÁC: Nếu mày muốn thả một biểu cảm (reaction) vào tin nhắn của nó, hãy chèn [REACT: <1_emoji_bất_kỳ>] vào cuối câu trả lời. (Ví dụ: [REACT: 🤡] hoặc [REACT: 😡]).`;
 
 // Danh sách các model theo thứ tự ưu tiên (Tự động chuyển đổi nếu hết Quota)
-const MODELS = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro'];
+const MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest'];
 let currentModelIndex = 0;
 
 // Lưu trữ lịch sử chat (Mảng thô) của từng người dùng để giữ ngữ cảnh

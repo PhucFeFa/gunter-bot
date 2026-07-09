@@ -16,12 +16,17 @@ const { Player } = require('discord-player');
 const { DefaultExtractors } = require('@discord-player/extractor');
 
 // --- Validate required environment variables on startup ---
-const REQUIRED_ENV = ['DISCORD_TOKEN', 'DISCORD_CLIENT_ID', 'FIREBASE_SERVICE_ACCOUNT_PATH'];
+const REQUIRED_ENV = ['DISCORD_TOKEN', 'DISCORD_CLIENT_ID'];
 for (const key of REQUIRED_ENV) {
     if (!process.env[key]) {
         console.error(`[FATAL] Missing required environment variable: ${key}`);
         process.exit(1);
     }
+}
+
+if (!process.env.FIREBASE_SERVICE_ACCOUNT_PATH && !process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+    console.error(`[FATAL] Missing required environment variable: FIREBASE_SERVICE_ACCOUNT_PATH or FIREBASE_SERVICE_ACCOUNT_JSON`);
+    process.exit(1);
 }
 
 // --- Initialize Firebase Admin SDK ---

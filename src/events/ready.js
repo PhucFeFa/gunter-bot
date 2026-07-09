@@ -15,10 +15,10 @@ module.exports = {
         console.log(`[BOT] Serving ${client.guilds.cache.size} guild(s).`);
 
         client.user.setPresence({
-            activities: [{ name: '/avatar | /daily | /slots', type: ActivityType.Playing }],
+            activities: [{ name: 'Độ mixi', type: ActivityType.Streaming }],
             status: 'online',
         });
-        
+
         // Khởi tạo Ticket Panel tự động
         const { initTicketPanel } = require('../utils/ticketSystem');
         initTicketPanel(client);
@@ -52,7 +52,7 @@ module.exports = {
                     if (stats.all_members_id) {
                         const allMemChan = guild.channels.cache.get(stats.all_members_id);
                         if (allMemChan && allMemChan.name !== `All members: ${guild.memberCount}`) {
-                            await allMemChan.setName(`All members: ${guild.memberCount}`).catch(() => {});
+                            await allMemChan.setName(`All members: ${guild.memberCount}`).catch(() => { });
                         }
                     }
 
@@ -61,7 +61,7 @@ module.exports = {
                         const memChan = guild.channels.cache.get(stats.members_id);
                         const realMemberCount = guild.members.cache.filter(m => !m.user.bot).size;
                         if (memChan && memChan.name !== `Members: ${realMemberCount}`) {
-                            await memChan.setName(`Members: ${realMemberCount}`).catch(() => {});
+                            await memChan.setName(`Members: ${realMemberCount}`).catch(() => { });
                         }
                     }
 
@@ -74,7 +74,7 @@ module.exports = {
                                 const roleCount = guild.members.cache.filter(m => m.roles.cache.has(role.id)).size;
                                 const newName = `${role.name}: ${roleCount}`;
                                 if (roleChan.name !== newName) {
-                                    await roleChan.setName(newName).catch(() => {});
+                                    await roleChan.setName(newName).catch(() => { });
                                 }
                             }
                         }

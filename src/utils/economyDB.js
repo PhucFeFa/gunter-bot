@@ -34,7 +34,9 @@ async function getUser(userId) {
             msg_count: 0,
             voice_time: 0,
             given_today: 0,
-            last_give_date: ''
+            last_give_date: '',
+            tarot_count_today: 0,
+            last_tarot_date: ''
         };
         await ref.set(defaultData);
         return defaultData;
@@ -147,4 +149,29 @@ async function transferMoney(fromUserId, toUserId, amount) {
     return { success: true };
 }
 
-module.exports = { getUser, updateBalance, claimDaily, incrementMsgCount, addVoiceTime, getTopUsers, transferMoney, DAILY_AMOUNT, STARTING_BALANCE };
+/**
+ * Kiểm tra và tăng lượt chơi tarot hôm nay (Tối đa 5 lần/ngày)
+ */
+async function recordTarotPlay(userId) {
+    const ref = db.collection(USERS_COLLECTION).doc(userId);
+    const user = await getUser(userId);
+    const todayDate = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
+
+    let currentTarotCount = user.tarot_count_today || 0;
+    if (user.last_tarot_date !== todayDate) {
+        currentTarotCount = 0;
+    }
+
+    if (currentTarotCount >= 5) {
+        return { success: false };
+    }
+
+    await ref.update({
+        tarot_count_today: currentTarotCount + 1,
+        last_tarot_date: todayDate
+    });
+
+    return { success: true, remaining: 5 - (currentTarotCount + 1) };
+}
+
+module.exports = { getUser, updateBalance, claimDaily, incrementMsgCount, addVoiceTime, getTopUsers, transferMoney, recordTarotPlay, DAILY_AMOUNT, STARTING_BALANCE };

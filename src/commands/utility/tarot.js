@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { getGeminiResponse } = require('../../utils/geminiChat');
+const { recordTarotPlay } = require('../../utils/economyDB');
 
 const TAROT_CARDS = [
     { name: 'The Fool (Kẻ Khờ)', img: 'https://upload.wikimedia.org/wikipedia/en/9/90/RWS_Tarot_00_Fool.jpg' },
@@ -46,6 +47,12 @@ module.exports = {
     },
 
     async handleTarot(interaction, user) {
+        // Kiểm tra giới hạn 5 lần/ngày
+        const tarotCheck = await recordTarotPlay(user.id);
+        if (!tarotCheck.success) {
+            return interaction.editReply('❌ Hôm nay mày bốc bài 5 lần rồi, vũ trụ cũng phải nghỉ ngơi chứ! Mai quay lại nhé.');
+        }
+
         // Random 1 lá bài
         const card = TAROT_CARDS[Math.floor(Math.random() * TAROT_CARDS.length)];
         const isReversed = Math.random() > 0.5;
@@ -69,7 +76,7 @@ Chỉ trả về câu phán, không cần giải thích thêm. Thêm nhiều emo
             .setTitle(`🔮 Trải bài của ${user.username}`)
             .setDescription(`**Lá bài bốc được:** ${card.name}\n**Vị trí:** ${position}\n\n**Lời phán từ Vũ Trụ:**\n${reading}`)
             .setImage(card.img)
-            .setFooter({ text: 'Bói toán chỉ mang tính chất giải trí, đừng quá tin nhé!' })
+            .setFooter({ text: `Hôm nay bạn còn ${tarotCheck.remaining} lượt bốc bài. (Tối đa 5 lượt/ngày)` })
             .setTimestamp();
 
         await interaction.editReply({ embeds: [embed] });

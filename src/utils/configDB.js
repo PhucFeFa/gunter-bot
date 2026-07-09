@@ -21,8 +21,11 @@ const DEFAULT_CONFIG = {
     goodbye_channel_id: null,
     j2c_channel_id: null,
     modlog_channel_id: null,
+    game_alert_channel_id: null,
+    game_alert_role_id: null,
     mod_case_count: 0,
     ticket_count: 0,
+    notified_games: [],
     stats_data: {
         category_id: null,
         all_members_id: null,
@@ -44,16 +47,23 @@ async function getConfig(guildId) {
     return { ...DEFAULT_CONFIG, ...snap.data() };
 }
 
-async function updateConfig(guildId, key, value) {
+async function updateConfig(guildId, keyOrData, value) {
     if (!guildId) return;
     
     const ref = db.collection(CONFIG_COLLECTION).doc(guildId);
     const snap = await ref.get();
     
-    if (!snap.exists) {
-        await ref.set({ ...DEFAULT_CONFIG, [key]: value });
+    let updateData = {};
+    if (typeof keyOrData === 'string') {
+        updateData[keyOrData] = value;
     } else {
-        await ref.update({ [key]: value });
+        updateData = keyOrData;
+    }
+
+    if (!snap.exists) {
+        await ref.set({ ...DEFAULT_CONFIG, ...updateData });
+    } else {
+        await ref.update(updateData);
     }
 }
 
@@ -76,21 +86,24 @@ async function incrementCaseCount(guildId) {
 }
 
 async function incrementTicketCount(guildId) {
-    if (!guildId) return 1;
-    
-    const ref = db.collection(CONFIG_COLLECTION).doc(guildId);
-    const snap = await ref.get();
-    
-    if (!snap.exists) {
-        await ref.set({ ...DEFAULT_CONFIG, ticket_count: 1 });
-        return 1;
-    }
-    
-    const currentCount = snap.data().ticket_count || 0;
-    const newCount = currentCount + 1;
-    await ref.update({ ticket_count: newCount });
-    
+    const config = await getConfig(guildId);
+    const newCount = (config.ticket_count || 0) + 1;
+    await updateConfig(guildId, { ticket_count: newCount });
     return newCount;
 }
 
-module.exports = { getConfig, updateConfig, incrementCaseCount, incrementTicketCount };
+/**
+ * Thêm một ID game vào danh sách đã thông báo
+ */
+async function addNotifiedGame(guildId, gameId) {
+    const config = await getConfig(guildId);
+    const notified = config.notified_games || [];
+    if (!notified.includes(gameId)) {
+        notified.push(gameId);
+        // Giữ tối đa 50 game gần nhất để tránh data quá to
+        if (notified.length > 50) notified.shift();
+        await updateConfig(guildId, { notified_games: notified });
+    }
+}
+
+module.exports = { getConfig, updateConfig, incrementCaseCount, incrementTicketCount, addNotifiedGame, DEFAULT_CONFIG };

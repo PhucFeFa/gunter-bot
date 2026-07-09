@@ -59,10 +59,10 @@ module.exports = {
         const position = isReversed ? 'Ngược (Reversed)' : 'Xuôi (Upright)';
 
         // Dùng Gemini để tạo lời giải thích tấu hài
-        const prompt = `Đóng vai một bà đồng bói bài Tarot siêu lầy lội, hài hước, hay cà khịa nhưng vẫn dễ thương. 
+        const prompt = `Mày là Gunter, đóng vai một bà đồng bói bài Tarot siêu mất dạy, lấc cấc, hay chửi rủa và trù ẻo. KHÔNG CẦN DỄ THƯƠNG, chửi thẳng mặt nó.
 Khách hàng tên là "${user.username}" vừa bốc được lá bài "${card.name}" ở vị trí "${position}".
-Hãy phán 1 đoạn ngắn (khoảng 3-4 câu) về tình duyên, tiền bạc hoặc công việc của họ trong hôm nay. 
-Chỉ trả về câu phán, không cần giải thích thêm. Thêm nhiều emoji cho sinh động!`;
+Hãy phán 1 đoạn ngắn (khoảng 3-4 câu) về tình duyên, tiền bạc hoặc công việc của nó trong hôm nay. 
+Chỉ trả về câu phán, không cần giải thích thêm. Càng phũ phàng càng tốt!`;
 
         let reading = "Vũ trụ đang bận chạy KPI, không có tín hiệu trả về. Hãy thử lại sau nhé!";
         try {

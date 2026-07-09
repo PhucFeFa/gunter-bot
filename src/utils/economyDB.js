@@ -32,7 +32,9 @@ async function getUser(userId) {
             balance: STARTING_BALANCE, 
             lastDaily: null,
             msg_count: 0,
-            voice_time: 0
+            voice_time: 0,
+            given_today: 0,
+            last_give_date: ''
         };
         await ref.set(defaultData);
         return defaultData;
@@ -108,4 +110,41 @@ async function getTopUsers(field, limitCount = 10) {
     return top;
 }
 
-module.exports = { getUser, updateBalance, claimDaily, incrementMsgCount, addVoiceTime, getTopUsers, DAILY_AMOUNT, STARTING_BALANCE };
+/**
+ * Chuyển tiền an toàn có giới hạn (Tối đa 3.000.000 mỗi ngày)
+ */
+async function transferMoney(fromUserId, toUserId, amount) {
+    if (amount <= 0) return { success: false, reason: 'Số tiền không hợp lệ' };
+    
+    const sender = await getUser(fromUserId);
+    if (sender.balance < amount) return { success: false, reason: 'Không đủ tiền' };
+
+    const todayDate = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
+    
+    // Reset limit nếu qua ngày mới
+    let currentGiven = sender.given_today || 0;
+    if (sender.last_give_date !== todayDate) {
+        currentGiven = 0;
+    }
+
+    const MAX_GIVE = 3000000;
+    if (currentGiven + amount > MAX_GIVE) {
+        return { success: false, reason: `Bạn đã đạt giới hạn chuyển tiền hôm nay! (Tối đa 3.000.000 🪙/ngày). Còn lại có thể chuyển: ${MAX_GIVE - currentGiven} 🪙.` };
+    }
+
+    // Thực hiện trừ tiền người gửi và cộng cho người nhận
+    await db.collection(USERS_COLLECTION).doc(fromUserId).update({
+        balance: sender.balance - amount,
+        given_today: currentGiven + amount,
+        last_give_date: todayDate
+    });
+
+    const receiver = await getUser(toUserId);
+    await db.collection(USERS_COLLECTION).doc(toUserId).update({
+        balance: receiver.balance + amount
+    });
+
+    return { success: true };
+}
+
+module.exports = { getUser, updateBalance, claimDaily, incrementMsgCount, addVoiceTime, getTopUsers, transferMoney, DAILY_AMOUNT, STARTING_BALANCE };

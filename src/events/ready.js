@@ -23,8 +23,12 @@ module.exports = {
         const { initTicketPanel } = require('../utils/ticketSystem');
         initTicketPanel(client);
 
-        // Khởi tạo Game Notifier (Epic/Steam) tự động
-        require('../tasks/gameNotifier')(client);
+        const { initGameNotifier } = require('../tasks/gameNotifier');
+        initGameNotifier(client);
+
+        const { initRandomEvents } = require('../tasks/randomEvents');
+        initRandomEvents(client);
+
 
         // Cập nhật Server Stats ngầm mỗi 15 phút (900000ms)
         setInterval(async () => {

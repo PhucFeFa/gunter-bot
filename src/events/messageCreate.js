@@ -15,16 +15,11 @@ const { getConfig } = require('../utils/configDB');
 const { handleGeminiChat } = require('../utils/geminiChat');
 const { handleGroqChat } = require('../utils/groqChat');
 
-// ─── TikTok URL Pattern ───────────────────────────────────────
+// ─── Tối ưu Tải Video: Mạng Xã Hội ──────────────────────────────
 const TIKTOK_REGEX = /https?:\/\/(www\.)?(vt\.tiktok\.com|tiktok\.com)\S+/gi;
+const IG_REGEX = /https?:\/\/(www\.)?instagram\.com\/(p|reel|tv)\S+/gi;
 
-// ─── TikWM API ────────────────────────────────────────────────
-// Free, no API key required. Returns MP4 without watermark.
 const TIKWM_API = 'https://www.tikwm.com/api/';
-
-// ─── Temp directory for video files ──────────────────────────
-const TEMP_DIR = path.join(process.cwd(), 'temp');
-if (!fs.existsSync(TEMP_DIR)) fs.mkdirSync(TEMP_DIR, { recursive: true });
 
 // ────────────────────────────────────────────────────────────
 
@@ -112,9 +107,14 @@ module.exports = {
             await handleRoleListing(message);
         }
 
-        // ─── Feature 2: TikTok Downloader ──────────────────────
+        // ─── Feature 2: All-in-One Downloader (TikTok, FB, IG) ───
         if (config.feature_tiktok) {
-            await handleTikTok(message);
+            const hasTikTok = message.content.match(TIKTOK_REGEX);
+            const hasFb = message.content.match(FB_REGEX);
+            const hasIg = message.content.match(IG_REGEX);
+            
+            if (hasTikTok) await handleTikTok(message, hasTikTok);
+            if (hasFb || hasIg) await handleFbIgFallback(message); // Đang bảo trì API FB/IG
         }
 
         // ─── Feature 3: Chabot AI (Gemini) ─────────────────────
@@ -194,122 +194,78 @@ async function handleRoleListing(message) {
 }
 
 // ════════════════════════════════════════════════════════════
-// FEATURE 2: TikTok Auto-Downloader via TikWM API
-// Detects TikTok links, fetches the no-watermark MP4,
-// downloads it locally, uploads to Discord, then reacts.
+// FEATURE 2: TikTok Auto-Downloader (Tối ưu siêu tiết kiệm RAM)
+// Sử dụng Stream trực tiếp đẩy lên Discord, không lưu vào đĩa
 // ════════════════════════════════════════════════════════════
-async function handleTikTok(message) {
-    const matches = message.content.match(TIKTOK_REGEX);
-    if (!matches) return;
-
-    // React with loading emoji immediately
+async function handleTikTok(message, matches) {
     await message.react('⏳').catch(() => {});
 
     for (const url of matches) {
         try {
-            // Step 1: Resolve the URL (handles vt.tiktok.com shortlinks)
             const resolvedUrl = await resolveRedirect(url);
-
-            // Step 2: Call TikWM API
             const apiRes = await axios.post(TIKWM_API, new URLSearchParams({ url: resolvedUrl }), {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 timeout: 15000,
             });
 
             const data = apiRes.data?.data;
-            if (!apiRes.data?.code === 0 || !data) {
-                throw new Error(apiRes.data?.msg ?? 'TikWM returned no data');
+            if (apiRes.data?.code !== 0 || !data) {
+                throw new Error(apiRes.data?.msg ?? 'API lỗi hoặc video không tồn tại');
             }
 
-            const videoUrl  = data.play;       // No-watermark MP4 URL
+            const videoUrl  = data.play;
             const title     = data.title ?? 'TikTok Video';
             const author    = data.author?.nickname ?? 'Unknown';
-            const likes     = Number(data.digg_count ?? 0).toLocaleString();
-            const comments  = Number(data.comment_count ?? 0).toLocaleString();
 
-            // Step 3: Download MP4 to temp/
-            const fileName  = `tiktok_${Date.now()}.mp4`;
-            const filePath  = path.join(TEMP_DIR, fileName);
-            await downloadFile(videoUrl, filePath);
-
-            // Step 4: Check file size (Discord limit: 8MB for non-boosted servers)
-            const stats = fs.statSync(filePath);
-            const fileSizeMB = stats.size / (1024 * 1024);
+            // Gọi HEAD request để kiểm tra dung lượng mà KHÔNG tải về bộ nhớ
+            const headRes = await axios.head(videoUrl);
+            const sizeBytes = parseInt(headRes.headers['content-length'] || 0);
+            const fileSizeMB = sizeBytes / (1024 * 1024);
 
             const embed = new EmbedBuilder()
                 .setColor(0x000000)
-                .setAuthor({ name: `TikTok by @${author}`, iconURL: 'https://i.imgur.com/TikTok.png' })
+                .setAuthor({ name: `TikTok by @${author}` })
                 .setTitle(title.length > 256 ? title.slice(0, 253) + '...' : title)
-                .addFields(
-                    { name: '❤️ Likes', value: likes, inline: true },
-                    { name: '💬 Comments', value: comments, inline: true },
-                )
-                .setFooter({ text: `Tải bởi Gunter Bot • ${fileSizeMB.toFixed(2)} MB` })
+                .setFooter({ text: `Gunter Bot • Dung lượng: ${fileSizeMB > 0 ? fileSizeMB.toFixed(2) : '?'} MB` })
                 .setTimestamp();
 
-            if (fileSizeMB <= 8) {
-                // Send video as file attachment
-                await message.channel.send({
-                    content: `🎵 Video TikTok từ **${message.author}**`,
-                    embeds: [embed],
-                    files: [{ attachment: filePath, name: fileName }],
-                });
-            } else {
-                // File too large - send direct link instead
-                embed.setDescription(`📦 Video quá lớn (${fileSizeMB.toFixed(2)} MB) để upload.\n[📥 Bấm để tải xuống](${videoUrl})`);
+            if (fileSizeMB > 8) {
+                // Video quá nặng so với gói Discord Free, gửi link
+                embed.setDescription(`📦 Video quá lớn (> 8MB) nên không thể upload trực tiếp.\n[📥 Bấm vào đây để tải xuống](${videoUrl})`);
                 await message.channel.send({ embeds: [embed] });
+            } else {
+                // TỐI ƯU RAM: Mở một luồng Stream và đẩy thẳng nó cho Discord Attachment
+                // Discord sẽ tự đọc luồng này lên máy chủ của họ, bỏ qua bước trung gian lưu file
+                const streamRes = await axios.get(videoUrl, { responseType: 'stream' });
+                
+                await message.channel.send({
+                    content: `🎵 TikTok từ **${message.author}**`,
+                    embeds: [embed],
+                    files: [{ attachment: streamRes.data, name: 'tiktok_video.mp4' }]
+                });
             }
 
-            // Cleanup
-            fs.unlinkSync(filePath);
-
-            // React success
             await message.reactions.cache.get('⏳')?.remove().catch(() => {});
             await message.react('✅').catch(() => {});
-
         } catch (err) {
-            console.error('[TIKTOK] Error:', err.message);
+            console.error('[TIKTOK_OPT] Lỗi xử lý:', err.message);
             await message.reactions.cache.get('⏳')?.remove().catch(() => {});
             await message.react('❌').catch(() => {});
-            await message.reply(`❌ Không tải được TikTok: \`${err.message}\``);
         }
     }
 }
 
-/**
- * Follow HTTP redirects to resolve a shortened URL.
- * @param {string} url
- * @returns {Promise<string>} Final resolved URL
- */
+async function handleFbIgFallback(message) {
+    // Thông báo cho người dùng rằng tính năng tải FB/IG bằng API miễn phí hiện rất khó ổn định
+    // (Đây là khung chờ sẵn để sau này nếu mua API xịn thì nhét vào)
+    await message.react('👀').catch(() => {});
+}
+
 async function resolveRedirect(url) {
     try {
-        const res = await axios.get(url, {
-            maxRedirects: 10,
-            timeout: 8000,
-            validateStatus: s => s < 400,
-        });
+        const res = await axios.get(url, { maxRedirects: 10, timeout: 8000, validateStatus: s => s < 400 });
         return res.request.res?.responseUrl ?? url;
     } catch {
         return url;
     }
-}
-
-/**
- * Stream-download a file from url to dest path.
- * @param {string} url
- * @param {string} dest
- * @returns {Promise<void>}
- */
-function downloadFile(url, dest) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const response = await axios({ url, method: 'GET', responseType: 'stream', timeout: 60000 });
-            const writer = fs.createWriteStream(dest);
-            response.data.pipe(writer);
-            writer.on('finish', resolve);
-            writer.on('error', reject);
-        } catch (err) {
-            reject(err);
-        }
-    });
 }

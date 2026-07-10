@@ -15,7 +15,15 @@ async function resetDB() {
     let count = 0;
 
     snapshot.docs.forEach(doc => {
-        currentBatch.delete(doc.ref);
+        currentBatch.update(doc.ref, {
+            balance: 500000,
+            job: null,
+            loanAmount: 0,
+            lastWork: null,
+            lastDaily: null,
+            given_today: 0,
+            tarot_count_today: 0
+        });
         count++;
         // Firestore cho phép tối đa 500 thao tác mỗi Batch
         if (count % 500 === 0) {
@@ -29,7 +37,7 @@ async function resetDB() {
     }
 
     await Promise.all(batches);
-    console.log(`✅ Đã xóa thành công ${count} tài khoản! Hệ thống Economy đã được reset về 0.`);
+    console.log(`✅ Đã reset thành công ${count} tài khoản! Tiền của mọi người đã được đưa về mốc 500,000 🪙 ban đầu.`);
     process.exit(0);
 }
 

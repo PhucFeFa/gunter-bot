@@ -112,5 +112,20 @@ module.exports = {
 
             return interaction.editReply({ embeds: [embed] });
         }
+    },
+
+    async executePrefix(message, args, client) {
+        const subcommand = args[0] || 'info';
+        const fakeInteraction = {
+            user: message.author,
+            options: { getSubcommand: () => subcommand },
+            deferred: true,
+            replied: true,
+            deferReply: async function() {},
+            editReply: async function(options) {
+                return await message.reply(options);
+            }
+        };
+        await this.execute(fakeInteraction);
     }
 };

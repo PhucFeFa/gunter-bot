@@ -58,5 +58,18 @@ module.exports = {
             .setThumbnail(interaction.user.displayAvatarURL());
 
         return interaction.editReply({ embeds: [embed] });
+    },
+
+    async executePrefix(message, args, client) {
+        const fakeInteraction = {
+            user: message.author,
+            deferred: true,
+            replied: true,
+            deferReply: async function() {},
+            editReply: async function(options) {
+                return await message.reply(options);
+            }
+        };
+        await this.execute(fakeInteraction);
     }
 };

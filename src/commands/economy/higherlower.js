@@ -226,5 +226,23 @@ module.exports = {
                 });
             }
         });
+    },
+
+    async executePrefix(message, args, client) {
+        const amountRaw = args[0];
+        if (!amountRaw) return message.reply('Cách chơi: `g!higherlower <tiền_cược>` (VD: `g!higherlower 100` hoặc `g!higherlower all`)');
+        
+        const replyMsg = await message.reply('🃏 Đang chia bài...');
+        const fakeInteraction = {
+            user: message.author,
+            options: { getString: () => amountRaw },
+            deferred: true,
+            replied: true,
+            deferReply: async function() {},
+            editReply: async function(options) {
+                return await replyMsg.edit(options);
+            }
+        };
+        await this.execute(fakeInteraction);
     }
 };

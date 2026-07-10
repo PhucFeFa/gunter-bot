@@ -12,9 +12,9 @@ module.exports = {
                 .setRequired(true))
         .addIntegerOption(option => 
             option.setName('mines')
-                .setDescription('Số lượng mìn (1-19, mặc định: 3)')
+                .setDescription('Số lượng mìn (1-15, mặc định: 3)')
                 .setMinValue(1)
-                .setMaxValue(19)
+                .setMaxValue(15)
                 .setRequired(false)),
 
     async execute(interaction) {

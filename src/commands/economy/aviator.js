@@ -4,7 +4,7 @@ const { getUser, updateBalance } = require('../../utils/economyDB');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('aviator')
-        .setDescription('✈️ Chơi máy bay (Crash Game). Rút tiền trước khi nổ!')
+        .setDescription('🚀 Chơi phi thuyền (Crash Game). Rút tiền trước khi nổ!')
         .addStringOption(option =>
             option.setName('amount')
                 .setDescription('Số tiền cược (Hoặc gõ "all" để chơi tất tay)')
@@ -70,14 +70,22 @@ module.exports = {
         const generateEmbed = (mult, crashed, cashed) => {
             const embed = new EmbedBuilder();
             
-            let progressBar = '';
-            // Thanh progress max 10 ký tự, mult càng cao càng dài
-            const progress = Math.min(10, Math.floor(mult));
-            progressBar = '✈️' + '☁️'.repeat(progress) + '➡️';
+            let path = '';
+            const steps = Math.min(12, Math.floor(mult * 2)); // Số lượng emoji tăng dần
+            for (let i = 1; i <= (steps === 0 ? 1 : steps); i++) {
+                if (i <= 3) path += '☁️';
+                else if (i <= 6) path += '🌙';
+                else if (i <= 9) path += '⭐';
+                else path += '🪐';
+            }
+            
+            const ship = crashed ? '💥' : '🚀';
+            const tail = crashed ? '' : '💨';
+            const progressBar = `🌍 ${path} ${ship}${tail}`;
 
             if (crashed) {
                 embed.setColor(0xFF0000);
-                embed.setTitle('💥 MÁY BAY ĐÃ NỔ!');
+                embed.setTitle('💥 TÊN LỬA ĐÃ PHÁT NỔ!');
                 embed.setDescription(`**Hệ số nổ:** ${mult.toFixed(2)}x\n\n${progressBar}`);
                 if (!cashed) {
                     embed.addFields({ name: 'Kết quả', value: `Mày đã mất trắng **${amount} xu**! Trắng mắt ra chưa con =)))` });
@@ -90,7 +98,7 @@ module.exports = {
                 embed.addFields({ name: 'Kết quả', value: `Mày vừa bú được **${winAmount} xu**! Ngon lành cành đào.` });
             } else {
                 embed.setColor(0x3498DB);
-                embed.setTitle('✈️ MÁY BAY ĐANG CẤT CÁNH...');
+                embed.setTitle('🚀 TÊN LỬA ĐANG CẤT CÁNH...');
                 const currentProfit = Math.floor(amount * mult);
                 embed.setDescription(`**Hệ số hiện tại:** ${mult.toFixed(2)}x\n**Tiền lãi dự kiến:** ${currentProfit.toLocaleString()} $\n\n${progressBar}`);
             }
@@ -154,7 +162,7 @@ module.exports = {
             return message.reply('Cách chơi: `g!aviator <tiền_cược>`\nVí dụ: `g!aviator 50` hoặc `g!aviator all`\nChú ý: Nhớ bấm nút Rút Tiền trước khi nổ nhé!');
         }
 
-        const replyMsg = await message.reply('✈️ Đang bơm xăng...');
+        const replyMsg = await message.reply('🚀 Đang nạp nhiên liệu tên lửa...');
 
         const fakeInteraction = {
             user: message.author,

@@ -62,11 +62,16 @@ module.exports = {
         const prompt = `Mày là Gunter, đóng vai một bà đồng bói bài Tarot siêu mất dạy, lấc cấc, hay chửi rủa và trù ẻo. KHÔNG CẦN DỄ THƯƠNG, chửi thẳng mặt nó.
 Khách hàng tên là "${user.username}" vừa bốc được lá bài "${card.name}" ở vị trí "${position}".
 Hãy phán 1 đoạn ngắn (khoảng 3-4 câu) về tình duyên, tiền bạc hoặc công việc của nó trong hôm nay. 
-Chỉ trả về câu phán, không cần giải thích thêm. Càng phũ phàng càng tốt!`;
+Chỉ trả về câu phán, không cần giải thích thêm. Càng phũ phàng càng tốt! TUYỆT ĐỐI KHÔNG tự chèn thêm "(Tin nhắn từ...)" ở đầu câu.`;
 
         let reading = "Vũ trụ đang bận chạy KPI, không có tín hiệu trả về. Hãy thử lại sau nhé!";
         try {
             reading = await getGeminiResponse(prompt);
+            
+            // Xóa rác do AI bị ám ảnh System Prompt
+            reading = reading.replace(/\(Tin nhắn từ.*?\)/ig, '').trim();
+            // Xóa tất cả các tag [REACT: ...]
+            reading = reading.replace(/\[REACT:\s*[^\]]+\]/gi, '').trim();
         } catch (error) {
             console.error('[TAROT] Gemini error:', error);
         }

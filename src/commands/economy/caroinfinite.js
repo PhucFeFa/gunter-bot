@@ -41,6 +41,12 @@ module.exports = {
             if (p2.bot) return interaction.editReply('❌ Bạn không thể thách đấu Bot khác!');
             if (p2.id === p1.id) return interaction.editReply('❌ Tự kỷ à? Chơi với máy thì đừng tag ai!');
 
+            // Check số dư P2 ngay từ đầu
+            const p2Data = await getUser(p2.id);
+            if (p2Data.balance < bet) {
+                return interaction.editReply(`❌ <@${p2.id}> nghèo rớt mồng tơi, lấy đâu ra **${bet.toLocaleString()} $** mà gạ kèo?`);
+            }
+
             // Khởi tạo PvP
             await this.startPvP(interaction, p1, p2, bet);
         } else {

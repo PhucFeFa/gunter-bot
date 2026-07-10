@@ -37,6 +37,16 @@ module.exports = {
         const d3 = Math.floor(Math.random() * 6) + 1;
         const sum = d1 + d2 + d3;
         
+        // Hiệu ứng xóc
+        await interaction.editReply(`🎲 Đang xóc xúc xắc...\n[❔] [❔] [❔]`);
+        await new Promise(r => setTimeout(r, 1000));
+        
+        await interaction.editReply(`🎲 Đang xóc xúc xắc...\n[ ${d1} ] [❔] [❔]`);
+        await new Promise(r => setTimeout(r, 1000));
+        
+        await interaction.editReply(`🎲 Đang xóc xúc xắc...\n[ ${d1} ] [ ${d2} ] [❔]`);
+        await new Promise(r => setTimeout(r, 1000));
+
         let result = '';
         if (sum >= 3 && sum <= 10) result = 'xiu';
         else result = 'tai';
@@ -83,16 +93,22 @@ ${win ? `Thắng được **+${profit} xu**! Trả tiền ăn sáng cho tao đi!
         if (!choice) return message.reply('Chọn ngu thế? Gõ `tai` hoặc `xiu` thôi.');
         if (isNaN(amount) || amount <= 0) return message.reply('Mày định cược bằng nước bọt à? Nhập số tiền đàng hoàng xem nào.');
         
+        // Phản hồi placeholder để tí nữa có cái mà editReply
+        const replyMsg = await message.reply('🎲 Đang chuẩn bị bàn...');
+
         const fakeInteraction = {
             user: message.author,
             options: {
                 getString: () => choice,
                 getInteger: () => amount
             },
-            deferred: false,
-            deferReply: async function() { await message.channel.sendTyping(); },
+            deferred: true,
+            deferReply: async function() {},
             editReply: async function(options) {
-                return await message.reply(options);
+                if (typeof options === 'string') {
+                    return await replyMsg.edit(options);
+                }
+                return await replyMsg.edit(options);
             }
         };
         await this.execute(fakeInteraction);

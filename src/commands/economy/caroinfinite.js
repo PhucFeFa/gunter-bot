@@ -6,11 +6,10 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('caro')
         .setDescription('Chơi Caro Vô Cực (Infinite Tic-Tac-Toe)')
-        .addIntegerOption(option => 
+        .addStringOption(option => 
             option.setName('bet')
-                .setDescription('Số tiền cược')
-                .setRequired(true)
-                .setMinValue(1))
+                .setDescription('Số tiền cược (Hoặc gõ "all" để chơi tất tay)')
+                .setRequired(true))
         .addUserOption(option => 
             option.setName('opponent')
                 .setDescription('Đối thủ (để trống nếu muốn chơi với máy)')
@@ -29,12 +28,22 @@ module.exports = {
 
         const p1 = interaction.user;
         const p2 = interaction.options.getUser('opponent');
-        const bet = interaction.options.getInteger('bet');
+        const betRaw = interaction.options.getString('bet');
 
         // Check số dư P1
         const p1Data = await getUser(p1.id);
-        if (p1Data.balance < bet) {
-            return interaction.editReply(`❌ Bạn không có đủ tiền! Số dư của bạn: **${p1Data.balance.toLocaleString()} $**`);
+        const currentBalance = p1Data.balance;
+
+        let bet = 0;
+        if (betRaw.toLowerCase() === 'all') {
+            bet = currentBalance;
+            if (bet <= 0) return interaction.editReply('❌ Bạn làm gì có tiền mà đòi all in!');
+        } else {
+            bet = parseInt(betRaw);
+            if (isNaN(bet) || bet <= 0) return interaction.editReply('❌ Số tiền cược không hợp lệ!');
+        }
+        if (currentBalance < bet) {
+            return interaction.editReply(`❌ Bạn không có đủ tiền! Số dư của bạn: **${currentBalance.toLocaleString()} $**`);
         }
 
         if (p2) {

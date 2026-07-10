@@ -6,9 +6,9 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('mines')
         .setDescription('Chơi dò mìn ăn tiền (Minesweeper).')
-        .addIntegerOption(option => 
+        .addStringOption(option => 
             option.setName('bet')
-                .setDescription('Số tiền cược')
+                .setDescription('Số tiền cược (Hoặc gõ "all" để chơi tất tay)')
                 .setRequired(true))
         .addIntegerOption(option => 
             option.setName('mines')
@@ -27,16 +27,21 @@ module.exports = {
             return interaction.reply({ content: '❌ Tính năng Economy đang bị tắt trên server này!', flags: 64 });
         }
 
-        const bet = interaction.options.getInteger('bet') || (interaction.options.getNumber && interaction.options.getNumber('bet')) || parseInt(interaction.options.getString('bet'));
-        
+        const betRaw = interaction.options.getString('bet');
         let minesCount = interaction.options.getInteger('mines') || 3;
         
-        if (!bet || isNaN(bet) || bet <= 0) {
-            return interaction.reply({ content: '❌ Vui lòng nhập số tiền cược hợp lệ!', flags: 64 });
-        }
-
         const userData = await getUser(user.id);
         const currentBalance = userData.balance;
+
+        let bet = 0;
+        if (betRaw.toLowerCase() === 'all') {
+            bet = currentBalance;
+            if (bet <= 0) return interaction.reply({ content: '❌ Bạn không có tiền để all in!', flags: 64 });
+        } else {
+            bet = parseInt(betRaw);
+            if (isNaN(bet) || bet <= 0) return interaction.reply({ content: '❌ Vui lòng nhập số tiền cược hợp lệ!', flags: 64 });
+        }
+
         if (currentBalance < bet) {
             return interaction.reply({ content: `❌ Bạn không có đủ tiền! Số dư của bạn: **${currentBalance.toLocaleString()} $**`, flags: 64 });
         }

@@ -5,11 +5,10 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('aviator')
         .setDescription('✈️ Chơi máy bay (Crash Game). Rút tiền trước khi nổ!')
-        .addIntegerOption(option =>
+        .addStringOption(option =>
             option.setName('amount')
-                .setDescription('Số tiền cược')
-                .setRequired(true)
-                .setMinValue(1)),
+                .setDescription('Số tiền cược (Hoặc gõ "all" để chơi tất tay)')
+                .setRequired(true)),
                 
     async execute(interaction) {
         // Có thể interaction đã defer nếu gọi từ prefix, nên cần check
@@ -17,11 +16,20 @@ module.exports = {
             await interaction.deferReply();
         }
 
-        const amount = interaction.options.getInteger('amount');
+        const amountRaw = interaction.options.getString('amount');
         const user = interaction.user;
 
         const userData = await getUser(user.id);
         const currentBalance = userData.balance;
+
+        let amount = 0;
+        if (amountRaw.toLowerCase() === 'all') {
+            amount = currentBalance;
+            if (amount <= 0) return interaction.editReply('Mày làm đéo gì có tiền mà all in =)))');
+        } else {
+            amount = parseInt(amountRaw);
+            if (isNaN(amount) || amount <= 0) return interaction.editReply('❌ Số tiền cược không hợp lệ!');
+        }
         
         if (currentBalance < amount) {
             return interaction.editReply(`Mày định lấy gì cược hả con? Trong túi mày còn đúng ${currentBalance} xu thôi =)))`);
@@ -141,9 +149,9 @@ module.exports = {
     },
 
     async executePrefix(message, args) {
-        const amount = parseInt(args[0]);
-        if (isNaN(amount) || amount <= 0) {
-            return message.reply('Cách chơi: `g!aviator <tiền_cược>`\nVí dụ: `g!aviator 50`\nChú ý: Nhớ bấm nút Rút Tiền trước khi nổ nhé!');
+        const amountRaw = args[0];
+        if (!amountRaw) {
+            return message.reply('Cách chơi: `g!aviator <tiền_cược>`\nVí dụ: `g!aviator 50` hoặc `g!aviator all`\nChú ý: Nhớ bấm nút Rút Tiền trước khi nổ nhé!');
         }
 
         const replyMsg = await message.reply('✈️ Đang bơm xăng...');
@@ -151,7 +159,7 @@ module.exports = {
         const fakeInteraction = {
             user: message.author,
             options: {
-                getInteger: () => amount
+                getString: () => amountRaw
             },
             deferred: true,
             replied: true,

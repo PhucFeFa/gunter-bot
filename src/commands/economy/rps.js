@@ -15,17 +15,29 @@ module.exports = {
                     { name: '✋ Bao', value: 'bao' }
                 )
         )
-        .addIntegerOption(option => 
+        .addStringOption(option => 
             option.setName('bet')
-                .setDescription('Số tiền cược')
+                .setDescription('Số tiền cược (Hoặc gõ "all" để chơi tất tay)')
                 .setRequired(true)
-                .setMinValue(1)
         ),
         
     async execute(interaction) {
         await interaction.deferReply();
         const userChoice = interaction.options.getString('choice');
-        const bet = interaction.options.getInteger('bet');
+        const betRaw = interaction.options.getString('bet');
+
+        const userData = await getUser(interaction.user.id);
+        const currentBalance = userData.balance;
+
+        let bet = 0;
+        if (betRaw.toLowerCase() === 'all') {
+            bet = currentBalance;
+            if (bet <= 0) return interaction.editReply('❌ Bạn không có tiền để cược!');
+        } else {
+            bet = parseInt(betRaw.replace(/,/g, ''));
+            if (isNaN(bet) || bet <= 0) return interaction.editReply('❌ Số tiền cược không hợp lệ!');
+        }
+
         await this.handleRps(interaction, userChoice, bet);
     },
     
@@ -38,11 +50,17 @@ module.exports = {
         
         const rawChoice = args[0]?.toLowerCase();
         const userChoice = choiceMap[rawChoice];
-        const bet = parseInt(args[1]?.replace(/,/g, ''));
+        const betStr = args[1]?.replace(/,/g, '');
+        const betRaw = betStr?.toLowerCase() === 'all' ? 'all' : parseInt(betStr);
 
-        if (!userChoice || isNaN(bet) || bet <= 0) {
-            return message.reply('❌ Cú pháp sai! Ví dụ: `g!rps keo 500` hoặc `g!rps bua 500`');
+        if (!userChoice || (betStr !== 'all' && (isNaN(betRaw) || betRaw <= 0))) {
+            return message.reply('❌ Cú pháp sai! Ví dụ: `g!rps keo 500` hoặc `g!rps b all`');
         }
+
+        const userData = await getUser(message.author.id);
+        const bet = betRaw === 'all' ? userData.balance : betRaw;
+        
+        if (bet <= 0) return message.reply('❌ Bạn không có tiền để cược!');
 
         const fakeInteraction = {
             user: message.author,

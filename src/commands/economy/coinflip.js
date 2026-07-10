@@ -14,27 +14,39 @@ module.exports = {
                     { name: 'Ngửa (Tails)', value: 'tails' }
                 )
         )
-        .addIntegerOption(option => 
+        .addStringOption(option => 
             option.setName('bet')
-                .setDescription('Số tiền cược')
+                .setDescription('Số tiền cược (Hoặc gõ "all" để chơi tất tay)')
                 .setRequired(true)
-                .setMinValue(1)
         ),
         
     async execute(interaction) {
         await interaction.deferReply();
         const choice = interaction.options.getString('choice');
-        const bet = interaction.options.getInteger('bet');
+        const betRaw = interaction.options.getString('bet');
+        
+        const userData = await getUser(interaction.user.id);
+        const currentBalance = userData.balance;
+
+        let bet = 0;
+        if (betRaw.toLowerCase() === 'all') {
+            bet = currentBalance;
+            if (bet <= 0) return interaction.editReply('❌ Bạn không có tiền để cược!');
+        } else {
+            bet = parseInt(betRaw);
+            if (isNaN(bet) || bet <= 0) return interaction.editReply('❌ Số tiền cược không hợp lệ!');
+        }
+
         await this.handleCoinflip(interaction, choice, bet);
     },
     
     async executePrefix(message, args) {
         const choice = args[0]?.toLowerCase();
         const betStr = args[1]?.replace(/,/g, '');
-        const bet = parseInt(betStr);
+        const bet = betStr?.toLowerCase() === 'all' ? 'all' : parseInt(betStr);
 
-        if (!choice || !['s', 'n', 'heads', 'tails', 'sap', 'ngua'].includes(choice) || isNaN(bet) || bet <= 0) {
-            return message.reply('❌ Cú pháp sai! Ví dụ: `g!coinflip s 500` (s = Sấp, n = Ngửa)');
+        if (!choice || !['s', 'n', 'heads', 'tails', 'sap', 'ngua'].includes(choice) || (betStr !== 'all' && (isNaN(bet) || bet <= 0))) {
+            return message.reply('❌ Cú pháp sai! Ví dụ: `g!coinflip s 500` hoặc `g!coinflip s all`');
         }
 
         let standardChoice = 'heads';

@@ -250,7 +250,7 @@ async function handleGeminiChat(message, client) {
                             if (config.modlog_channel_id) {
                                 const modlogChannel = message.guild.channels.cache.get(config.modlog_channel_id);
                                 if (modlogChannel) {
-                                    const actionNames = { PRISON: `Giam giữ (${actionTime > 0 ? actionTime + ' phút' : 'Vĩnh viễn'})`, UNPRISON: 'Ân xá (Unprison)', KICK: 'Kích xuất (Kick)', MUTE: `Khóa mõm (${actionTime} phút)` };
+                                    const actionNames = { PRISON: `Giam giữ (${actionTime > 0 ? actionTime + ' phút' : 'Vĩnh viễn'})`, UNPRISON: 'Ân xá (Unprison)', KICK: 'Đá đít (Kick)', MUTE: `Khóa mõm (${actionTime} phút)` };
                                     const embed = new EmbedBuilder()
                                         .setColor(action === 'UNPRISON' ? 0x00FF00 : 0xFF0000)
                                         .setAuthor({

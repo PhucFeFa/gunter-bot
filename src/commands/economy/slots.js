@@ -59,27 +59,37 @@ function evaluate(reels, bet) {
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('slots')
-        .setDescription('Quay máy đánh bạc! Thắng lớn, thua đau.')
-        .addIntegerOption(option =>
-            option
-                .setName('amount')
-                .setDescription('Số coins muốn cược (tối thiểu 10)')
+        .setDescription('🎰 Quay hũ ăn tiền. Tỉ lệ nổ hũ x10!')
+        .addStringOption(option => 
+            option.setName('amount')
+                .setDescription('Số tiền cược (Hoặc gõ "all" để chơi tất tay)')
                 .setRequired(true)
-                .setMinValue(10)
         ),
 
     async execute(interaction) {
         await interaction.deferReply();
 
-        const bet = interaction.options.getInteger('amount');
-        const userData = await getUser(interaction.user.id);
+        const amountRaw = interaction.options.getString('amount');
+        const user = interaction.user;
+
+        const userData = await getUser(user.id);
+        const currentBalance = userData.balance;
+
+        let bet = 0;
+        if (amountRaw.toLowerCase() === 'all') {
+            bet = currentBalance;
+            if (bet <= 0) return interaction.editReply('❌ Bạn không có tiền để cược!');
+        } else {
+            bet = parseInt(amountRaw.replace(/,/g, ''));
+            if (isNaN(bet) || bet < 10) return interaction.editReply('❌ Số tiền cược không hợp lệ! (Tối thiểu 10)');
+        }
 
         // Validate balance
-        if (userData.balance < bet) {
+        if (currentBalance < bet) {
             const embed = new EmbedBuilder()
                 .setColor(0xFF6B6B)
                 .setTitle('❌ Không đủ coin!')
-                .setDescription(`Số dư của bạn chỉ có **${userData.balance.toLocaleString()} 🪙**.\nBạn đặt cược **${bet.toLocaleString()} 🪙**.`)
+                .setDescription(`Số dư của bạn chỉ có **${currentBalance.toLocaleString()} 🪙**.\nBạn đặt cược **${bet.toLocaleString()} 🪙**.`)
                 .setTimestamp();
             return interaction.editReply({ embeds: [embed] });
         }

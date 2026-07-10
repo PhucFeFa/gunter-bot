@@ -14,11 +14,10 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand.setName('tao')
                 .setDescription('Thả một hộp quà lì xì cho mọi người')
-                .addIntegerOption(option => 
+                .addStringOption(option => 
                     option.setName('tong_tien')
-                        .setDescription('Tổng số tiền bỏ vào hộp (Tối thiểu 100)')
-                        .setRequired(true)
-                        .setMinValue(100))
+                        .setDescription('Tổng tiền thả lì xì (Tối đa 100tr, hoặc gõ "all")')
+                        .setRequired(true))
                 .addIntegerOption(option => 
                     option.setName('so_suat')
                         .setDescription('Số lượng người được nhận (1-50)')
@@ -46,9 +45,30 @@ module.exports = {
         const creator = interaction.user;
         const channelId = interaction.channel.id;
         
-        const tongTien = interaction.options.getInteger('tong_tien');
+        const tongTienRaw = interaction.options.getString('tong_tien');
         const soSuat = interaction.options.getInteger('so_suat');
         const thoiGian = interaction.options.getInteger('thoi_gian_phut') || 5;
+
+        const creatorData = await getUser(creator.id);
+        const currentBalance = creatorData.balance;
+
+        let tongTien = 0;
+        if (tongTienRaw.toLowerCase() === 'all') {
+            tongTien = currentBalance > 100000000 ? 100000000 : currentBalance;
+            if (tongTien < 100) return interaction.editReply('❌ Bạn không đủ 100 $ tối thiểu để tạo hộp quà!');
+        } else {
+            tongTien = parseInt(tongTienRaw.replace(/,/g, ''));
+            if (isNaN(tongTien) || tongTien < 100) return interaction.editReply('❌ Số tiền không hợp lệ! (Tối thiểu 100 $)');
+            if (tongTien > 100000000) return interaction.editReply('❌ Hộp quà chỉ giới hạn tối đa **100,000,000 $** (100 triệu) thôi đại gia ơi!');
+        }
+
+        if (currentBalance < tongTien) {
+            return interaction.editReply(`❌ Bạn không đủ tiền! Số dư của bạn chỉ có **${currentBalance.toLocaleString()} $**.`);
+        }
+
+        if (tongTien < soSuat) {
+            return interaction.editReply(`❌ Số tiền quá ít! Tổng tiền (${tongTien}) không đủ để chia cho ${soSuat} suất (mỗi suất ít nhất 1 $).`);
+        }
 
         // Check cooldown người tạo (5 phút)
         const now = Date.now();
@@ -65,16 +85,6 @@ module.exports = {
         const boxesInChannel = activeBoxesPerChannel.get(channelId) || 0;
         if (boxesInChannel >= 5) {
             return interaction.editReply('❌ Kênh này đang có quá nhiều hộp quà chưa mở! Hãy để mọi người nhặt bớt đi đã.');
-        }
-
-        // Validate logic tiền
-        if (tongTien < soSuat) {
-            return interaction.editReply(`❌ Số tiền quá ít! Tổng tiền (${tongTien}) không đủ để chia cho ${soSuat} suất (mỗi suất ít nhất 1 $).`);
-        }
-
-        const creatorData = await getUser(creator.id);
-        if (creatorData.balance < tongTien) {
-            return interaction.editReply(`❌ Bạn không đủ tiền! Số dư của bạn chỉ có **${creatorData.balance.toLocaleString()} $**.`);
         }
 
         // ────────────────────────────────────────────────────────────────

@@ -13,20 +13,29 @@ module.exports = {
                     { name: 'Tài (11 - 18)', value: 'tai' },
                     { name: 'Xỉu (3 - 10)', value: 'xiu' }
                 ))
-        .addIntegerOption(option =>
+        .addStringOption(option =>
             option.setName('amount')
-                .setDescription('Số tiền cược')
-                .setRequired(true)
-                .setMinValue(1)),
+                .setDescription('Số tiền cược (Hoặc gõ "all" để chơi tất tay)')
+                .setRequired(true)),
                 
     async execute(interaction) {
         await interaction.deferReply();
         const choice = interaction.options.getString('choice');
-        const amount = interaction.options.getInteger('amount');
+        const amountRaw = interaction.options.getString('amount');
         const user = interaction.user;
 
         const userData = await getUser(user.id);
         const currentBalance = userData.balance;
+        
+        let amount = 0;
+        if (amountRaw.toLowerCase() === 'all') {
+            amount = currentBalance;
+            if (amount <= 0) return interaction.editReply('Mày làm đéo gì có tiền mà all in =)))');
+        } else {
+            amount = parseInt(amountRaw);
+            if (isNaN(amount) || amount <= 0) return interaction.editReply('❌ Số tiền cược không hợp lệ!');
+        }
+
         if (currentBalance < amount) {
             return interaction.editReply(`Mày nghèo rớt mồng tơi mà đòi cược ${amount} xu à? Trong túi mày còn đúng ${currentBalance} xu thôi con ạ =)))`);
         }
@@ -88,10 +97,10 @@ ${win ? `Thắng được **+${profit} xu**! Trả tiền ăn sáng cho tao đi!
         }
         const choiceRaw = args[0].toLowerCase();
         const choice = (choiceRaw === 't' || choiceRaw === 'tai') ? 'tai' : (choiceRaw === 'x' || choiceRaw === 'xiu' ? 'xiu' : null);
-        const amount = parseInt(args[1]);
+        const amountRaw = args[1];
         
         if (!choice) return message.reply('Chọn ngu thế? Gõ `tai` hoặc `xiu` thôi.');
-        if (isNaN(amount) || amount <= 0) return message.reply('Mày định cược bằng nước bọt à? Nhập số tiền đàng hoàng xem nào.');
+        if (!amountRaw) return message.reply('Nhập số tiền đàng hoàng xem nào.');
         
         // Phản hồi placeholder để tí nữa có cái mà editReply
         const replyMsg = await message.reply('🎲 Đang chuẩn bị bàn...');
@@ -99,8 +108,7 @@ ${win ? `Thắng được **+${profit} xu**! Trả tiền ăn sáng cho tao đi!
         const fakeInteraction = {
             user: message.author,
             options: {
-                getString: () => choice,
-                getInteger: () => amount
+                getString: (name) => name === 'choice' ? choice : amountRaw
             },
             deferred: true,
             deferReply: async function() {},

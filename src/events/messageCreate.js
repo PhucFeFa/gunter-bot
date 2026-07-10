@@ -57,6 +57,14 @@ module.exports = {
                 return message.reply('⏳ Từ từ thôi đại ca! Lệnh chạy không kịp thở rồi, chờ 2 giây nhé!');
             }
 
+            // --- BẢO TRÌ: CHỈ OWNER MỚI ĐƯỢC DÙNG BOT ---
+            if (process.env.OWNER_IDS) {
+                const ownerIds = process.env.OWNER_IDS.split(',').map(id => id.trim());
+                if (!ownerIds.includes(message.author.id)) {
+                    return message.reply('⛔ Bot đang trong chế độ bảo trì ngầm. Chỉ có Owner mới được phép sử dụng!');
+                }
+            }
+
             const command = client.commands.get(commandName);
             if (command) {
                 // --- KIỂM TRA CHẶN KÊNH (IGNORE CHANNEL) ---

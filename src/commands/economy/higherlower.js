@@ -19,26 +19,19 @@ const calculateMultipliers = (currentValue) => {
     const lowerCards = (currentValue - 2) * 4;
     const higherCards = (14 - currentValue) * 4;
     const equalCards = 3;
-    const decisiveCards = 51 - equalCards; // 48 lá quyết định thắng thua cho High/Low
     const totalCards = 51;
     const RTP = 0.95; // Tỉ lệ trả thưởng 95%
 
-    const calcHighLow = (count) => {
-        if (count === 0) return 0;
-        let mult = (decisiveCards / count) * RTP;
-        return Math.max(1.01, mult).toFixed(2);
-    };
-
-    const calcEqual = (count) => {
+    const calc = (count) => {
         if (count === 0) return 0;
         let mult = (totalCards / count) * RTP;
         return Math.max(1.01, mult).toFixed(2);
     };
 
     return {
-        lower: parseFloat(calcHighLow(lowerCards)),
-        higher: parseFloat(calcHighLow(higherCards)),
-        equal: parseFloat(calcEqual(equalCards))
+        lower: parseFloat(calc(lowerCards)),
+        higher: parseFloat(calc(higherCards)),
+        equal: parseFloat(calc(equalCards))
     };
 };
 
@@ -112,7 +105,7 @@ module.exports = {
                 desc += `Hãy dự đoán cho lá tiếp theo:\n`;
                 desc += `⬆️ **Cao hơn:** Nhận ${(Math.floor(currentWinnings * mults.higher)).toLocaleString()} 🪙 (x${mults.higher})\n`;
                 desc += `⬇️ **Thấp hơn:** Nhận ${(Math.floor(currentWinnings * mults.lower)).toLocaleString()} 🪙 (x${mults.lower})\n`;
-                desc += `= **Hòa:** Nhận ${(Math.floor(currentWinnings * mults.equal)).toLocaleString()} 🪙 (x${mults.equal}) (Hoặc chọn Cao/Thấp thì được bảo toàn)\n`;
+                desc += `= **Hòa:** Nhận ${(Math.floor(currentWinnings * mults.equal)).toLocaleString()} 🪙 (x${mults.equal})\n`;
             }
 
             embed.setDescription(desc);
@@ -189,15 +182,12 @@ module.exports = {
             // Nếu đoán
             const nextCard = drawCard();
             let won = false;
-            let tiePush = false;
             let multUsed = 0;
 
             if (i.customId === 'higher') {
                 if (nextCard.value > currentCard.value) { won = true; multUsed = currentView.mults.higher; }
-                else if (nextCard.value === currentCard.value) { tiePush = true; }
             } else if (i.customId === 'lower') {
                 if (nextCard.value < currentCard.value) { won = true; multUsed = currentView.mults.lower; }
-                else if (nextCard.value === currentCard.value) { tiePush = true; }
             } else if (i.customId === 'equal') {
                 if (nextCard.value === currentCard.value) { won = true; multUsed = currentView.mults.equal; }
             }
@@ -208,15 +198,6 @@ module.exports = {
                 currentCard = nextCard;      // Lá mới trở thành lá hiện tại
                 lastActionText = `Lá bốc ra là ${nextCard.display}. Đoán chuẩn! Trúng hệ số x${multUsed}`;
 
-                currentView = generateEmbed(currentCard);
-                await i.update({
-                    embeds: [currentView.embed],
-                    components: getComponents(currentView.mults)
-                });
-            } else if (tiePush) {
-                currentCard = nextCard;
-                lastActionText = `Lá bốc ra là ${nextCard.display}. Hòa cmnr! Bạn được bảo toàn tiền và chơi tiếp.`;
-                
                 currentView = generateEmbed(currentCard);
                 await i.update({
                     embeds: [currentView.embed],

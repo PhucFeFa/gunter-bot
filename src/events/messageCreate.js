@@ -40,6 +40,7 @@ module.exports = {
         if (message.guild.id !== process.env.DISCORD_GUILD_ID) return;
 
         // --- THEO DÕI THỐNG KÊ NHẮN TIN ---
+        const { checkCooldown } = require('../utils/cooldown');
         const { incrementMsgCount } = require('../utils/economyDB');
         incrementMsgCount(message.author.id).catch(e => console.error('[STATS] Lỗi đếm tin nhắn:', e));
 
@@ -50,6 +51,11 @@ module.exports = {
         if (message.content.startsWith(prefix)) {
             const args = message.content.slice(prefix.length).trim().split(/ +/);
             const commandName = args.shift().toLowerCase();
+
+            // --- GLOBAL ANTI-SPAM ---
+            if (!checkCooldown(message.author.id, 2000)) { // 2s cooldown
+                return message.reply('⏳ Từ từ thôi đại ca! Lệnh chạy không kịp thở rồi, chờ 2 giây nhé!');
+            }
 
             const command = client.commands.get(commandName);
             if (command) {

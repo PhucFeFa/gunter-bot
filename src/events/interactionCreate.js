@@ -5,6 +5,7 @@
 
 const { Events, InteractionType, EmbedBuilder } = require('discord.js');
 const { getConfig } = require('../utils/configDB');
+const { checkCooldown } = require('../utils/cooldown');
 
 module.exports = {
     name: Events.InteractionCreate,
@@ -56,6 +57,10 @@ module.exports = {
             if (cmdName === 'avatar' && !config.feature_avatar) {
                 return interaction.reply({ content: '❌ Tính năng xem Avatar đang bị tắt trên server này!', flags: 64 });
             }
+        }
+
+        if (!checkCooldown(interaction.user.id, 2000)) {
+            return interaction.reply({ content: '⏳ Đừng spam lệnh quá nhanh! Vui lòng chờ 2 giây.', flags: 64 });
         }
 
         try {

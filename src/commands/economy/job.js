@@ -57,30 +57,84 @@ module.exports = {
 
         if (subcommand === 'list') {
             const { job: userJobId } = await getJobData(userId);
-            const embed = new EmbedBuilder()
-                .setColor(0x3498db)
-                .setTitle('📋 Danh sách Nghề nghiệp');
+            const jobEntries = Object.values(jobs);
+            const totalWeight = jobEntries.reduce((sum, j) => sum + j.weight, 0);
 
-            let description = 'Đây là danh sách các nghề bạn có thể quay ra được:\n\n';
-            const totalWeight = Object.values(jobs).reduce((sum, j) => sum + j.weight, 0);
-            
-            for (const key in jobs) {
-                const j = jobs[key];
+            const formatJob = (j) => {
                 const percentage = ((j.weight / totalWeight) * 100).toFixed(2);
-                
                 if (j.hidden && j.id !== userJobId) {
-                    description += `**???** (${j.rarity} - Tỷ lệ: ${percentage}%)\n`;
-                    description += `💸 Lương: ??? - ??? 🪙\n\n`;
+                    return `**???** (${j.rarity} - Tỷ lệ: ${percentage}%)\n💸 Lương: ??? - ??? 🪙\n`;
                 } else {
-                    description += `**${j.name}** (${j.rarity} - Tỷ lệ: ${percentage}%)\n`;
-                    description += `💸 Lương: ${j.minSalary.toLocaleString()} - ${j.maxSalary.toLocaleString()} 🪙\n\n`;
+                    return `**${j.name}** (${j.rarity} - Tỷ lệ: ${percentage}%)\n💸 Lương: ${j.minSalary.toLocaleString()} - ${j.maxSalary.toLocaleString()} 🪙\n`;
                 }
-            }
+            };
 
-            embed.setDescription(description)
-                 .setFooter({ text: `Dùng /job spin để tìm việc (Phí: ${SPIN_COST.toLocaleString()} 🪙)` });
+            const itemsPerPage = 6;
+            const totalPages = Math.ceil(jobEntries.length / itemsPerPage);
+            let currentPage = 0;
 
-            return interaction.editReply({ embeds: [embed] });
+            const generateEmbed = (page) => {
+                const start = page * itemsPerPage;
+                const end = start + itemsPerPage;
+                const currentJobs = jobEntries.slice(start, end);
+
+                let description = 'Đây là danh sách các nghề bạn có thể quay ra được:\n\n';
+                currentJobs.forEach(j => {
+                    description += formatJob(j) + '\n';
+                });
+
+                return new EmbedBuilder()
+                    .setColor(0x3498db)
+                    .setTitle(`📋 Danh sách Nghề nghiệp (Trang ${page + 1}/${totalPages})`)
+                    .setDescription(description)
+                    .setFooter({ text: `Dùng lệnh spin để tìm việc (Phí: ${SPIN_COST.toLocaleString()} 🪙)` });
+            };
+
+            const getButtons = (page) => {
+                const row = new ActionRowBuilder().addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('prev_page')
+                        .setLabel('◀ Trang trước')
+                        .setStyle(ButtonStyle.Primary)
+                        .setDisabled(page === 0),
+                    new ButtonBuilder()
+                        .setCustomId('next_page')
+                        .setLabel('Trang sau ▶')
+                        .setStyle(ButtonStyle.Primary)
+                        .setDisabled(page === totalPages - 1)
+                );
+                return [row];
+            };
+
+            const msg = await interaction.editReply({ 
+                embeds: [generateEmbed(currentPage)], 
+                components: totalPages > 1 ? getButtons(currentPage) : [] 
+            });
+
+            if (totalPages <= 1 || !msg || !msg.createMessageComponentCollector) return;
+
+            const collector = msg.createMessageComponentCollector({ time: 120000 });
+
+            collector.on('collect', async i => {
+                if (i.user.id !== interaction.user.id) {
+                    return i.reply({ content: 'Bạn không thể thao tác bảng này!', ephemeral: true });
+                }
+
+                if (i.customId === 'prev_page') currentPage--;
+                if (i.customId === 'next_page') currentPage++;
+
+                await i.update({
+                    embeds: [generateEmbed(currentPage)],
+                    components: getButtons(currentPage)
+                });
+            });
+
+            collector.on('end', () => {
+                try {
+                    msg.edit({ components: [] });
+                } catch (e) {}
+            });
+            return;
         }
 
         if (subcommand === 'spin') {

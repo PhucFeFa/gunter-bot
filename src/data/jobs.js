@@ -325,6 +325,178 @@ module.exports = {
                 "Ngồi vuốt ve con mèo trắng, bạn chỉ đạo đàn em kiếm tiền từ mọi ngóc ngách của thế giới ngầm."
             ]
         },
+        lao_cong: {
+            id: 'lao_cong',
+            name: 'Lao Công',
+            rarity: 'Common',
+            color: 0xbdc3c7,
+            minSalary: 3000,
+            maxSalary: 12000,
+            weight: 135,
+            dialogues: [
+                "Quét rác công viên mỏi tay, lượm được chai nhựa đem bán ve chai thêm tiền.",
+                "Lau dọn nhà vệ sinh công cộng, khách qua đường thấy tội nghiệp cho thêm tiền tip.",
+                "Dọn dẹp văn phòng lúc tối muộn, được sếp công ty thưởng thêm vì chăm chỉ.",
+                "Quét lá rụng mùa thu, lá rụng liên tục quét không hết nhưng vẫn đủ chỉ tiêu.",
+                "Lau sàn trơn trượt vô tình ngã, may không sao và được nghỉ sớm.",
+                "Vừa lau xong có người dẫm giày bẩn lên, bạn ngậm ngùi lau lại từ đầu."
+            ]
+        },
+        tho_dien: {
+            id: 'tho_dien',
+            name: 'Thợ Điện',
+            rarity: 'Uncommon',
+            color: 0xf1c40f,
+            minSalary: 35000,
+            maxSalary: 70000,
+            weight: 85,
+            dialogues: [
+                "Sửa mạch điện bị chập cho một biệt thự, chủ nhà giàu có boa thêm khá nhiều.",
+                "Leo cột điện giữa trưa nắng để nối dây, xuống đất hoa cả mắt nhưng nhận đủ tiền công.",
+                "Bị điện giật nhẹ tê tê tay, hên là không sao, sửa xong khách thưởng thêm.",
+                "Thay bóng đèn cho nguyên một xưởng, thay mỏi cổ nhưng thu nhập tốt.",
+                "Đi dây điện âm tường cực kỳ tỉ mỉ, khách hàng ưng ý trả tiền ngay không mặc cả.",
+                "Trời mưa bão đi sửa điện lưới, cực nhọc nhưng tiền phụ cấp nguy hiểm khá cao."
+            ]
+        },
+        ban_hang_online: {
+            id: 'ban_hang_online',
+            name: 'Bán Hàng Online',
+            rarity: 'Uncommon',
+            color: 0xe67e22,
+            minSalary: 45000,
+            maxSalary: 85000,
+            weight: 80,
+            dialogues: [
+                "Livestream chốt được 100 đơn hàng trong 1 tiếng, lợi nhuận tăng vọt.",
+                "Bị khách bom hàng 5 đơn, buồn thiu nhưng gỡ lại nhờ khách VIP mua sỉ.",
+                "Chạy quảng cáo cắn tiền cực rát nhưng may mắn ra nhiều đơn, lời được một chút.",
+                "Đóng gói hàng đến tận 2 giờ sáng, mỏi tay nhưng nhìn doanh thu lại thấy vui.",
+                "Hàng bị hoàn về do lỗi vận chuyển, mất toi tiền ship nhưng bán lại được cho người khác.",
+                "Tung mã giảm giá sập sàn, khách tranh nhau mua, kho hàng trống trơn."
+            ]
+        },
+        youtuber: {
+            id: 'youtuber',
+            name: 'YouTuber',
+            rarity: 'Rare',
+            color: 0xe74c3c,
+            minSalary: 90000,
+            maxSalary: 180000,
+            weight: 45,
+            dialogues: [
+                "Video review đồ ăn lọt top thịnh hành, lượt view tăng chóng mặt kéo theo tiền quảng cáo.",
+                "Bị gậy bản quyền vì lỡ chèn nhạc dính bản quyền, doanh thu giảm sút đôi chút.",
+                "Làm vlog du lịch sang chảnh, có nhà tài trợ bao trọn gói và trả thêm thù lao.",
+                "Stream game có người donate cho một số tiền lớn, bạn phấn khích hét ầm lên.",
+                "Cày view suốt đêm không ngủ để edit video, cuối cùng cũng lên sóng kịp giờ vàng.",
+                "Bị drama vây quanh, nhưng nhờ vậy kênh lại càng nổi và kiếm được nhiều tiền hơn."
+            ]
+        },
+        phi_cong: {
+            id: 'phi_cong',
+            name: 'Phi Công',
+            rarity: 'Rare',
+            color: 0x3498db,
+            minSalary: 130000,
+            maxSalary: 250000,
+            weight: 30,
+            dialogues: [
+                "Lái chuyến bay quốc tế đường dài an toàn, nhận lương chuyến bay cực hậu hĩnh.",
+                "Vượt qua vùng thời tiết xấu một cách ngoạn mục, hành khách vỗ tay rào rào.",
+                "Bay chuyến đêm mệt mỏi, nhưng bù lại tiền phụ cấp chuyến bay đêm rất cao.",
+                "Hạ cánh hoàn hảo trong điều kiện sương mù dày đặc, hãng hàng không thưởng nóng.",
+                "Hoãn chuyến bay do bão, bạn được nghỉ ngơi ở khách sạn hạng sang và vẫn có lương cơ bản.",
+                "Hoàn thành khóa huấn luyện nâng cấp bằng lái, mức lương của bạn được tăng lên một bậc."
+            ]
+        },
+        dien_vien: {
+            id: 'dien_vien',
+            name: 'Diễn Viên',
+            rarity: 'Epic',
+            color: 0xf39c12,
+            minSalary: 180000,
+            maxSalary: 320000,
+            weight: 18,
+            dialogues: [
+                "Đóng vai nam/nữ chính trong bộ phim truyền hình ăn khách, cát-xê tăng vọt.",
+                "Phải quay đi quay lại một cảnh khóc 20 lần, mệt lả người nhưng nhận được thù lao xứng đáng.",
+                "Quay phim hành động tự đóng thế, bị thương nhẹ nhưng đạo diễn thưởng thêm tiền rủi ro.",
+                "Trúng hợp đồng quảng cáo béo bở cho thương hiệu mỹ phẩm lớn, tiền đổ về tài khoản.",
+                "Phim bị chê thảm họa nhưng cát-xê thì bạn đã nhận đủ vào túi từ trước rồi.",
+                "Giành giải thưởng diễn viên xuất sắc, giá trị thương mại tăng cao, tiền kiếm dễ như trở bàn tay."
+            ]
+        },
+        nha_khoa_hoc: {
+            id: 'nha_khoa_hoc',
+            name: 'Nhà Khoa Học',
+            rarity: 'Epic',
+            color: 0x2ecc71,
+            minSalary: 220000,
+            maxSalary: 380000,
+            weight: 14,
+            dialogues: [
+                "Phát minh ra loại vật liệu mới, bán bằng sáng chế cho tập đoàn công nghệ thu về số tiền lớn.",
+                "Công bố bài báo khoa học trên tạp chí quốc tế, nhận được học bổng và quỹ tài trợ khổng lồ.",
+                "Thí nghiệm thất bại nổ tung phòng lab, nhưng viện nghiên cứu vẫn cấp kinh phí làm lại.",
+                "Tìm ra phương pháp chữa một căn bệnh mới, chính phủ trao thưởng huân chương và tiền tỷ.",
+                "Làm việc thâu đêm trong phòng thí nghiệm vô trùng, mắt thâm quầng nhưng lương thì ngất ngưởng.",
+                "Được mời đi thuyết giảng tại các trường đại học danh tiếng, thù lao diễn giả tính bằng đô la."
+            ]
+        },
+        tong_thong: {
+            id: 'tong_thong',
+            name: 'Tổng Thống',
+            rarity: 'Legendary',
+            color: 0x8e44ad,
+            minSalary: 400000,
+            maxSalary: 600000,
+            weight: 3,
+            dialogues: [
+                "Ký thông qua đạo luật kích thích kinh tế, cổ phiếu bạn ngầm sở hữu tăng phi mã.",
+                "Đi công du nước ngoài, mang về các bản hợp đồng kinh tế tỷ đô cho đất nước (và tiền hoa hồng cho bạn).",
+                "Phát biểu hùng hồn trước quốc hội, tỷ lệ ủng hộ tăng cao, nhận được nhiều khoản đóng góp tranh cử.",
+                "Xử lý thành công một cuộc khủng hoảng quốc gia, uy tín lên cao, xuất bản sách hồi ký bán chạy như tôm tươi.",
+                "Bị phe đối lập chỉ trích dữ dội, nhưng quyền lực và tài sản của bạn vẫn vững như bàn thạch.",
+                "Sau khi kết thúc nhiệm kỳ, bạn đi diễn thuyết và nhận được hàng trăm nghìn đô la cho mỗi buổi nói chuyện."
+            ]
+        },
+        than_tai: {
+            id: 'than_tai',
+            name: 'Thần Tài',
+            rarity: 'Mythic',
+            color: 0xf1c40f,
+            minSalary: 600000,
+            maxSalary: 999999,
+            weight: 1,
+            hidden: true,
+            dialogues: [
+                "Phẩy tay một cái, một cơn mưa vàng rơi xuống, bạn tha hồ nhặt mang về.",
+                "Bạn đi ngang qua một cửa hàng mạt rệp, cửa hàng bỗng chốc làm ăn phát đạt, họ cúng dường bạn rất nhiều tiền.",
+                "Hắt xì một cái, tiền trong ngân khố quốc gia tự động nhân đôi, và một nửa bay vào túi bạn.",
+                "Cười một cái, trúng ngay giải độc đắc Vietlott lớn nhất lịch sử mà không cần mua vé.",
+                "Chỉ cần bạn ngồi im, tiền tài bốn phương tám hướng tự động quy tụ về tài khoản của bạn.",
+                "Mang vàng thỏi đi ném lon thay vì đá lon, bạn là định nghĩa của sự giàu sang."
+            ]
+        },
+        chua_te_bong_toi: {
+            id: 'chua_te_bong_toi',
+            name: 'Chúa Tể Bóng Tối',
+            rarity: 'Mythic',
+            color: 0x000000,
+            minSalary: 666666,
+            maxSalary: 999999,
+            weight: 1,
+            hidden: true,
+            dialogues: [
+                "Thu thập linh hồn của những kẻ thua cờ bạc, bạn biến chúng thành vàng ròng.",
+                "Trỗi dậy từ vực thẳm, mọi kho báu bị chôn vùi dưới lòng đất đều thuộc về bạn.",
+                "Bạn ra lệnh cho đạo quân ma quỷ đi cướp bóc các ngân hàng lớn nhất thế giới.",
+                "Bóng tối bao trùm vương quốc, các nhà vua phải cống nạp của cải để đổi lấy ánh sáng.",
+                "Sức mạnh hắc ám giúp bạn thâu tóm toàn bộ nền kinh tế ngầm, không ai dám cản đường.",
+                "Chỉ một cái lườm, những kẻ phản bội tan thành tro bụi, để lại toàn bộ gia sản cho bạn."
+            ]
+        },
         hacker: {
             id: 'hacker',
             name: 'Hacker Tối Thượng',
@@ -349,7 +521,7 @@ module.exports = {
      * Quay ngẫu nhiên một công việc dựa trên tỷ lệ (weight)
      */
     spinJob: function() {
-        const jobList = Object.values(this.jobs);
+        const jobList = Object.values(module.exports.jobs);
         const totalWeight = jobList.reduce((sum, job) => sum + job.weight, 0);
         let random = Math.floor(Math.random() * totalWeight);
         

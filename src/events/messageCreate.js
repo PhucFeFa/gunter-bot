@@ -264,75 +264,41 @@ async function handleRoleListing(message) {
 // FEATURE 2: Video Downloader (TikTok, IG, FB)
 // ════════════════════════════════════════════════════════════
 async function handleTikTok(message, matches) {
-    const msg = await message.reply('⏳ Đang lấy link TikTok...');
-    try {
-        let files = [];
-        for (const url of matches) {
-            const resolvedUrl = await resolveRedirect(url);
-            const apiRes = await axios.post(TIKWM_API, new URLSearchParams({ url: resolvedUrl }), {
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                timeout: 10000,
-            });
+    // Để cho nhanh bằng Keto, xoá sạch phần tải API lằng nhằng và dùng trực tiếp vxtiktok
+    const userContent = message.content.replace(TIKTOK_REGEX, '').trim();
+    let finalUrls = matches.map(u => {
+        let url = u.replace('tiktok.com', 'vxtiktok.com');
+        if (!url.includes('vxtiktok.com')) url = url.replace('vt.tiktok.com', 'vt.vxtiktok.com');
+        return url;
+    });
 
-            if (apiRes.data?.code !== 0 || !apiRes.data?.data) throw new Error('API lỗi');
-            
-            const videoUrl = apiRes.data.data.play;
-            const headRes = await axios.head(videoUrl);
-            const sizeMB = parseInt(headRes.headers['content-length'] || 0) / (1024 * 1024);
-            
-            if (sizeMB > 8) throw new Error('Video quá nặng (>8MB)');
-            
-            const streamRes = await axios.get(videoUrl, { responseType: 'stream' });
-            files.push({ attachment: streamRes.data, name: 'tiktok.mp4' });
-        }
-        
-        await msg.edit({ content: `🎵 **TikTok từ ${message.author}**`, files });
+    try {
+        await message.channel.send(`🎵 **TikTok từ ${message.author}**${userContent ? `\n💬: *${userContent}*` : ''}\n${finalUrls.join('\n')}`);
         await message.delete().catch(()=>{});
     } catch (err) {
-        // Fallback sang vxtiktok nếu tải lỗi hoặc quá nặng
-        let fallback = matches.map(u => u.replace('tiktok.com', 'vxtiktok.com').replace('vt.tiktok.com', 'vt.vxtiktok.com'));
-        try {
-            await msg.edit({ content: `🎵 **TikTok từ ${message.author}**\n${fallback.join('\n')}` });
-            await message.delete().catch(()=>{});
-        } catch (e) {
-            await msg.edit('❌ Lỗi: Không thể lấy được link TikTok!');
-        }
+        console.error('TikTok Send Error:', err);
     }
 }
 
 async function handleInstagram(message, matches) {
-    const msg = await message.reply('⏳ Đang lấy link Instagram...');
+    const userContent = message.content.replace(IG_REGEX, '').trim();
+    let finalUrls = matches.map(u => u.replace('instagram.com', 'ddinstagram.com'));
+    
     try {
-        let fallback = matches.map(u => u.replace('instagram.com', 'ddinstagram.com'));
-        await msg.edit({ content: `📸 **Instagram từ ${message.author}**\n${fallback.join('\n')}` });
+        await message.channel.send(`📸 **Instagram từ ${message.author}**${userContent ? `\n💬: *${userContent}*` : ''}\n${finalUrls.join('\n')}`);
         await message.delete().catch(()=>{});
     } catch (err) {
-        await msg.edit('❌ Lỗi: Không thể lấy được link Instagram!');
+        console.error('IG Send Error:', err);
     }
 }
 
 async function handleFacebook(message, matches) {
-    const msg = await message.reply('⏳ Đang lấy link Facebook...');
-    try {
-        // API FB hiện tại rất khó kiếm cái ngon free, dùng fallback
-        await msg.edit('❌ Lỗi: Facebook hiện tại bị khóa API tải xuống tự do, chưa thể lấy link được!');
-    } catch (err) {
-        await msg.edit('❌ Lỗi: Không thể lấy được link Facebook!');
-    }
+    // Không có vx facebook xịn, báo lỗi
+    await message.reply('❌ Lỗi: Facebook hiện tại bị khóa API tải xuống, tính năng này đang bảo trì!');
 }
 
 async function resolveRedirect(url) {
-    try {
-        const res = await axios.get(url, { 
-            maxRedirects: 10, 
-            timeout: 8000, 
-            validateStatus: s => s < 400,
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-            }
-        });
-        return res.request.res?.responseUrl ?? url;
-    } catch {
-        return url;
-    }
+    return url; // Không cần resolve nữa vì vxtiktok đã tự lo
 }
+
+

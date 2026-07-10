@@ -95,6 +95,17 @@ for (const file of eventFiles) {
     console.log(`[EVT] Loaded: ${event.name}`);
 }
 
+// --- Anti-Crash System ---
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('[ANTI-CRASH] Unhandled Rejection at:', promise, 'reason:', reason);
+});
+process.on('uncaughtException', (err, origin) => {
+    console.error('[ANTI-CRASH] Uncaught Exception:', err, 'origin:', origin);
+});
+process.on('uncaughtExceptionMonitor', (err, origin) => {
+    console.error('[ANTI-CRASH] Uncaught Exception Monitor:', err, 'origin:', origin);
+});
+
 // --- Login ---
 client.login(process.env.DISCORD_TOKEN)
     .then(() => {

@@ -12,9 +12,9 @@ module.exports = {
                 .setRequired(true))
         .addIntegerOption(option => 
             option.setName('mines')
-                .setDescription('Số lượng mìn (1-8, mặc định: 3)')
+                .setDescription('Số lượng mìn (1-20, mặc định: 3)')
                 .setMinValue(1)
-                .setMaxValue(8)
+                .setMaxValue(20)
                 .setRequired(false)),
 
     async execute(interaction) {
@@ -44,13 +44,13 @@ module.exports = {
         // Trừ tiền cược
         await updateBalance(user.id, -bet);
 
-        // Khởi tạo trò chơi 3x3 (9 ô)
-        const grid = Array(9).fill('diamond');
+        // Khởi tạo trò chơi 24 ô (5x5 nhưng ô cuối cùng dùng cho Cash Out)
+        const grid = Array(24).fill('diamond');
         
         // Đặt mìn
         let placedMines = 0;
         while (placedMines < minesCount) {
-            const randomIndex = Math.floor(Math.random() * 9);
+            const randomIndex = Math.floor(Math.random() * 24);
             if (grid[randomIndex] !== 'bomb') {
                 grid[randomIndex] = 'bomb';
                 placedMines++;
@@ -58,9 +58,9 @@ module.exports = {
         }
 
         // State trò chơi
-        let revealed = Array(9).fill(false);
+        let revealed = Array(24).fill(false);
         let diamondsFound = 0;
-        const totalDiamonds = 9 - minesCount;
+        const totalDiamonds = 24 - minesCount;
         let isGameOver = false;
         
         // Tính toán Multiplier theo công thức cơ bản: M = 1 + (diamondsFound * (minesCount / 10))
@@ -73,10 +73,14 @@ module.exports = {
 
         function buildGrid(showAll = false) {
             const rows = [];
-            for (let i = 0; i < 3; i++) {
+            let index = 0;
+            
+            for (let i = 0; i < 5; i++) {
                 const row = new ActionRowBuilder();
-                for (let j = 0; j < 3; j++) {
-                    const index = i * 3 + j;
+                // Hàng cuối cùng (i=4) chỉ có 4 ô game, ô thứ 5 là Cash Out
+                const cols = (i === 4) ? 4 : 5;
+                
+                for (let j = 0; j < cols; j++) {
                     const isRevealed = revealed[index];
                     
                     const btn = new ButtonBuilder()
@@ -91,20 +95,23 @@ module.exports = {
                     }
                     
                     row.addComponents(btn);
+                    index++;
                 }
+                
+                // Nếu là hàng cuối cùng, chèn nút Cash Out vào vị trí cuối
+                if (i === 4) {
+                    row.addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('mine_cashout')
+                            .setLabel('Cash Out')
+                            .setEmoji('💵')
+                            .setStyle(ButtonStyle.Primary)
+                            .setDisabled(isGameOver || diamondsFound === 0)
+                    );
+                }
+                
                 rows.push(row);
             }
-            
-            // Nút Cash Out
-            const cashOutRow = new ActionRowBuilder().addComponents(
-                new ButtonBuilder()
-                    .setCustomId('mine_cashout')
-                    .setLabel('Cash Out')
-                    .setEmoji('💵')
-                    .setStyle(ButtonStyle.Primary)
-                    .setDisabled(isGameOver || diamondsFound === 0)
-            );
-            rows.push(cashOutRow);
             
             return rows;
         }

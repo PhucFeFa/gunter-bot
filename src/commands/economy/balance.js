@@ -8,6 +8,7 @@
 
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { getUser } = require('../../utils/economyDB');
+const { jobs } = require('../../data/jobs');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -30,6 +31,8 @@ module.exports = {
             ? `<t:${Math.floor(userData.lastDaily / 1000)}:R>`
             : '`Chưa từng nhận`';
 
+        const jobName = (userData.job && jobs[userData.job]) ? jobs[userData.job].name : 'Thất nghiệp';
+
         const embed = new EmbedBuilder()
             .setColor(0xF1C40F)
             .setTitle(`💼 Ví của ${target.username}`)
@@ -37,6 +40,7 @@ module.exports = {
             .addFields(
                 { name: '💰 Số dư', value: `**${userData.balance.toLocaleString()} 🪙**`, inline: true },
                 { name: '📅 Daily gần nhất', value: lastDailyText, inline: true },
+                { name: '👔 Nghề nghiệp', value: `**${jobName}**`, inline: false }
             )
             .setFooter({
                 text: `Dùng /daily để nhận thêm coin!`,

@@ -96,7 +96,7 @@ module.exports = {
                 embed.setColor(0x00FF00);
                 embed.setTitle('💵 ĐÃ CHỐT LỜI!');
                 const winAmount = Math.floor(amount * mult);
-                embed.setDescription(`**Hệ số chốt:** ${mult.toFixed(2)}x\n**Hệ số nổ thực tế:** ${crashPoint.toFixed(2)}x\n\n${environment}`);
+                embed.setDescription(`**Hệ số chốt:** ${mult.toFixed(2)}x\n\n${environment}`);
                 embed.addFields({ name: 'Kết quả', value: `Mày vừa bú được **${winAmount} xu**! Ngon lành cành đào.` });
             } else {
                 embed.setColor(0x3498DB);

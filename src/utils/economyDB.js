@@ -13,9 +13,9 @@
 const { db } = require('./firebase');
 
 const USERS_COLLECTION = 'users';
-const STARTING_BALANCE = 500; // Coins every new user starts with
-const DAILY_AMOUNT    = 200;  // Coins per /daily claim
-const DAILY_COOLDOWN  = 24 * 60 * 60 * 1000; // 24 hours in ms
+const STARTING_BALANCE = 500000; // Coins every new user starts with
+const DAILY_AMOUNT = 500000;  // Coins per /daily claim
+const DAILY_COOLDOWN = 24 * 60 * 60 * 1000; // 24 hours in ms
 
 /**
  * Fetch a user document, creating it with defaults if not found.
@@ -27,16 +27,18 @@ async function getUser(userId) {
     const snap = await ref.get();
 
     if (!snap.exists) {
-        const defaultData = { 
-            userId, 
-            balance: STARTING_BALANCE, 
+        const defaultData = {
+            userId,
+            balance: STARTING_BALANCE,
             lastDaily: null,
             msg_count: 0,
             voice_time: 0,
             given_today: 0,
             last_give_date: '',
             tarot_count_today: 0,
-            last_tarot_date: ''
+            last_tarot_date: '',
+            job: null,
+            lastWork: null
         };
         await ref.set(defaultData);
         return defaultData;
@@ -106,7 +108,7 @@ async function getTopUsers(field, limitCount = 10) {
         .orderBy(field, 'desc')
         .limit(limitCount)
         .get();
-        
+
     const top = [];
     snapshot.forEach(doc => top.push(doc.data()));
     return top;
@@ -117,12 +119,12 @@ async function getTopUsers(field, limitCount = 10) {
  */
 async function transferMoney(fromUserId, toUserId, amount) {
     if (amount <= 0) return { success: false, reason: 'Số tiền không hợp lệ' };
-    
+
     const sender = await getUser(fromUserId);
     if (sender.balance < amount) return { success: false, reason: 'Không đủ tiền' };
 
     const todayDate = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
-    
+
     // Reset limit nếu qua ngày mới
     let currentGiven = sender.given_today || 0;
     if (sender.last_give_date !== todayDate) {
@@ -174,4 +176,28 @@ async function recordTarotPlay(userId) {
     return { success: true, remaining: 5 - (currentTarotCount + 1) };
 }
 
-module.exports = { getUser, updateBalance, claimDaily, incrementMsgCount, addVoiceTime, getTopUsers, transferMoney, recordTarotPlay, DAILY_AMOUNT, STARTING_BALANCE };
+/**
+ * Lấy thông tin công việc và thời gian làm việc cuối
+ */
+async function getJobData(userId) {
+    const user = await getUser(userId);
+    return { job: user.job || null, lastWork: user.lastWork || null };
+}
+
+/**
+ * Cập nhật công việc mới cho user
+ */
+async function setJob(userId, jobId) {
+    const ref = db.collection(USERS_COLLECTION).doc(userId);
+    await ref.update({ job: jobId });
+}
+
+/**
+ * Cập nhật thời gian làm việc cuối
+ */
+async function updateLastWork(userId) {
+    const ref = db.collection(USERS_COLLECTION).doc(userId);
+    await ref.update({ lastWork: Date.now() });
+}
+
+module.exports = { getUser, updateBalance, claimDaily, incrementMsgCount, addVoiceTime, getTopUsers, transferMoney, recordTarotPlay, DAILY_AMOUNT, STARTING_BALANCE, getJobData, setJob, updateLastWork };

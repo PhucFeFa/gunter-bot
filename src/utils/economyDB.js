@@ -39,7 +39,7 @@ async function getUser(userId) {
             last_tarot_date: '',
             job: null,
             lastWork: null,
-            loan: 0
+            loanAmount: 0
         };
         await ref.set(defaultData);
         return defaultData;
@@ -59,6 +59,17 @@ async function updateBalance(userId, delta) {
     const newBalance = Math.max(0, user.balance + delta); // Floor at 0
     await ref.update({ balance: newBalance });
     return newBalance;
+}
+
+/**
+ * Cập nhật số tiền nợ của user
+ */
+async function updateLoan(userId, delta) {
+    const ref = db.collection(USERS_COLLECTION).doc(userId);
+    const user = await getUser(userId);
+    const newLoan = Math.max(0, (user.loanAmount || 0) + delta);
+    await ref.update({ loanAmount: newLoan });
+    return newLoan;
 }
 
 /**
@@ -201,25 +212,4 @@ async function updateLastWork(userId) {
     await ref.update({ lastWork: Date.now() });
 }
 
-/**
- * Các hàm liên quan đến Vay Nợ (Loan)
- */
-async function getLoanData(userId) {
-    const user = await getUser(userId);
-    return { loan: user.loan || 0, balance: user.balance, job: user.job };
-}
-
-async function updateLoan(userId, delta) {
-    const ref = db.collection(USERS_COLLECTION).doc(userId);
-    const user = await getUser(userId);
-    const currentLoan = user.loan || 0;
-    const newLoan = Math.max(0, currentLoan + delta);
-    await ref.update({ loan: newLoan });
-    return newLoan;
-}
-
-module.exports = { 
-    getUser, updateBalance, claimDaily, incrementMsgCount, addVoiceTime, 
-    getTopUsers, transferMoney, recordTarotPlay, DAILY_AMOUNT, STARTING_BALANCE, 
-    getJobData, setJob, updateLastWork, getLoanData, updateLoan 
-};
+module.exports = { getUser, updateBalance, claimDaily, incrementMsgCount, addVoiceTime, getTopUsers, transferMoney, recordTarotPlay, DAILY_AMOUNT, STARTING_BALANCE, getJobData, setJob, updateLastWork, updateLoan };

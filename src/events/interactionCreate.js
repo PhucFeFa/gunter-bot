@@ -70,14 +70,6 @@ module.exports = {
             return interaction.reply({ content: '⏳ Đừng spam lệnh quá nhanh! Vui lòng chờ 2 giây.', flags: 64 });
         }
 
-        // --- BẢO TRÌ: CHỈ OWNER MỚI ĐƯỢC DÙNG BOT ---
-        if (process.env.OWNER_IDS) {
-            const ownerIds = process.env.OWNER_IDS.split(',').map(id => id.trim());
-            if (!ownerIds.includes(interaction.user.id)) {
-                return interaction.reply({ content: '⛔ Bot đang trong chế độ bảo trì ngầm. Chỉ có Owner mới được phép sử dụng!', flags: 64 });
-            }
-        }
-
         try {
             await command.execute(interaction);
         } catch (error) {

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { getJobData, updateBalance, updateLastWork, getLoanData, updateLoan } = require('../../utils/economyDB');
+const { getJobData, updateBalance, updateLastWork } = require('../../utils/economyDB');
 const { jobs } = require('../../data/jobs');
 
 const WORK_COOLDOWN = 30 * 1000; // 30 seconds
@@ -43,48 +43,37 @@ module.exports = {
         const randomDialogue = currentJob.dialogues[Math.floor(Math.random() * currentJob.dialogues.length)];
         
         // Random tiền lương
-        const salary = Math.floor(Math.random() * (currentJob.maxSalary - currentJob.minSalary + 1)) + currentJob.minSalary;
+        const originalSalary = Math.floor(Math.random() * (currentJob.maxSalary - currentJob.minSalary + 1)) + currentJob.minSalary;
 
-        const { loan } = await getLoanData(userId);
-        let actualSalary = salary;
-        let loanPayment = 0;
-        let loanInterest = 0;
-        let loanInfoText = '';
+        const user = await require('../../utils/economyDB').getUser(userId);
+        const { updateLoan } = require('../../utils/economyDB');
+        
+        let salary = originalSalary;
+        let debtPaid = 0;
+        let loanInfo = '';
 
-        if (loan > 0) {
-            // Ngân hàng siết 30% lương
-            const deducted = Math.floor(salary * 0.3);
-            if (deducted > 0) {
-                // 10% của số tiền bị trích là tiền lãi, 90% là trả nợ gốc
-                loanInterest = Math.floor(deducted * 0.1);
-                loanPayment = deducted - loanInterest;
-
-                // Đảm bảo không thu lố dư nợ
-                if (loanPayment > loan) {
-                    loanPayment = loan;
-                    const totalDeducted = loanPayment + Math.floor(loanPayment * 0.11); // Tính lại lãi tương ứng
-                    loanInterest = totalDeducted - loanPayment;
-                    actualSalary = salary - totalDeducted;
-                } else {
-                    actualSalary = salary - deducted;
-                }
-
-                await updateLoan(userId, -loanPayment);
-                loanInfoText = `\n🏦 **Ngân hàng siết nợ:** -${(loanPayment + loanInterest).toLocaleString()} 🪙 (Lãi: ${loanInterest.toLocaleString()})\n📉 **Dư nợ còn lại:** ${(loan - loanPayment).toLocaleString()} 🪙\n`;
-            }
+        if (user.loanAmount && user.loanAmount > 0) {
+            // Trừ 30% lương để trả nợ
+            const maxDeduct = Math.floor(originalSalary * 0.30);
+            debtPaid = Math.min(maxDeduct, user.loanAmount);
+            salary = originalSalary - debtPaid;
+            
+            await updateLoan(userId, -debtPaid);
+            loanInfo = `\n\n🏦 **Ngân hàng siết nợ (30%):** -${debtPaid.toLocaleString()} 🪙\n📉 **Dư nợ còn lại:** ${(user.loanAmount - debtPaid).toLocaleString()} 🪙`;
         }
 
         // Cập nhật Database
-        const newBalance = await updateBalance(userId, actualSalary);
+        const newBalance = await updateBalance(userId, salary);
         await updateLastWork(userId);
 
         const embed = new EmbedBuilder()
             .setColor(currentJob.color)
             .setTitle(`💼 Lương đến rồi! (${currentJob.name})`)
             .setDescription(`*${randomDialogue}*\n\n` +
-                            `Bạn đã nhận được **${salary.toLocaleString()} 🪙** tiền công!\n` +
-                            loanInfoText +
-                            `💰 Số dư hiện tại: **${newBalance.toLocaleString()} 🪙**`)
+                            `💵 Bạn làm ra: **${originalSalary.toLocaleString()} 🪙**` +
+                            loanInfo +
+                            `\n\n💰 **Thực lãnh:** **${salary.toLocaleString()} 🪙**\n` +
+                            `💳 Số dư hiện tại: **${newBalance.toLocaleString()} 🪙**`)
             .setThumbnail(interaction.user.displayAvatarURL());
 
         return interaction.editReply({ embeds: [embed] });

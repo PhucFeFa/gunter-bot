@@ -131,9 +131,9 @@ async function transferMoney(fromUserId, toUserId, amount) {
         currentGiven = 0;
     }
 
-    const MAX_GIVE = 3000000;
+    const MAX_GIVE = 100000000;
     if (currentGiven + amount > MAX_GIVE) {
-        return { success: false, reason: `Bạn đã đạt giới hạn chuyển tiền hôm nay! (Tối đa 3.000.000 🪙/ngày). Còn lại có thể chuyển: ${MAX_GIVE - currentGiven} 🪙.` };
+        return { success: false, reason: `Bạn đã đạt giới hạn chuyển tiền hôm nay! (Tối đa 100.000.000 🪙/ngày). Còn lại có thể chuyển: ${MAX_GIVE - currentGiven} 🪙.` };
     }
 
     // Thực hiện trừ tiền người gửi và cộng cho người nhận

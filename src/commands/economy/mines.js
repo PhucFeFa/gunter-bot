@@ -12,9 +12,9 @@ module.exports = {
                 .setRequired(true))
         .addIntegerOption(option => 
             option.setName('mines')
-                .setDescription('Số lượng mìn (1-20, mặc định: 3)')
+                .setDescription('Số lượng mìn (1-19, mặc định: 3)')
                 .setMinValue(1)
-                .setMaxValue(20)
+                .setMaxValue(19)
                 .setRequired(false)),
 
     async execute(interaction) {
@@ -44,13 +44,13 @@ module.exports = {
         // Trừ tiền cược
         await updateBalance(user.id, -bet);
 
-        // Khởi tạo trò chơi 25 ô
-        const grid = Array(25).fill('diamond');
+        // Khởi tạo trò chơi 20 ô (5 cột x 4 hàng ngang)
+        const grid = Array(20).fill('diamond');
         
         // Đặt mìn
         let placedMines = 0;
         while (placedMines < minesCount) {
-            const randomIndex = Math.floor(Math.random() * 25);
+            const randomIndex = Math.floor(Math.random() * 20);
             if (grid[randomIndex] !== 'bomb') {
                 grid[randomIndex] = 'bomb';
                 placedMines++;
@@ -58,9 +58,9 @@ module.exports = {
         }
 
         // State trò chơi
-        let revealed = Array(25).fill(false);
+        let revealed = Array(20).fill(false);
         let diamondsFound = 0;
-        const totalDiamonds = 25 - minesCount;
+        const totalDiamonds = 20 - minesCount;
         let isGameOver = false;
         
         // Tính toán Multiplier theo xác suất tổ hợp (chuẩn casino)
@@ -77,8 +77,8 @@ module.exports = {
 
         function calculateMultiplier(diamonds, mines) {
             if (diamonds === 0) return 1.0;
-            // Xác suất chọn đúng D ô không có mìn
-            const prob = combinations(25 - mines, diamonds) / combinations(25, diamonds);
+            // Xác suất chọn đúng D ô không có mìn trong 20 ô
+            const prob = combinations(20 - mines, diamonds) / combinations(20, diamonds);
             // Multiplier = (1 / Xác suất) * House Edge (0.99)
             const rawMultiplier = (1 / prob) * 0.99;
             return Number(rawMultiplier.toFixed(2));
@@ -88,7 +88,8 @@ module.exports = {
             const rows = [];
             let index = 0;
             
-            for (let i = 0; i < 5; i++) {
+            // 4 hàng ngang x 5 cột = 20 ô
+            for (let i = 0; i < 4; i++) {
                 const row = new ActionRowBuilder();
                 
                 for (let j = 0; j < 5; j++) {
@@ -108,9 +109,19 @@ module.exports = {
                     row.addComponents(btn);
                     index++;
                 }
-                
                 rows.push(row);
             }
+            
+            // Hàng thứ 5 dành riêng cho nút Cash Out
+            const cashOutRow = new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                    .setCustomId('mine_cashout')
+                    .setLabel('Cash Out (Rút Lãi)')
+                    .setEmoji('💵')
+                    .setStyle(ButtonStyle.Success)
+                    .setDisabled(isGameOver || diamondsFound === 0)
+            );
+            rows.push(cashOutRow);
             
             return rows;
         }
@@ -147,32 +158,15 @@ module.exports = {
             fetchReply: true
         });
 
-        // Gửi nút Cash Out ở một tin nhắn riêng ngay bên dưới
-        const cashOutRow = new ActionRowBuilder().addComponents(
-            new ButtonBuilder()
-                .setCustomId('mine_cashout')
-                .setLabel('Cash Out (Rút Lãi)')
-                .setEmoji('💵')
-                .setStyle(ButtonStyle.Success)
-                .setDisabled(diamondsFound === 0)
-        );
-
-        const cashOutMsg = await interaction.followUp({
-            components: [cashOutRow],
-            fetchReply: true
-        });
-
         const filter = (i) => i.user.id === user.id;
 
-        // Bắt sự kiện cho cả 2 tin nhắn (Lưới game và nút Cashout)
-        const collectorGrid = msg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 5 * 60 * 1000, filter });
-        const collectorCashout = cashOutMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 5 * 60 * 1000, filter });
+        // Bắt sự kiện
+        const collector = msg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 5 * 60 * 1000, filter });
 
         async function endGame(status, inter = null) {
             if (isGameOver) return;
             isGameOver = true;
-            collectorGrid.stop();
-            collectorCashout.stop();
+            collector.stop();
 
             const multiplier = calculateMultiplier(diamondsFound, minesCount);
             const winnings = Math.floor(bet * multiplier);
@@ -184,11 +178,6 @@ module.exports = {
             const finalEmbed = generateEmbed(status === 'lose' ? 'lose' : 'win');
             if (status === 'timeout') finalEmbed.setFooter({ text: 'Tự động Cashout do hết thời gian.' });
 
-            // Vô hiệu hóa nút Cashout
-            cashOutRow.components[0].setDisabled(true);
-            try { await cashOutMsg.edit({ components: [cashOutRow] }); } catch(e) {}
-
-            // Cập nhật lưới
             if (inter) {
                 await inter.update({ embeds: [finalEmbed], components: buildGrid(true) });
             } else {
@@ -196,17 +185,13 @@ module.exports = {
             }
         }
 
-        collectorCashout.on('collect', async (i) => {
+        collector.on('collect', async (i) => {
             if (isGameOver) return;
+
             if (i.customId === 'mine_cashout') {
                 await endGame('cashout', i);
-                // Phải sửa lại lưới qua msg.edit vì i.update chỉ update nút cashout
-                try { await msg.edit({ embeds: [generateEmbed('win')], components: buildGrid(true) }); } catch(e) {}
+                return;
             }
-        });
-
-        collectorGrid.on('collect', async (i) => {
-            if (isGameOver) return;
 
             const index = parseInt(i.customId.split('_')[1]);
             if (revealed[index]) return;
@@ -225,16 +210,11 @@ module.exports = {
                         embeds: [generateEmbed()],
                         components: buildGrid()
                     });
-                    // Bật nút cashout nếu mở ít nhất 1 ô
-                    if (diamondsFound === 1) {
-                        cashOutRow.components[0].setDisabled(false);
-                        try { await cashOutMsg.edit({ components: [cashOutRow] }); } catch(e) {}
-                    }
                 }
             }
         });
 
-        collectorGrid.on('end', async (collected, reason) => {
+        collector.on('end', async (collected, reason) => {
             if (reason === 'time' && !isGameOver) {
                 await endGame('timeout');
             }

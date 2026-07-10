@@ -59,6 +59,17 @@ module.exports = {
 
             const command = client.commands.get(commandName);
             if (command) {
+                // --- KIỂM TRA CHẶN KÊNH (IGNORE CHANNEL) ---
+                const ignoredChannels = config.ignored_channels || [];
+                const isAdmin = message.member.permissions.has('Administrator');
+                if (ignoredChannels.includes(message.channel.id) && !isAdmin) {
+                    // Xóa tin nhắn lệnh của người dùng để tránh rác kênh
+                    setTimeout(() => message.delete().catch(() => {}), 2000);
+                    const warnMsg = await message.reply('🚫 Kênh này đã bị Admin cấm dùng bot!');
+                    setTimeout(() => warnMsg.delete().catch(() => {}), 5000);
+                    return;
+                }
+
                 try {
                     if (command.executePrefix) {
                         await command.executePrefix(message, args, client);

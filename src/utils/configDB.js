@@ -25,6 +25,7 @@ const DEFAULT_CONFIG = {
     game_alert_role_id: null,
     mod_case_count: 0,
     ticket_count: 0,
+    ignored_channels: [],
     notified_games: [],
     stats_data: {
         category_id: null,

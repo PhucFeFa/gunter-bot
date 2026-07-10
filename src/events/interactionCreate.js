@@ -43,16 +43,23 @@ module.exports = {
             return interaction.reply({ content: '❌ Lệnh không tồn tại!', flags: 64 });
         }
 
-        // Kiểm tra xem lệnh có bị tắt không
+        // Kiểm tra xem lệnh có bị tắt không hoặc kênh có bị chặn không
         if (interaction.guildId) {
             const config = await getConfig(interaction.guildId);
             const cmdName = interaction.commandName;
-            
+
+            // --- KIỂM TRA CHẶN KÊNH (IGNORE CHANNEL) ---
+            const ignoredChannels = config.ignored_channels || [];
+            const isAdmin = interaction.memberPermissions && interaction.memberPermissions.has('Administrator');
+            if (ignoredChannels.includes(interaction.channelId) && !isAdmin) {
+                return interaction.reply({ content: '🚫 Kênh này đã bị cấm dùng bot!', flags: 64 }); // 64 = Ephemeral
+            }
+
             // Nhóm economy
             if (['daily', 'slots', 'balance'].includes(cmdName) && !config.feature_economy) {
                 return interaction.reply({ content: '❌ Tính năng Economy đang bị tắt trên server này!', flags: 64 });
             }
-            
+
             // Avatar
             if (cmdName === 'avatar' && !config.feature_avatar) {
                 return interaction.reply({ content: '❌ Tính năng xem Avatar đang bị tắt trên server này!', flags: 64 });
@@ -68,7 +75,7 @@ module.exports = {
         } catch (error) {
             console.error(`[CMD] Error executing /${interaction.commandName}:`, error);
             const errorMsg = { content: '❌ Đã xảy ra lỗi khi thực thi lệnh!', flags: 64 };
-            
+
             try {
                 if (interaction.replied || interaction.deferred) {
                     await interaction.followUp(errorMsg);

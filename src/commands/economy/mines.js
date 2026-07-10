@@ -42,6 +42,8 @@ module.exports = {
             if (isNaN(bet) || bet <= 0) return interaction.reply({ content: '❌ Vui lòng nhập số tiền cược hợp lệ!', flags: 64 });
         }
 
+        if (bet > 10000000) bet = 10000000;
+
         if (currentBalance < bet) {
             return interaction.reply({ content: `❌ Bạn không có đủ tiền! Số dư của bạn: **${currentBalance.toLocaleString()} $**`, flags: 64 });
         }

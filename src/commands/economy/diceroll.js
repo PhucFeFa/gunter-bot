@@ -35,6 +35,8 @@ module.exports = {
             amount = parseInt(amountRaw);
             if (isNaN(amount) || amount <= 0) return interaction.editReply('❌ Số tiền cược không hợp lệ!');
         }
+        
+        if (amount > 10000000) amount = 10000000;
 
         if (currentBalance < amount) {
             return interaction.editReply(`Mày nghèo rớt mồng tơi mà đòi cược ${amount} xu à? Trong túi mày còn đúng ${currentBalance} xu thôi con ạ =)))`);

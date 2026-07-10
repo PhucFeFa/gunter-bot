@@ -14,6 +14,9 @@ const path = require('path');
 const { getConfig } = require('../utils/configDB');
 const { handleGeminiChat } = require('../utils/geminiChat');
 const { handleGroqChat } = require('../utils/groqChat');
+const { getResponses } = require('../utils/autoResponderDB');
+
+const autoResponderCooldowns = new Map();
 
 // ─── Tối ưu Tải Video: Mạng Xã Hội ──────────────────────────────
 const TIKTOK_REGEX = /https?:\/\/(www\.)?(vt\.tiktok\.com|tiktok\.com)\S+/gi;
@@ -133,8 +136,70 @@ module.exports = {
                 await handleGroqChat(message, client);
             }
         }
+
+        // ─── Feature 5: Auto-Responder (Tự động trả lời theo từ khóa) ───
+        await handleAutoResponder(message);
     },
 };
+
+// ════════════════════════════════════════════════════════════
+// FEATURE 5: Auto-Responder
+// ════════════════════════════════════════════════════════════
+async function handleAutoResponder(message) {
+    if (message.author.bot) return;
+
+    const rules = getResponses();
+    if (!rules || rules.length === 0) return;
+
+    const content = message.content.toLowerCase();
+
+    for (const rule of rules) {
+        // Kiểm tra kênh áp dụng
+        if (rule.channels && rule.channels.length > 0) {
+            if (!rule.channels.includes(message.channel.id)) continue;
+        }
+
+        let isMatch = false;
+
+        if (rule.match_type === 'exact') {
+            isMatch = rule.trigger.some(t => content === t.toLowerCase());
+        } else if (rule.match_type === 'contains') {
+            isMatch = rule.trigger.some(t => content.includes(t.toLowerCase()));
+        } else if (rule.match_type === 'regex') {
+            try {
+                // Regex chỉ cần 1 trigger string đầu tiên
+                const regex = new RegExp(rule.trigger[0], 'i');
+                isMatch = regex.test(message.content); // Test với tin nhắn gốc (giữ hoa/thường)
+            } catch (e) {
+                console.error(`[AUTORESPONSE] Regex lỗi ở rule ID ${rule.id}:`, e);
+            }
+        }
+
+        if (isMatch) {
+            // Kiểm tra Cooldown
+            const cooldownKey = `${rule.id}_${message.author.id}`;
+            const cooldownTime = (rule.cooldown || 5) * 1000;
+            const now = Date.now();
+
+            if (autoResponderCooldowns.has(cooldownKey)) {
+                const expirationTime = autoResponderCooldowns.get(cooldownKey) + cooldownTime;
+                if (now < expirationTime) {
+                    continue; // Đang trong cooldown, bỏ qua rule này
+                }
+            }
+
+            autoResponderCooldowns.set(cooldownKey, now);
+
+            console.log(`[AUTORESPONSE] Kích hoạt rule \`${rule.id}\` bởi user ${message.author.tag} (${message.author.id})`);
+            
+            // Xóa bộ nhớ cooldown sau khi hết hạn để tránh rò rỉ RAM
+            setTimeout(() => autoResponderCooldowns.delete(cooldownKey), cooldownTime);
+
+            await message.reply(rule.response);
+            break; // Chỉ thực thi 1 rule đầu tiên match được để tránh spam nhiều tin nhắn
+        }
+    }
+}
 
 // ════════════════════════════════════════════════════════════
 // FEATURE 1: List members of a mentioned role

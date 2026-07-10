@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { getBalance, updateBalance } = require('../../utils/economyDB');
+const { getUser, updateBalance } = require('../../utils/economyDB');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -25,7 +25,8 @@ module.exports = {
         const amount = interaction.options.getInteger('amount');
         const user = interaction.user;
 
-        const currentBalance = await getBalance(user.id);
+        const userData = await getUser(user.id);
+        const currentBalance = userData.balance;
         if (currentBalance < amount) {
             return interaction.editReply(`Mày nghèo rớt mồng tơi mà đòi cược ${amount} xu à? Trong túi mày còn đúng ${currentBalance} xu thôi con ạ =)))`);
         }

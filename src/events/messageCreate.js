@@ -18,6 +18,7 @@ const { handleGroqChat } = require('../utils/groqChat');
 // ─── Tối ưu Tải Video: Mạng Xã Hội ──────────────────────────────
 const TIKTOK_REGEX = /https?:\/\/(www\.)?(vt\.tiktok\.com|tiktok\.com)\S+/gi;
 const IG_REGEX = /https?:\/\/(www\.)?instagram\.com\/(p|reel|tv)\S+/gi;
+const FB_REGEX = /https?:\/\/(www\.)?(facebook\.com|fb\.watch|fb\.gg)\S+/gi;
 
 const TIKWM_API = 'https://www.tikwm.com/api/';
 

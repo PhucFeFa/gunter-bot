@@ -57,7 +57,7 @@ module.exports = {
 
         if (subcommand === 'list') {
             const { job: userJobId } = await getJobData(userId);
-            const jobEntries = Object.values(jobs);
+            const jobEntries = Object.values(jobs).sort((a, b) => b.weight - a.weight);
             const totalWeight = jobEntries.reduce((sum, j) => sum + j.weight, 0);
 
             const formatJob = (j) => {

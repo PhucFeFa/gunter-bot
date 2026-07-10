@@ -267,8 +267,8 @@ async function handleTikTok(message, matches) {
     // Để cho nhanh bằng Keto, xoá sạch phần tải API lằng nhằng và dùng trực tiếp vxtiktok
     const userContent = message.content.replace(TIKTOK_REGEX, '').trim();
     let finalUrls = matches.map(u => {
-        let url = u.replace('tiktok.com', 'vxtiktok.com');
-        if (!url.includes('vxtiktok.com')) url = url.replace('vt.tiktok.com', 'vt.vxtiktok.com');
+        let url = u.replace('tiktok.com', 'tnktok.com');
+        if (!url.includes('tnktok.com')) url = url.replace('vt.tiktok.com', 'vt.tnktok.com');
         return url;
     });
 

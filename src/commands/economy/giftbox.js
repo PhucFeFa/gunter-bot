@@ -29,7 +29,11 @@ module.exports = {
                         .setDescription('Thời gian tồn tại (phút) (1-60, mặc định: 5)')
                         .setRequired(false)
                         .setMinValue(1)
-                        .setMaxValue(60))),
+                        .setMaxValue(60))
+                .addBooleanOption(option => 
+                    option.setName('chong_clone')
+                        .setDescription('Chặn nick mới dưới 3 ngày (Mặc định: Bật)')
+                        .setRequired(false))),
 
     async execute(interaction) {
         if (!interaction.deferred && !interaction.replied) {
@@ -48,6 +52,7 @@ module.exports = {
         const tongTienRaw = interaction.options.getString('tong_tien');
         const soSuat = interaction.options.getInteger('so_suat');
         const thoiGian = interaction.options.getInteger('thoi_gian_phut') || 5;
+        const antiClone = interaction.options.getBoolean('chong_clone') ?? true;
 
         const creatorData = await getUser(creator.id);
         const currentBalance = creatorData.balance;
@@ -112,7 +117,7 @@ module.exports = {
         const generateEmbed = () => {
             const embed = new EmbedBuilder()
                 .setColor(0xF1C40F) // Vàng Gold
-                .setTitle(`🎁 <@${creator.id}> VỪA THẢ LÌ XÌ!`)
+                .setTitle(`🎁 ${creator.username.toUpperCase()} VỪA THẢ LÌ XÌ!`)
                 .setDescription(`Nhanh tay thì còn, chậm tay thì nịt!\n\n💰 **Tổng số tiền:** ${boxState.totalAmount.toLocaleString()} $\n👥 **Số suất:** ${boxState.totalSlots}\n⏰ **Thời gian:** ${thoiGian} phút`);
             
             if (boxState.history.length > 0) {
@@ -181,7 +186,7 @@ module.exports = {
             }
 
             // Chặn acc clone (tham gia server dưới 3 ngày)
-            if (i.member && i.member.joinedAt) {
+            if (antiClone && i.member && i.member.joinedAt) {
                 const joinedDays = (Date.now() - i.member.joinedAt.getTime()) / (1000 * 60 * 60 * 24);
                 if (joinedDays < 3) {
                     return i.reply({ content: '❌ Nick mới vào server dưới 3 ngày không được nhận lì xì để chống clone!', ephemeral: true });

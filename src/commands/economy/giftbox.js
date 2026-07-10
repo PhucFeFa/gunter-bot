@@ -15,25 +15,29 @@ module.exports = {
             subcommand.setName('create')
                 .setDescription('Thả một hộp quà lì xì cho mọi người')
                 .addStringOption(option => 
-                    option.setName('tong_tien')
+                    option.setName('amount')
                         .setDescription('Tổng tiền thả lì xì (Tối đa 100tr, hoặc gõ "all")')
                         .setRequired(true))
                 .addIntegerOption(option => 
-                    option.setName('so_suat')
+                    option.setName('slots')
                         .setDescription('Số lượng người được nhận (1-50)')
                         .setRequired(true)
                         .setMinValue(1)
                         .setMaxValue(50))
                 .addIntegerOption(option => 
-                    option.setName('thoi_gian_phut')
+                    option.setName('duration')
                         .setDescription('Thời gian tồn tại (phút) (1-60, mặc định: 5)')
                         .setRequired(false)
                         .setMinValue(1)
                         .setMaxValue(60))
-                .addBooleanOption(option => 
-                    option.setName('chong_clone')
-                        .setDescription('Chặn nick mới dưới 3 ngày (Mặc định: Bật)')
-                        .setRequired(false))),
+                .addStringOption(option => 
+                    option.setName('anti_clone')
+                        .setDescription('Chặn nick mới dưới 3 ngày (Mặc định: On)')
+                        .setRequired(false)
+                        .addChoices(
+                            { name: 'On', value: 'on' },
+                            { name: 'Off', value: 'off' }
+                        ))),
 
     async execute(interaction) {
         if (!interaction.deferred && !interaction.replied) {
@@ -49,10 +53,11 @@ module.exports = {
         const creator = interaction.user;
         const channelId = interaction.channel.id;
         
-        const tongTienRaw = interaction.options.getString('tong_tien');
-        const soSuat = interaction.options.getInteger('so_suat');
-        const thoiGian = interaction.options.getInteger('thoi_gian_phut') || 5;
-        const antiClone = interaction.options.getBoolean('chong_clone') ?? true;
+        const tongTienRaw = interaction.options.getString('amount');
+        const soSuat = interaction.options.getInteger('slots');
+        const thoiGian = interaction.options.getInteger('duration') || 5;
+        const antiCloneSetting = interaction.options.getString('anti_clone') || 'on';
+        const antiClone = (antiCloneSetting === 'on');
 
         const creatorData = await getUser(creator.id);
         const currentBalance = creatorData.balance;

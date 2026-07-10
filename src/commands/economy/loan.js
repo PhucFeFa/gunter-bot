@@ -60,8 +60,12 @@ module.exports = {
                 return interaction.editReply('❌ Bạn đang thất nghiệp nên ngân hàng không duyệt hồ sơ cho vay! Hãy dùng `/job spin` để kiếm việc làm.');
             }
 
+            if (currentLoan > 0) {
+                return interaction.editReply(`❌ Á chà! Bạn vẫn còn đang nợ ngân hàng **${currentLoan.toLocaleString()} 🪙**.\nVui lòng tất toán sạch nợ cũ trước khi nộp hồ sơ vay gói mới!`);
+            }
+
             const amountStr = interaction.options.getString('amount');
-            const availableToBorrow = maxLoanLimit - currentLoan;
+            const availableToBorrow = maxLoanLimit;
             
             if (availableToBorrow <= 0) {
                 return interaction.editReply('❌ Bạn đã chạm **Hạn mức tín dụng tối đa**! Hãy trả bớt nợ trước khi vay thêm.');

@@ -4,7 +4,7 @@ const { getConfig } = require('../../utils/configDB');
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('caro')
+        .setName('tictactoe')
         .setDescription('Chơi Caro Vô Cực (Infinite Tic-Tac-Toe)')
         .addStringOption(option => 
             option.setName('bet')

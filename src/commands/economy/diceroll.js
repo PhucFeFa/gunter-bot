@@ -3,7 +3,7 @@ const { getUser, updateBalance } = require('../../utils/economyDB');
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('taixiu')
+        .setName('diceroll')
         .setDescription('🎲 Chơi tài xỉu, thử vận may (3-10: Xỉu, 11-18: Tài)')
         .addStringOption(option =>
             option.setName('choice')

@@ -9,10 +9,10 @@ const creatorCooldown = new Map();
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('hopqua')
-        .setDescription('Tạo hộp quà may mắn (Lì xì ngẫu nhiên)')
+        .setName('giftbox')
+        .setDescription('Hệ thống hộp quà Lì Xì (Lucky Money)')
         .addSubcommand(subcommand =>
-            subcommand.setName('tao')
+            subcommand.setName('create')
                 .setDescription('Thả một hộp quà lì xì cho mọi người')
                 .addStringOption(option => 
                     option.setName('tong_tien')

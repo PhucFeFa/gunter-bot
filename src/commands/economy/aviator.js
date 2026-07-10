@@ -83,7 +83,8 @@ module.exports = {
             } else {
                 embed.setColor(0x3498DB);
                 embed.setTitle('✈️ MÁY BAY ĐANG CẤT CÁNH...');
-                embed.setDescription(`**Hệ số hiện tại:** ${mult.toFixed(2)}x\n\n${progressBar}`);
+                const currentProfit = Math.floor(amount * mult);
+                embed.setDescription(`**Hệ số hiện tại:** ${mult.toFixed(2)}x\n**Tiền lãi dự kiến:** ${currentProfit.toLocaleString()} $\n\n${progressBar}`);
             }
 
             return embed;

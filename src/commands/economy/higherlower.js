@@ -16,9 +16,8 @@ const drawCard = () => {
 
 // Hàm tính hệ số (Multiplier) dựa trên xác suất thực tế của bộ bài
 const calculateMultipliers = (currentValue) => {
-    const lowerCards = (currentValue - 2) * 4;
-    const higherCards = (14 - currentValue) * 4;
-    const equalCards = 3;
+    const higherOrEqualCards = ((14 - currentValue) * 4) + 3;
+    const lowerOrEqualCards = ((currentValue - 2) * 4) + 3;
     const totalCards = 51;
     const RTP = 0.95; // Tỉ lệ trả thưởng 95%
 
@@ -29,9 +28,8 @@ const calculateMultipliers = (currentValue) => {
     };
 
     return {
-        lower: parseFloat(calc(lowerCards)),
-        higher: parseFloat(calc(higherCards)),
-        equal: parseFloat(calc(equalCards))
+        higher: parseFloat(calc(higherOrEqualCards)),
+        lower: parseFloat(calc(lowerOrEqualCards))
     };
 };
 
@@ -103,13 +101,11 @@ module.exports = {
                 desc += `💬 *${lastActionText}*\n\n`;
                 desc += `💵 **Tiền đang có trong ván:** ${Math.floor(currentWinnings).toLocaleString()} 🪙\n\n`;
                 desc += `Hãy dự đoán cho lá tiếp theo:\n`;
-                desc += `⬆️ **Cao hơn:** Nhận ${(Math.floor(currentWinnings * mults.higher)).toLocaleString()} 🪙 (x${mults.higher})\n`;
-                desc += `⬇️ **Thấp hơn:** Nhận ${(Math.floor(currentWinnings * mults.lower)).toLocaleString()} 🪙 (x${mults.lower})\n`;
-                desc += `= **Bằng (Hòa):** Nhận ${(Math.floor(currentWinnings * mults.equal)).toLocaleString()} 🪙 (x${mults.equal})\n`;
+                desc += `⬆️ **Cao hoặc Hòa:** Nhận ${(Math.floor(currentWinnings * mults.higher)).toLocaleString()} 🪙 (x${mults.higher})\n`;
+                desc += `⬇️ **Thấp hoặc Hòa:** Nhận ${(Math.floor(currentWinnings * mults.lower)).toLocaleString()} 🪙 (x${mults.lower})\n`;
             }
 
             embed.setDescription(desc);
-            embed.setThumbnail('https://i.imgur.com/8Qp4o2T.png');
 
             return { embed, mults };
         };
@@ -121,19 +117,14 @@ module.exports = {
             row.addComponents(
                 new ButtonBuilder()
                     .setCustomId('higher')
-                    .setLabel(`⬆️ Cao hơn`)
+                    .setLabel(`⬆️ Cao hoặc Hòa`)
                     .setStyle(ButtonStyle.Primary)
                     .setDisabled(isGameOver || isCashedOut || mults.higher === 0),
                 new ButtonBuilder()
                     .setCustomId('lower')
-                    .setLabel(`⬇️ Thấp hơn`)
+                    .setLabel(`⬇️ Thấp hoặc Hòa`)
                     .setStyle(ButtonStyle.Danger)
-                    .setDisabled(isGameOver || isCashedOut || mults.lower === 0),
-                new ButtonBuilder()
-                    .setCustomId('equal')
-                    .setLabel(`= Hòa`)
-                    .setStyle(ButtonStyle.Secondary)
-                    .setDisabled(isGameOver || isCashedOut || mults.equal === 0)
+                    .setDisabled(isGameOver || isCashedOut || mults.lower === 0)
             );
 
             // Row thứ 2 cho Cashout (Chỉ hiện khi đã đoán trúng ít nhất 1 lần)
@@ -186,11 +177,9 @@ module.exports = {
             let multUsed = 0;
 
             if (i.customId === 'higher') {
-                if (nextCard.value > currentCard.value) { won = true; multUsed = currentView.mults.higher; }
+                if (nextCard.value >= currentCard.value) { won = true; multUsed = currentView.mults.higher; }
             } else if (i.customId === 'lower') {
-                if (nextCard.value < currentCard.value) { won = true; multUsed = currentView.mults.lower; }
-            } else if (i.customId === 'equal') {
-                if (nextCard.value === currentCard.value) { won = true; multUsed = currentView.mults.equal; }
+                if (nextCard.value <= currentCard.value) { won = true; multUsed = currentView.mults.lower; }
             }
 
             if (won) {

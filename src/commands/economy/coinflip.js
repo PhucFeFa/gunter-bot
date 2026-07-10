@@ -65,7 +65,7 @@ module.exports = {
         
         if (bet === 'all') bet = userDoc.balance;
         if (bet <= 0) return interaction.editReply('❌ Bạn không có tiền để cược!');
-        if (bet > 10000000) bet = 10000000;
+        if (bet > 250000000) bet = 250000000;
 
         if (userDoc.balance < bet) {
             return interaction.editReply(`❌ Mõm à? Bạn chỉ có **${userDoc.balance.toLocaleString()} 🪙**, lấy đâu ra ${bet.toLocaleString()} 🪙 để cược!`);

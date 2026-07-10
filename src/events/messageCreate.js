@@ -114,11 +114,12 @@ module.exports = {
         // ─── Feature 2: All-in-One Downloader (TikTok, FB, IG) ───
         if (config.feature_tiktok) {
             const hasTikTok = message.content.match(TIKTOK_REGEX);
-            const hasFb = message.content.match(FB_REGEX);
             const hasIg = message.content.match(IG_REGEX);
+            const hasFb = message.content.match(FB_REGEX);
             
             if (hasTikTok) await handleTikTok(message, hasTikTok);
-            if (hasFb || hasIg) await handleFbIgFallback(message); // Đang bảo trì API FB/IG
+            else if (hasIg) await handleInstagram(message, hasIg);
+            else if (hasFb) await handleFacebook(message, hasFb);
         }
 
         // ─── Feature 3: Chabot AI (Gemini) ─────────────────────
@@ -260,76 +261,76 @@ async function handleRoleListing(message) {
 }
 
 // ════════════════════════════════════════════════════════════
-// FEATURE 2: TikTok Auto-Downloader (Tối ưu siêu tiết kiệm RAM)
-// Sử dụng Stream trực tiếp đẩy lên Discord, không lưu vào đĩa
+// FEATURE 2: Video Downloader (TikTok, IG, FB)
 // ════════════════════════════════════════════════════════════
 async function handleTikTok(message, matches) {
-    await message.react('⏳').catch(() => {});
-
-    for (const url of matches) {
-        try {
+    const msg = await message.reply('⏳ Đang lấy link TikTok...');
+    try {
+        let files = [];
+        for (const url of matches) {
             const resolvedUrl = await resolveRedirect(url);
             const apiRes = await axios.post(TIKWM_API, new URLSearchParams({ url: resolvedUrl }), {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                timeout: 15000,
+                timeout: 10000,
             });
 
-            const data = apiRes.data?.data;
-            if (apiRes.data?.code !== 0 || !data) {
-                throw new Error(apiRes.data?.msg ?? 'API lỗi hoặc video không tồn tại');
-            }
-
-            const videoUrl  = data.play;
-            const title     = data.title ?? 'TikTok Video';
-            const author    = data.author?.nickname ?? 'Unknown';
-
-            // Gọi HEAD request để kiểm tra dung lượng mà KHÔNG tải về bộ nhớ
+            if (apiRes.data?.code !== 0 || !apiRes.data?.data) throw new Error('API lỗi');
+            
+            const videoUrl = apiRes.data.data.play;
             const headRes = await axios.head(videoUrl);
-            const sizeBytes = parseInt(headRes.headers['content-length'] || 0);
-            const fileSizeMB = sizeBytes / (1024 * 1024);
-
-            const embed = new EmbedBuilder()
-                .setColor(0x000000)
-                .setAuthor({ name: `TikTok by @${author}` })
-                .setTitle(title.length > 256 ? title.slice(0, 253) + '...' : title)
-                .setFooter({ text: `Gunter Bot • Dung lượng: ${fileSizeMB > 0 ? fileSizeMB.toFixed(2) : '?'} MB` })
-                .setTimestamp();
-
-            if (fileSizeMB > 8) {
-                // Video quá nặng so với gói Discord Free, gửi link
-                embed.setDescription(`📦 Video quá lớn (> 8MB) nên không thể upload trực tiếp.\n[📥 Bấm vào đây để tải xuống](${videoUrl})`);
-                await message.channel.send({ embeds: [embed] });
-            } else {
-                // TỐI ƯU RAM: Mở một luồng Stream và đẩy thẳng nó cho Discord Attachment
-                // Discord sẽ tự đọc luồng này lên máy chủ của họ, bỏ qua bước trung gian lưu file
-                const streamRes = await axios.get(videoUrl, { responseType: 'stream' });
-                
-                await message.channel.send({
-                    content: `🎵 TikTok từ **${message.author}**`,
-                    embeds: [embed],
-                    files: [{ attachment: streamRes.data, name: 'tiktok_video.mp4' }]
-                });
-            }
-
-            await message.reactions.cache.get('⏳')?.remove().catch(() => {});
-            await message.react('✅').catch(() => {});
-        } catch (err) {
-            console.error('[TIKTOK_OPT] Lỗi xử lý:', err.message);
-            await message.reactions.cache.get('⏳')?.remove().catch(() => {});
-            await message.react('❌').catch(() => {});
+            const sizeMB = parseInt(headRes.headers['content-length'] || 0) / (1024 * 1024);
+            
+            if (sizeMB > 8) throw new Error('Video quá nặng (>8MB)');
+            
+            const streamRes = await axios.get(videoUrl, { responseType: 'stream' });
+            files.push({ attachment: streamRes.data, name: 'tiktok.mp4' });
+        }
+        
+        await msg.edit({ content: `🎵 **TikTok từ ${message.author}**`, files });
+        await message.delete().catch(()=>{});
+    } catch (err) {
+        // Fallback sang vxtiktok nếu tải lỗi hoặc quá nặng
+        let fallback = matches.map(u => u.replace('tiktok.com', 'vxtiktok.com').replace('vt.tiktok.com', 'vt.vxtiktok.com'));
+        try {
+            await msg.edit({ content: `🎵 **TikTok từ ${message.author}**\n${fallback.join('\n')}` });
+            await message.delete().catch(()=>{});
+        } catch (e) {
+            await msg.edit('❌ Lỗi: Không thể lấy được link TikTok!');
         }
     }
 }
 
-async function handleFbIgFallback(message) {
-    // Thông báo cho người dùng rằng tính năng tải FB/IG bằng API miễn phí hiện rất khó ổn định
-    // (Đây là khung chờ sẵn để sau này nếu mua API xịn thì nhét vào)
-    await message.react('👀').catch(() => {});
+async function handleInstagram(message, matches) {
+    const msg = await message.reply('⏳ Đang lấy link Instagram...');
+    try {
+        let fallback = matches.map(u => u.replace('instagram.com', 'ddinstagram.com'));
+        await msg.edit({ content: `📸 **Instagram từ ${message.author}**\n${fallback.join('\n')}` });
+        await message.delete().catch(()=>{});
+    } catch (err) {
+        await msg.edit('❌ Lỗi: Không thể lấy được link Instagram!');
+    }
+}
+
+async function handleFacebook(message, matches) {
+    const msg = await message.reply('⏳ Đang lấy link Facebook...');
+    try {
+        // API FB hiện tại rất khó kiếm cái ngon free, dùng fallback
+        await msg.edit('❌ Lỗi: Facebook hiện tại bị khóa API tải xuống tự do, chưa thể lấy link được!');
+    } catch (err) {
+        await msg.edit('❌ Lỗi: Không thể lấy được link Facebook!');
+    }
 }
 
 async function resolveRedirect(url) {
     try {
-        const res = await axios.get(url, { maxRedirects: 10, timeout: 8000, validateStatus: s => s < 400 });
+        const res = await axios.get(url, { 
+            maxRedirects: 10, 
+            timeout: 8000, 
+            validateStatus: s => s < 400,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+        });
         return res.request.res?.responseUrl ?? url;
     } catch {
         return url;

@@ -73,6 +73,8 @@ module.exports = {
     async handleRps(interaction, userChoice, bet) {
         const userDoc = await getUser(interaction.user.id);
         
+        if (bet > 250000000) bet = 250000000;
+
         if (userDoc.balance < bet) {
             return interaction.editReply(`❌ Tiền túi thì có **${userDoc.balance.toLocaleString()} 🪙** mà đòi cược ${bet.toLocaleString()}? Đi làm nhiệm vụ đi!`);
         }

@@ -44,31 +44,31 @@ module.exports = {
         if (subcommand === 'info') {
             const embed = new EmbedBuilder()
                 .setColor(0x3498DB)
-                .setTitle('🏦 NGÂN HÀNG GUNTER')
+                .setTitle('🏦 NGÂN HÀNG HÚT MÁU GUNTER')
                 .setThumbnail('https://cdn-icons-png.flaticon.com/512/2830/2830284.png')
                 .addFields(
-                    { name: 'Nghề nghiệp hiện tại', value: `**${jobName}**`, inline: true },
-                    { name: 'Hạn mức tối đa', value: `**${maxLoanLimit.toLocaleString()} 🪙**`, inline: true },
-                    { name: 'Dư nợ hiện tại', value: `**${currentLoan.toLocaleString()} 🪙**`, inline: false }
+                    { name: 'Nghề bá dơ hiện tại', value: `**${jobName}**`, inline: true },
+                    { name: 'Tao cho mày mượn tối đa', value: `**${maxLoanLimit.toLocaleString()} 🪙**`, inline: true },
+                    { name: 'Đang thiếu nợ tao', value: `**${currentLoan.toLocaleString()} 🪙**`, inline: false }
                 )
-                .setFooter({ text: 'Lãi suất vay cố định: 10% | Tự động trừ 30% lương khi /work' });
+                .setFooter({ text: 'Lãi cắt cổ: 10% | Cứ đi làm là tao siết 30% lương. Trốn đi đâu con trai?' });
             return interaction.editReply({ embeds: [embed] });
         }
 
         if (subcommand === 'borrow') {
             if (maxLoanLimit === 0) {
-                return interaction.editReply('❌ Bạn đang thất nghiệp nên ngân hàng không duyệt hồ sơ cho vay! Hãy dùng `/job spin` để kiếm việc làm.');
+                return interaction.editReply('❌ Mày đang thất nghiệp cạp đất mà ăn chứ ở đó mà đòi vay tiền? Dùng `/job spin` kiếm việc làm đi thằng bá dơ!');
             }
 
             if (currentLoan > 0) {
-                return interaction.editReply(`❌ Á chà! Bạn vẫn còn đang nợ ngân hàng **${currentLoan.toLocaleString()} 🪙**.\nVui lòng tất toán sạch nợ cũ trước khi nộp hồ sơ vay gói mới!`);
+                return interaction.editReply(`❌ Á chà thằng báo thủ! Mày vẫn còn đang khất tao **${currentLoan.toLocaleString()} 🪙**.\nCút về cày cuốc trả sạch nợ cũ đi rồi hẵng há mõm xin vay tiếp nhé con trai!`);
             }
 
             const amountStr = interaction.options.getString('amount');
             const availableToBorrow = maxLoanLimit;
             
             if (availableToBorrow <= 0) {
-                return interaction.editReply('❌ Bạn đã chạm **Hạn mức tín dụng tối đa**! Hãy trả bớt nợ trước khi vay thêm.');
+                return interaction.editReply('❌ Thẻ đen của mày bị khóa cmnr! Trả nợ đi thằng lìn.');
             }
 
             let borrowAmount = 0;
@@ -77,12 +77,12 @@ module.exports = {
             } else {
                 borrowAmount = parseInt(amountStr);
                 if (isNaN(borrowAmount) || borrowAmount <= 0) {
-                    return interaction.editReply('❌ Số tiền vay không hợp lệ!');
+                    return interaction.editReply('❌ Gõ số ngu như bò! Cút về học lại toán lớp 1 đi.');
                 }
             }
 
             if (borrowAmount > availableToBorrow) {
-                return interaction.editReply(`❌ Ngân hàng chỉ duyệt cho bạn vay thêm tối đa **${availableToBorrow.toLocaleString()} 🪙**!`);
+                return interaction.editReply(`❌ Mày tính lừa ngân hàng hả? Tao chỉ cho mày mượn tối đa **${availableToBorrow.toLocaleString()} 🪙** thôi con chó!`);
             }
 
             // Tiền gốc + 10% lãi suất cố định
@@ -93,17 +93,17 @@ module.exports = {
 
             const embed = new EmbedBuilder()
                 .setColor(0x00FF00)
-                .setTitle('✅ VAY VỐN THÀNH CÔNG')
-                .setDescription(`Bạn đã giải ngân thành công **${borrowAmount.toLocaleString()} 🪙** vào tài khoản!\n\n` +
-                                `📈 **Lãi suất:** 10%\n` +
-                                `💸 **Tiền nợ ghi nhận thêm:** ${totalDebt.toLocaleString()} 🪙\n\n` +
-                                `*(Ngân hàng sẽ tự động trích 30% lương khi bạn /work để thu hồi nợ)*`);
+                .setTitle('✅ RẢI HỌ THÀNH CÔNG')
+                .setDescription(`Đã quăng cho mày **${borrowAmount.toLocaleString()} 🪙** vào mõm!\n\n` +
+                                `📈 **Lãi cắt cổ:** 10%\n` +
+                                `💸 **Sổ ghi nợ:** ${totalDebt.toLocaleString()} 🪙\n\n` +
+                                `*(Cứ đi làm \`/work\` là giang hồ tới siết 30% lương. Liệu hồn mà trả!)*`);
             return interaction.editReply({ embeds: [embed] });
         }
 
         if (subcommand === 'repay') {
             if (currentLoan <= 0) {
-                return interaction.editReply('✅ Bạn không có khoản nợ nào để trả. Tuyệt vời!');
+                return interaction.editReply('✅ Mày có nợ cắc bạc nào đâu mà đòi trả? Bị ảo tưởng à?');
             }
 
             const amountStr = interaction.options.getString('amount');
@@ -114,7 +114,7 @@ module.exports = {
             } else {
                 repayAmount = parseInt(amountStr);
                 if (isNaN(repayAmount) || repayAmount <= 0) {
-                    return interaction.editReply('❌ Số tiền trả không hợp lệ!');
+                    return interaction.editReply('❌ Trả số tiền đéo gì vớ vẩn vậy? Sủa số đàng hoàng xem nào.');
                 }
             }
 
@@ -123,7 +123,7 @@ module.exports = {
             }
 
             if (user.balance < repayAmount) {
-                return interaction.editReply(`❌ Bạn không đủ tiền mặt để tất toán khoản này! Số dư hiện tại của bạn chỉ có: **${user.balance.toLocaleString()} 🪙**`);
+                return interaction.editReply(`❌ Mõm thì to mà trong túi có đúng **${user.balance.toLocaleString()} 🪙**? Mày tính lừa giang hồ à? Xì thêm tiền ra đây!`);
             }
 
             await updateBalance(userId, -repayAmount); // Trừ tiền mặt
@@ -133,9 +133,9 @@ module.exports = {
 
             const embed = new EmbedBuilder()
                 .setColor(0x00FF00)
-                .setTitle('💵 THANH TOÁN NỢ NGÂN HÀNG')
-                .setDescription(`Bạn đã trả **${repayAmount.toLocaleString()} 🪙** cho ngân hàng.\n\n` +
-                                `📉 Dư nợ còn lại: **${newLoan.toLocaleString()} 🪙**`);
+                .setTitle('💵 TRẢ TIỀN RỒI ĐẤY Ạ')
+                .setDescription(`Giỏi lắm con trai, tao đã thu **${repayAmount.toLocaleString()} 🪙**.\n\n` +
+                                `📉 Dư nợ còn lại: **${newLoan.toLocaleString()} 🪙**. Chưa xong đâu!`);
             return interaction.editReply({ embeds: [embed] });
         }
     },
@@ -145,14 +145,14 @@ module.exports = {
         const amountStr = args[1] || '';
 
         if (!['info', 'borrow', 'repay'].includes(subcommand)) {
-            return message.reply('❌ Lệnh không hợp lệ! Cách dùng:\n`g!loan info`\n`g!loan borrow <số tiền | max>`\n`g!loan repay <số tiền | all>`');
+            return message.reply('❌ Bấm lệnh ngu như chó! Cú pháp đây:\n`g!loan info` (xem sổ nợ)\n`g!loan borrow <tiền | max>` (mượn tiền)\n`g!loan repay <tiền | all>` (trả nợ)');
         }
 
         if ((subcommand === 'borrow' || subcommand === 'repay') && !amountStr) {
-            return message.reply(`❌ Bạn chưa nhập số tiền! (VD: \`g!loan ${subcommand} 100000\`)`);
+            return message.reply(`❌ Đéo nhập số tiền thì tao biết mượn hay trả bao nhiêu? (VD: \`g!loan ${subcommand} 100000\`)`);
         }
 
-        const replyMsg = await message.reply('🏦 Đang kết nối với ngân hàng...');
+        const replyMsg = await message.reply('🏦 Đang gọi đàn em ra đòi nợ...');
 
         const fakeInteraction = {
             user: message.author,

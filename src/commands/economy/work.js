@@ -19,8 +19,8 @@ module.exports = {
         if (!job || !jobs[job]) {
             const embed = new EmbedBuilder()
                 .setColor(0xe74c3c)
-                .setTitle('❌ Bạn đang thất nghiệp!')
-                .setDescription('Bạn cần có một công việc để bắt đầu kiếm tiền.\nHãy dùng lệnh `/job spin` để tìm việc nhé!');
+                .setTitle('❌ Đang ăn bám xã hội à?')
+                .setDescription('Mày đang thất nghiệp cạp đất mà ăn chứ đi làm cái đéo gì?\nHãy dùng lệnh `/job spin` để kiếm việc đi thằng bá dơ!');
             return interaction.editReply({ embeds: [embed] });
         }
 
@@ -32,8 +32,8 @@ module.exports = {
             
             const embed = new EmbedBuilder()
                 .setColor(0xf39c12)
-                .setTitle('⏳ Chờ chút đã!')
-                .setDescription(`Bạn vừa mới làm việc xong, nghỉ ngơi xíu đi.\nQuay lại sau **${seconds} giây** nữa nhé!`);
+                .setTitle('⏳ Nghỉ tay đi thằng culi!')
+                .setDescription(`Mày vừa mới cày xong, tính làm mệt chết bỏ mạng à?\nCút ra chỗ khác nghỉ ngơi **${seconds} giây** rồi quay lại đây!`);
             return interaction.editReply({ embeds: [embed] });
         }
 
@@ -59,7 +59,7 @@ module.exports = {
             salary = originalSalary - debtPaid;
             
             await updateLoan(userId, -debtPaid);
-            loanInfo = `\n\n🏦 **Ngân hàng siết nợ (30%):** -${debtPaid.toLocaleString()} 🪙\n📉 **Dư nợ còn lại:** ${(user.loanAmount - debtPaid).toLocaleString()} 🪙`;
+            loanInfo = `\n\n🏦 **Giang hồ tới siết cổ (30%):** -${debtPaid.toLocaleString()} 🪙\n📉 **Còn nợ tao:** ${(user.loanAmount - debtPaid).toLocaleString()} 🪙. Trốn đi đâu?`;
         }
 
         // Cập nhật Database
@@ -68,11 +68,11 @@ module.exports = {
 
         const embed = new EmbedBuilder()
             .setColor(currentJob.color)
-            .setTitle(`💼 Lương đến rồi! (${currentJob.name})`)
+            .setTitle(`💼 Phát lương đây thằng culi! (${currentJob.name})`)
             .setDescription(`*${randomDialogue}*\n\n` +
-                            `💵 Bạn làm ra: **${originalSalary.toLocaleString()} 🪙**` +
+                            `💵 Công sức mồ hôi nước mắt: **${originalSalary.toLocaleString()} 🪙**` +
                             loanInfo +
-                            `\n\n💰 **Thực lãnh:** **${salary.toLocaleString()} 🪙**\n` +
+                            `\n\n💰 **Thực lãnh bỏ túi:** **${salary.toLocaleString()} 🪙**\n` +
                             `💳 Số dư hiện tại: **${newBalance.toLocaleString()} 🪙**`)
             .setThumbnail(interaction.user.displayAvatarURL());
 

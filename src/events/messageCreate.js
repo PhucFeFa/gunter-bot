@@ -273,7 +273,7 @@ async function handleTikTok(message, matches) {
     });
 
     try {
-        await message.channel.send(`🎵 **TikTok từ ${message.author}**${userContent ? `\n💬: *${userContent}*` : ''}\n${finalUrls.join('\n')}`);
+        await message.channel.send(`${userContent ? `💬: *${userContent}*\n` : ''}${finalUrls.join('\n')}`);
         await message.delete().catch(()=>{});
     } catch (err) {
         console.error('TikTok Send Error:', err);
@@ -285,7 +285,7 @@ async function handleInstagram(message, matches) {
     let finalUrls = matches.map(u => u.replace('instagram.com', 'ddinstagram.com'));
     
     try {
-        await message.channel.send(`📸 **Instagram từ ${message.author}**${userContent ? `\n💬: *${userContent}*` : ''}\n${finalUrls.join('\n')}`);
+        await message.channel.send(`${userContent ? `💬: *${userContent}*\n` : ''}${finalUrls.join('\n')}`);
         await message.delete().catch(()=>{});
     } catch (err) {
         console.error('IG Send Error:', err);

@@ -2,8 +2,8 @@ require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env'
 const { db } = require('../utils/firebase');
 
 async function resetDB() {
-    console.log("CẢNH BÁO: Đang xóa TOÀN BỘ dữ liệu tiền tệ, nghề nghiệp của server...");
-    const snapshot = await db.collection('economy').get();
+    console.log("CẢNH BÁO: Đang xóa TOÀN BỘ dữ liệu người dùng của server...");
+    const snapshot = await db.collection('users').get();
     
     if (snapshot.empty) {
         console.log("Database trống, không có gì để xóa!");

@@ -17,8 +17,8 @@ function startServer(client) {
     // API: Lấy Bảng xếp hạng tiền tệ (Leaderboard)
     app.get('/api/leaderboard', async (req, res) => {
         try {
-            // Lấy tất cả user từ collection 'economy'
-            const snapshot = await db.collection('economy').get();
+            // Lấy tất cả user từ collection 'users'
+            const snapshot = await db.collection('users').get();
             let leaderboard = [];
 
             snapshot.forEach(doc => {

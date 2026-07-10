@@ -88,7 +88,10 @@ ${win ? `Thắng được **+${profit} xu**! Trả tiền ăn sáng cho tao đi!
             .setFooter({ text: `Tài khoản hiện tại: ${currentBalance + profit} xu` })
             .setTimestamp();
 
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.editReply({ 
+            content: `🎲 Đang xóc xúc xắc...\n[ ${d1} ] [ ${d2} ] [ ${d3} ]`, 
+            embeds: [embed] 
+        });
     },
     
     async executePrefix(message, args) {

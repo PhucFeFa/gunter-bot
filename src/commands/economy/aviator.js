@@ -69,24 +69,26 @@ module.exports = {
 
         const generateEmbed = (mult, crashed, cashed) => {
             const embed = new EmbedBuilder();
-            
-            let path = '';
-            const steps = Math.min(12, Math.floor(mult * 2)); // Số lượng emoji tăng dần
-            for (let i = 1; i <= (steps === 0 ? 1 : steps); i++) {
-                if (i <= 3) path += '☁️';
-                else if (i <= 6) path += '🌙';
-                else if (i <= 9) path += '⭐';
-                else path += '🪐';
-            }
+
+            let objPool = ['☁️'];
+            if (mult >= 2 && mult < 5) objPool = ['☁️', '🌙'];
+            else if (mult >= 5 && mult < 10) objPool = ['⭐', '🌙', '✨'];
+            else if (mult >= 10) objPool = ['🪐', '⭐', '✨', '☄️'];
+
+            const getObj = (prob) => (Math.random() < prob ? objPool[Math.floor(Math.random() * objPool.length)] : '  ');
             
             const ship = crashed ? '💥' : '🚀';
-            const tail = crashed ? '' : '💨';
-            const progressBar = `🌍 ${path} ${ship}${tail}`;
+            
+            const line1 = `  ${getObj(0.4)}      ${getObj(0.3)}  `;
+            const line2 = `${getObj(0.3)}    ${ship}    ${getObj(0.4)}`;
+            const line3 = `    ${getObj(0.3)}      ${getObj(0.4)}`;
+            
+            const environment = `${line1}\n${line2}\n${line3}`;
 
             if (crashed) {
                 embed.setColor(0xFF0000);
                 embed.setTitle('💥 TÊN LỬA ĐÃ PHÁT NỔ!');
-                embed.setDescription(`**Hệ số nổ:** ${mult.toFixed(2)}x\n\n${progressBar}`);
+                embed.setDescription(`**Hệ số nổ:** ${mult.toFixed(2)}x\n\n${environment}`);
                 if (!cashed) {
                     embed.addFields({ name: 'Kết quả', value: `Mày đã mất trắng **${amount} xu**! Trắng mắt ra chưa con =)))` });
                 }
@@ -94,13 +96,13 @@ module.exports = {
                 embed.setColor(0x00FF00);
                 embed.setTitle('💵 ĐÃ CHỐT LỜI!');
                 const winAmount = Math.floor(amount * mult);
-                embed.setDescription(`**Hệ số chốt:** ${mult.toFixed(2)}x\n**Hệ số nổ thực tế:** ${crashPoint.toFixed(2)}x\n\n${progressBar}`);
+                embed.setDescription(`**Hệ số chốt:** ${mult.toFixed(2)}x\n**Hệ số nổ thực tế:** ${crashPoint.toFixed(2)}x\n\n${environment}`);
                 embed.addFields({ name: 'Kết quả', value: `Mày vừa bú được **${winAmount} xu**! Ngon lành cành đào.` });
             } else {
                 embed.setColor(0x3498DB);
                 embed.setTitle('🚀 TÊN LỬA ĐANG CẤT CÁNH...');
                 const currentProfit = Math.floor(amount * mult);
-                embed.setDescription(`**Hệ số hiện tại:** ${mult.toFixed(2)}x\n**Tiền lãi dự kiến:** ${currentProfit.toLocaleString()} $\n\n${progressBar}`);
+                embed.setDescription(`**Hệ số hiện tại:** ${mult.toFixed(2)}x\n**Tiền lãi dự kiến:** ${currentProfit.toLocaleString()} $\n\n${environment}`);
             }
 
             return embed;

@@ -67,10 +67,8 @@ module.exports = {
 
         // Can gay -> reset ve Can Tre
         if (currentDurability !== null && currentDurability <= 0) {
-            const defaultRod = RODS[0];
-            await setUserRod(userId, defaultRod.id, defaultRod.maxDurability);
             return interaction.editReply(
-                `🚨 **${rod.emoji} ${rod.name}** của bạn đã **gãy mất rồi**! Bạn được đổi về **🎋 Cần Tre** (30 độ bền). Hãy mua cần mới tại \`/fishshop\`!`
+                `🚨 **${rod.emoji} ${rod.name}** của bạn đã **gãy**! Dùng \`/fishshop repair\` để sửa (phí = 30% giá gốc của cần).`
             );
         }
 
@@ -164,20 +162,20 @@ module.exports = {
 
         // Giam do ben sau khi cau thanh cong
         let newDur = currentDurability;
-        if (currentDurability !== null) {
+        if (currentDurability !== null && currentDurability !== -1) {
             newDur = currentDurability - 1;
-            await updateRodDurability(userId, newDur);
-            if (newDur === 5) {
-                await interaction.followUp({ content: `⚠️ **${rod.emoji} ${rod.name}** sắp gãy! Chỉ còn **5 độ bền**. Hãy mua cần mới tại \`/fishshop\`!`, ephemeral: true }).catch(() => {});
-            }
             if (newDur <= 0) {
-                const defaultRod = RODS[0];
-                await setUserRod(userId, defaultRod.id, defaultRod.maxDurability);
-                await interaction.followUp({ content: `🚨 **${rod.emoji} ${rod.name}** đã **gãy** sau ván câu này! Bạn được đổi về **🎋 Cần Tre**.`, ephemeral: true }).catch(() => {});
+                await updateRodDurability(userId, -1); // -1 = broken
+                await interaction.followUp({ content: `🚨 **${rod.emoji} ${rod.name}** đã **gãy** sau ván câu này! Dùng \`/fishshop repair\` để sửa (phí = 30% giá gốc).`, ephemeral: true }).catch(() => {});
+            } else {
+                await updateRodDurability(userId, newDur);
+                if (newDur === 5) {
+                    await interaction.followUp({ content: `⚠️ **${rod.emoji} ${rod.name}** sắp gãy! Chỉ còn **5 độ bền**. Hãy chuẩn bị sửa hoặc mua cần mới!`, ephemeral: true }).catch(() => {});
+                }
             }
         }
 
-        const durFooter = currentDurability !== null
+        const durFooter = (currentDurability !== null)
             ? `Cần: ${rod.emoji} ${rod.name} | ❤️ Độ bền: ${Math.max(0, newDur)}/${rod.maxDurability}`
             : `Cần: ${rod.emoji} ${rod.name}`;
 

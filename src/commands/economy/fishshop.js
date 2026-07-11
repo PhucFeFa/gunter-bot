@@ -6,7 +6,7 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const { RODS, ZONE_ROLES } = require('../../data/fishData');
 const { getUser, updateBalance } = require('../../utils/economyDB');
-const { setUserRod, getFishProfile, getZoneSetup } = require('../../utils/fishDB');
+const { setUserRod, getFishProfile, getZoneSetup, updateRodDurability } = require('../../utils/fishDB');
 
 const PAGE_SIZE = 5;
 
@@ -17,7 +17,8 @@ module.exports = {
         .addSubcommand(s => s.setName('normal').setDescription('Xem shop cần câu thường'))
         .addSubcommand(s => s.setName('limited').setDescription('Xem shop cần câu giới hạn'))
         .addSubcommand(s => s.setName('role').setDescription('Mua role vùng câu cá'))
-        .addSubcommand(s => s.setName('myrod').setDescription('Xem cần câu hiện tại của bạn')),
+        .addSubcommand(s => s.setName('myrod').setDescription('Xem cần câu hiện tại của bạn'))
+        .addSubcommand(s => s.setName('repair').setDescription('Sửa cần câu bị gãy (phí = 30% giá gốc)')),
 
     async execute(interaction) {
         await interaction.deferReply({ ephemeral: true });
@@ -37,18 +38,48 @@ module.exports = {
         if (sub === 'myrod') {
             const profile = await getFishProfile(userId);
             const rod = RODS.find(r => r.id === profile.rod) || RODS[0];
+            const durText = profile.rodDurability === -1
+                ? '🚨 **Gãy!** Dùng `/fishshop repair`'
+                : profile.rodDurability !== null
+                    ? `❤️ ${profile.rodDurability}/${rod.maxDurability}`
+                    : '❤️ Vĩnh cửu';
             return interaction.editReply({
                 embeds: [new EmbedBuilder()
-                    .setColor(0x1E90FF)
+                    .setColor(profile.rodDurability === -1 ? 0xFF0000 : 0x1E90FF)
                     .setTitle(`${rod.emoji} Cần câu hiện tại: ${rod.name}`)
                     .setDescription(rod.desc)
                     .addFields(
                         { name: '🍀 Bonus May mắn', value: `+${rod.bonusLuck}%`, inline: true },
                         { name: '📏 Bonus Kích thước', value: `+${Math.round(rod.bonusSize * 100)}%`, inline: true },
                         { name: '⏱️ Bonus Thời gian', value: `+${rod.bonusTime}s`, inline: true },
-                        { name: '💰 Giá', value: rod.price === 0 ? 'Miễn phí' : `${rod.price.toLocaleString()} 🪙`, inline: true }
+                        { name: '💰 Giá', value: rod.price === 0 ? 'Miễn phí' : `${rod.price.toLocaleString()} 🪙`, inline: true },
+                        { name: '❤️ Độ bền', value: durText, inline: true }
                     )]
             });
+        }
+
+        if (sub === 'repair') {
+            const profile = await getFishProfile(userId);
+            const rod = RODS.find(r => r.id === profile.rod) || RODS[0];
+
+            if (profile.rodDurability !== -1) {
+                return interaction.editReply(`✅ **${rod.emoji} ${rod.name}** của bạn vẫn đang hoạt động tốt (độ bền: ${profile.rodDurability ?? 'vĩnh cửu'}). Không cần sửa.`);
+            }
+
+            if (rod.price === 0) {
+                await updateRodDurability(userId, rod.maxDurability);
+                return interaction.editReply(`🔧 Đã sửa lại **${rod.emoji} ${rod.name}**! Miễn phí vì đây là cần miễn phí. Độ bền: ${rod.maxDurability}/${rod.maxDurability}.`);
+            }
+
+            const repairCost = Math.floor(rod.price * 0.3);
+            const userData = await getUser(userId);
+            if (userData.balance < repairCost) {
+                return interaction.editReply(`❌ Không đủ tiền! Cần **${repairCost.toLocaleString()} 🪙** để sửa **${rod.emoji} ${rod.name}**. Số dư: ${userData.balance.toLocaleString()} 🪙.`);
+            }
+
+            await updateBalance(userId, -repairCost);
+            await updateRodDurability(userId, rod.maxDurability);
+            return interaction.editReply(`🔧 Đã sửa lại **${rod.emoji} ${rod.name}**! Tốn **${repairCost.toLocaleString()} 🪙**. Độ bền: ${rod.maxDurability}/${rod.maxDurability}.`);
         }
 
         if (sub === 'role') {

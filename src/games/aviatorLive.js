@@ -157,7 +157,7 @@ class AviatorLiveGame {
 
             const embed = new EmbedBuilder()
                 .setColor(0x3498DB)
-                .setTitle(`🚀 AVIATOR LIVE — Ván #${this.round} — ${this.currentMult.toFixed(2)}x`)
+                .setTitle(`🚀 AVIATOR LIVE — ${this.currentMult.toFixed(2)}x`)
                 .setDescription(`${env}`)
                 .addFields({ name: '💰 Lãi dự kiến (chưa rút)', value: profitLines || '*Không có ai*', inline: false });
 
@@ -177,7 +177,7 @@ class AviatorLiveGame {
 
         const embed = new EmbedBuilder()
             .setColor(0xFF0000)
-            .setTitle(`💥 AVIATOR LIVE — Ván #${this.round} — NỔ TẠI ${this.crashPoint.toFixed(2)}x!`)
+            .setTitle(`💥 AVIATOR LIVE — NỔ TẠI ${this.crashPoint.toFixed(2)}x!`)
             .setDescription(env)
             .addFields(
                 { name: '📈 Crash tại', value: `**${this.crashPoint.toFixed(2)}x**`, inline: true }
@@ -211,7 +211,7 @@ class AviatorLiveGame {
         const betLines = [...this.bets.entries()].map(([uid, amt]) => `<@${uid}> — **${amt.toLocaleString()} 🪙**`);
         return new EmbedBuilder()
             .setColor(0x1A1A2E)
-            .setTitle(`🚀 AVIATOR LIVE — Ván #${this.round + 1}`)
+            .setTitle('🚀 AVIATOR LIVE')
             .setDescription(
                 this.timeLeft > 0
                     ? `⏳ **Còn ${this.timeLeft} giây để đặt cược!**\n\nGõ: \`g!bet <số tiền>\` để đặt cược\nNhớ bấm **💰 Rút** trước khi nổ!`

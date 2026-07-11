@@ -119,17 +119,6 @@ class BaccaratLiveGame {
             }
             this.betMsgs = [];
 
-            // Không có người cược → bỏ qua
-            if (this.bets.size === 0) {
-                const skipEmbed = new EmbedBuilder()
-                    .setColor(0x95A5A6)
-                    .setTitle(`🃏 Baccarat Live – Ván #${this.round}`)
-                    .setDescription('Không có người chơi nào đặt cược. Bắt đầu ván mới...');
-                await this._editMain(this._buildRoadEmbed(), skipEmbed);
-                await this.sleep(4000);
-                continue;
-            }
-
             // Phase 2: Chia bài + animation
             const result = dealBaccarat();
             await this._animateDeal(result);
@@ -197,7 +186,7 @@ class BaccaratLiveGame {
 
         const finalEmbed = new EmbedBuilder()
             .setColor(RESULT_COLOR[r.result])
-            .setTitle(`🎴 BACCARAT LIVE — Ván #${this.round} — ${RESULT_LABEL[r.result]}`)
+            .setTitle(`🎴 BACCARAT LIVE — ${RESULT_LABEL[r.result]}`)
             .addFields(
                 { name: `🔵 Player [${r.pTotal}]`, value: r.pCards.map(fmt).join('  '), inline: true },
                 { name: `🔴 Banker [${r.bTotal}]`, value: r.bCards.map(fmt).join('  '), inline: true }
@@ -225,11 +214,12 @@ class BaccaratLiveGame {
     // ─── Embed builders ───────────────────────────────────────
     _buildRoadEmbed() {
         const roadStr = this.road.length
-            ? this.road.slice(-15).map(r => ROAD_ICON[r]).join('') + '\n' + this.road.slice(-15).map(r => ROAD_LABEL[r]).join(' ')
+            ? this.road.slice(-15).map(r => ROAD_ICON[r]).join('')
             : '*Chưa có kết quả*';
+        const num = Math.min(this.road.length, 15);
         return new EmbedBuilder()
             .setColor(0x2C3E50)
-            .setTitle(`📊 Bảng Cầu Baccarat (${this.road.length} ván gần nhất)`)
+            .setTitle(`📊 Bảng Cầu Baccarat (${num} ván gần nhất)`)
             .setDescription(roadStr);
     }
 
@@ -239,7 +229,7 @@ class BaccaratLiveGame {
         );
         return new EmbedBuilder()
             .setColor(0x2C3E50)
-            .setTitle(`🎴 BACCARAT LIVE — Ván #${this.round + 1}`)
+            .setTitle('🎴 BACCARAT LIVE')
             .setDescription(
                 this.timeLeft > 0
                     ? `⏳ **Còn ${this.timeLeft} giây để đặt cược!**\n\nGõ: \`g!bet banker <tiền>\` | \`g!bet player <tiền>\` | \`g!bet tie <tiền>\``

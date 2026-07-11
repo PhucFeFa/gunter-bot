@@ -123,28 +123,38 @@ client.login(process.env.DISCORD_TOKEN)
                 
                 const channel = client.channels.cache.get('1525454150803128371');
                 
-                const msgs = [
-                    "Mày tính quịt nợ tao à? Đừng để tao phải xuống tận nhà!",
-                    "Tới giờ trả tiền rồi con trai, giang hồ không có kiên nhẫn đâu!",
-                    "Số nợ của mày ngày càng phình to rồi đấy, tính bùng hả?",
-                    "Alo alo, nợ nần sòng phẳng đi mày ơi, nhà bao việc!",
-                    "Chưa thấy tiền vào tài khoản? Mày định báo nhà à?"
+                const dmMsgs = [
+                    "CẢNH BÁO CUỐI CÙNG!!! NHẮN GẤP ĐỐI TƯỢNG {user} RA TRẢ NỢ GẤP SỐ TIỀN {amount} VỚI CÔNG TY TRƯỚC KHI CHÚNG TÔI GỬI THÔNG BÁO NỢ BẰNG HÌNH ẢNH, VIDEO ĐẾN ĐỊA PHƯƠNG, NƠI LÀM VIỆC, BẠN BÈ, NGƯỜI THÂN. ĐỪNG ĐỂ ẢNH HƯỞNG ĐẾN UY TÍN DANH DỰ CỦA MÌNH CŨNG NHƯ CỦA NGƯỜI THÂN ĐÃ CUNG CẤP TRONG HỒ SƠ VAY! DÙNG LỆNH `/loan repay` ĐỂ CƠ CẤU LẠI NỢ GIẢM NỢ NGAY LẬP TỨC!!!",
+                    "THÔNG BÁO ĐÒI NỢ KHẨN CẤP!!! YÊU CẦU ĐỐI TƯỢNG {user} THANH TOÁN SỐ TIỀN {amount} ĐANG CÒN NỢ TẠI NGÂN HÀNG GUNTER. NẾU NGOAN CỐ KHÔNG TRẢ, CHÚNG TÔI SẼ TIẾN HÀNH BÔI NHỌ DANH DỰ TRÊN TOÀN BỘ CÁC TRANG MẠNG XÃ HỘI VÀ TREO BĂNG RÔN TRƯỚC CỬA NHÀ MÀY. DÙNG LỆNH `/loan repay` HOẶC CÀY `/work` RA TRẢ TIỀN GẤP!!!",
+                    "LỆNH TRUY NÃ CON NỢ!!! Ê {user}, MÀY ĐANG NỢ SỐ TIỀN {amount} MÀ ĐỊNH TRỐN À? CHÚNG TÔI ĐÃ NẮM TOÀN BỘ THÔNG TIN ĐỊA CHỈ, NƠI LÀM VIỆC CỦA MÀY VÀ NGƯỜI THÂN. LIỆU HỒN MÀ GOM TIỀN VÀO LỆNH `/loan repay` THANH TOÁN CHO XONG TRƯỚC KHI ĐÀN EM CỦA TAO XUỐNG TẬN NƠI LÀM VIỆC XỬ LÝ!!!",
+                    "THAY MẶT GIANG HỒ, TAO GỬI CẢNH BÁO TỚI {user}! SỐ NỢ {amount} CỦA MÀY ĐÃ QUÁ HẠN. HÃY RA TRẢ NỢ GẤP TRƯỚC KHI CHÚNG TÔI LIÊN HỆ CHO CHA MẸ, ĐỒNG NGHIỆP CỦA MÀY ĐỂ BÁO CÁO VỀ VIỆC MÀY ĂN BÁM LỪA ĐẢO. DÙNG `/loan repay` ĐỂ XỬ LÝ NỢ TRONG HÔM NAY!!!",
+                    "CÔNG TY ĐÒI NỢ THUÊ GUNTER THÔNG BÁO: ĐỐI TƯỢNG {user} VUI LÒNG HOÀN TRẢ SỐ TIỀN {amount} ĐÃ BỐC BÁT HỌ. ĐÂY LÀ LỜI CẢNH CÁO CUỐI CÙNG TRƯỚC KHI HÌNH ẢNH CỦA MÀY BỊ PHÁT TÁN LÊN CÁC TRANG PHIM NGƯỜI LỚN VÀ CÁC DIỄN ĐÀN CHỢ ĐEN. DÙNG LỆNH `/loan repay` NGAY ĐỂ BẢO TOÀN DANH DỰ!!!"
                 ];
 
                 for (const user of debtors) {
-                    const randomMsg = msgs[Math.floor(Math.random() * msgs.length)];
+                    let discordUser = null;
+                    let userName = "Mày";
+                    try {
+                        discordUser = await client.users.fetch(user.userId);
+                        userName = discordUser.username;
+                    } catch (e) {}
+
+                    const randomMsg = dmMsgs[Math.floor(Math.random() * dmMsgs.length)]
+                        .replace('{user}', userName.toUpperCase())
+                        .replace('{amount}', user.loanAmount.toLocaleString() + ' 🪙');
                     
                     if (channel) {
-                        const text = `⚠️ **ĐÒI NỢ THUÊ**\nÊ <@${user.userId}>, mày đang nợ ngân hàng Gunter **${user.loanAmount.toLocaleString()} 🪙**.\n${randomMsg}\n(Dùng lệnh \`/loan repay\` hoặc \`/work\` để trừ nợ ngay!)`;
+                        const text = `⚠️ **ĐÒI NỢ THUÊ**\nÊ <@${user.userId}>, mày đang nợ ngân hàng Gunter **${user.loanAmount.toLocaleString()} 🪙**.\n(Dùng lệnh \`/loan repay\` hoặc \`/work\` để trừ nợ ngay!)`;
                         await channel.send(text);
                     }
                     
                     // DM
-                    try {
-                        const discordUser = await client.users.fetch(user.userId);
-                        await discordUser.send(`🔪 **GIANG HỒ ĐÒI NỢ:**\nMày đang nợ tao **${user.loanAmount.toLocaleString()} 🪙**.\n${randomMsg}`);
-                    } catch(e) {
-                        // Ignore if DM is closed
+                    if (discordUser) {
+                        try {
+                            await discordUser.send(`🔪 **GIANG HỒ ĐÒI NỢ:**\n\n${randomMsg}`);
+                        } catch(e) {
+                            // Ignore if DM is closed
+                        }
                     }
                 }
             } catch (err) {

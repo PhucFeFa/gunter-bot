@@ -135,6 +135,13 @@ async function transferMoney(fromUserId, toUserId, amount) {
     const sender = await getUser(fromUserId);
     if (sender.balance < amount) return { success: false, reason: 'Không đủ tiền' };
 
+    // Chặn chuyển tiền vay nợ
+    const currentLoan = sender.loanAmount || 0;
+    const ownMoney = Math.max(0, sender.balance - currentLoan);
+    if (amount > ownMoney) {
+        return { success: false, reason: `Bạn đang nợ giang hồ ${currentLoan.toLocaleString()} 🪙 nên phần tiền này bị phong tỏa! Số dư hợp pháp có thể chuyển: ${ownMoney.toLocaleString()} 🪙.` };
+    }
+
     const todayDate = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
 
     // Reset limit nếu qua ngày mới

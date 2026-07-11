@@ -92,15 +92,24 @@ module.exports = {
                             reply: async function(options) { 
                                 this.replied = true;
                                 if (typeof options === 'string') return await message.reply(options);
-                                return await message.reply(options);
+                                const opts = { ...options };
+                                delete opts.ephemeral;
+                                delete opts.flags;
+                                return await message.reply(opts);
                             },
                             editReply: async function(options) {
                                 if (typeof options === 'string') return await message.reply(options);
-                                return await message.reply(options);
+                                const opts = { ...options };
+                                delete opts.ephemeral;
+                                delete opts.flags;
+                                return await message.reply(opts);
                             },
                             followUp: async function(options) {
                                 if (typeof options === 'string') return await message.reply(options);
-                                return await message.reply(options);
+                                const opts = { ...options };
+                                delete opts.ephemeral;
+                                delete opts.flags;
+                                return await message.reply(opts);
                             },
                             options: {
                                 getMember: (name) => message.mentions.members.first(),

@@ -530,15 +530,15 @@ module.exports = {
                 "Ship khô gà xuyên quốc gia, lợi nhuận khổng lồ giúp bạn mua hẳn cái biệt thự mới.",
                 "Công thức khô gà Mixi được truyền lại, bạn bán cháy hàng ngay trên livestream.",
                 "Khách hàng đòi mua sỉ khô gà với số lượng không tưởng, bạn thu về doanh thu bạc tỷ.",
-                "Hôm nay tung mã giảm giá khô gà 50%, doanh thu x3, bạn vui vẻ đi sắm đồ hiệu."
+                "Hôm nay có thằng ngu nào vừa donate cho, doanh thu x3, bạn vui vẻ đi sắm đồ hiệu."
             ]
         }
     },
-    
+
     /**
      * Quay ngẫu nhiên một công việc dựa trên tỷ lệ (weight)
      */
-    spinJob: function() {
+    spinJob: function () {
         // Tỷ lệ bí mật 0.01% ra Khô Gà Mixi
         if (Math.random() < 0.0001) {
             return module.exports.jobs['kho_ga_mixi'];
@@ -547,7 +547,7 @@ module.exports = {
         const jobList = Object.values(module.exports.jobs).filter(j => j.weight > 0);
         const totalWeight = jobList.reduce((sum, job) => sum + job.weight, 0);
         let random = Math.floor(Math.random() * totalWeight);
-        
+
         for (const job of jobList) {
             if (random < job.weight) {
                 return job;

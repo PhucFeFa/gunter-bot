@@ -31,7 +31,7 @@ module.exports = {
                 ])
         );
 
-        const replyMessage = await interaction.reply({ embeds: [embed], components: [row], flags: 64, fetchReply: true });
+        const replyMessage = await interaction.reply({ embeds: [embed], components: [row], ephemeral: true, fetchReply: true });
 
         // Tạo Collector để quản lý tương tác (Vô hiệu hóa menu sau 3 phút không dùng)
         const collector = replyMessage.createMessageComponentCollector({ time: 3 * 60 * 1000 });
@@ -90,7 +90,10 @@ module.exports = {
             guildId: message.guildId,
             client: client,
             reply: async (options) => {
-                const msg = await message.reply(options);
+                const opts = { ...options };
+                delete opts.ephemeral;
+                delete opts.flags;
+                const msg = await message.reply(opts);
                 msg.createMessageComponentCollector = (opt) => msg.createMessageComponentCollector(opt);
                 return msg;
             }

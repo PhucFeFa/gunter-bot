@@ -74,7 +74,7 @@ async function sendShopNotify(client, guildId) {
             if (oldChannel) {
                 await oldChannel.messages.fetch(oldMsg.messageId)
                     .then(m => m.delete())
-                    .catch(() => {}); // Bỏ qua nếu đã bị xóa
+                    .catch(() => { }); // Bỏ qua nếu đã bị xóa
             }
         }
 
@@ -85,7 +85,7 @@ async function sendShopNotify(client, guildId) {
 
         // Ping role (nếu có zone1Role)
         const pingContent = zones.zone1Role
-            ? `<@&${zones.zone1Role}> 🎣 Shop câu cá đã reset!`
+            ? `<@&${zones.zone1Role}> <@&${zones.zone2Role}> <@&${zones.zone3Role}> 🎣 Shop câu cá đã reset!`
             : '🎣 Shop câu cá đã reset!';
 
         // Gửi tin nhắn mới

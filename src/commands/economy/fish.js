@@ -152,7 +152,6 @@ module.exports = {
             .setTitle(`${fish.emoji} Câu được ${fishName}!`)
             .setDescription(
                 `${isShiny ? '🌟 **SHINY! Giá x5!**\n' : ''}` +
-                `**Vùng:** ${{ 1:'🏖️ Vịnh Làng Chài', 2:'🌊 Đại Dương Sâu Thẳm', 3:'💀 Vùng Biển Tử Thần' }[fish.zone]}\n` +
                 `**Tier:** ${getTierStars(fish.tier)}\n` +
                 `**Kích thước:** ${size} cm\n` +
                 `**Giá trị:** **${price.toLocaleString()} 🪙**\n\n` +

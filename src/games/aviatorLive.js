@@ -100,8 +100,8 @@ class AviatorLiveGame {
             }
             const result = await this.cashout(i.user.id, i.user.username);
             if (result) {
-                const msg = await i.reply({ content: `💵 **${i.user.username}** đã rút tại **${result.mult.toFixed(2)}x** — nhận **${result.winAmount.toLocaleString()} 🪙**!`, ephemeral: false, fetchReply: true }).catch(() => null);
-                if (msg) this.cashoutMsgs.push(msg);
+                await i.reply({ content: `💵 **${i.user.username}** đã rút tại **${result.mult.toFixed(2)}x** — nhận **${result.winAmount.toLocaleString()} 🪙**!`, ephemeral: false }).catch(() => null);
+                this.cashoutMsgs.push(i);
             } else {
                 await i.reply({ content: '❌ Không thể rút!', ephemeral: true }).catch(() => {});
             }
@@ -114,8 +114,8 @@ class AviatorLiveGame {
             this.betMsgs = [];
             
             if (this.cashoutMsgs) {
-                for (const m of this.cashoutMsgs) {
-                    if (m && typeof m.delete === 'function') m.delete().catch(() => {});
+                for (const inter of this.cashoutMsgs) {
+                    if (inter && typeof inter.deleteReply === 'function') inter.deleteReply().catch(() => {});
                 }
             }
             this.cashoutMsgs = [];
@@ -131,8 +131,12 @@ class AviatorLiveGame {
             if (!this.running) break;
 
             // Xóa tin nhắn bet cũ
-            for (const m of this.betMsgs) {
-                if (m && typeof m.delete === 'function') m.delete().catch(() => { });
+            for (const inter of this.betMsgs) {
+                if (inter && typeof inter.deleteReply === 'function') {
+                    inter.deleteReply().catch(() => {});
+                } else if (inter && typeof inter.delete === 'function') {
+                    inter.delete().catch(() => {});
+                }
             }
             this.betMsgs = [];
 

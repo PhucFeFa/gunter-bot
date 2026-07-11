@@ -5,7 +5,7 @@
 
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { getUser, updateBalance } = require('../../utils/economyDB');
-const { getFishProfile, getChannelZone, addFishToInventory, incrementCaught, getZoneSetup } = require('../../utils/fishDB');
+const { getFishProfile, getChannelZone, addFishToInventory, incrementCaught, getZoneSetup, updateRodDurability, setUserRod } = require('../../utils/fishDB');
 const { RODS, getWeightedFish, rollFishSize, calcFishPrice, rollChest, rollShiny, applyShiny } = require('../../data/fishData');
 
 // Cooldown per user (ms)
@@ -55,19 +55,37 @@ module.exports = {
             }
         }
 
-        // Rod check
+        // Rod check + durability
         const profile = await getFishProfile(userId);
         const rod = RODS.find(r => r.id === profile.rod) || RODS[0];
+
+        // Kiem tra do ben - neu chua set thi gan mac dinh theo can
+        let currentDurability = profile.rodDurability;
+        if (currentDurability === null || currentDurability === undefined) {
+            currentDurability = rod.maxDurability;
+        }
+
+        // Can gay -> reset ve Can Tre
+        if (currentDurability !== null && currentDurability <= 0) {
+            const defaultRod = RODS[0];
+            await setUserRod(userId, defaultRod.id, defaultRod.maxDurability);
+            return interaction.editReply(
+                `🚨 **${rod.emoji} ${rod.name}** của bạn đã **gãy mất rồi**! Bạn được đổi về **🎋 Cần Tre** (30 độ bền). Hãy mua cần mới tại \`/fishshop\`!`
+            );
+        }
 
         // Set cooldown
         COOLDOWN.set(userId, Date.now());
 
         // ─── Phase 1: Thả mồi animation ───
+        const durabilityText = currentDurability !== null
+            ? ` | ❤️ Độ bền: ${currentDurability}/${rod.maxDurability}`
+            : '';
         const embed = new EmbedBuilder()
             .setColor(0x1E90FF)
             .setTitle('🎣 Đang câu cá...')
             .setDescription(BAIT_FRAMES[0])
-            .setFooter({ text: `Cần: ${rod.emoji} ${rod.name} | Vùng ${zoneId}` });
+            .setFooter({ text: `Cần: ${rod.emoji} ${rod.name} | Vùng ${zoneId}${durabilityText}` });
         await interaction.editReply({ embeds: [embed] });
 
         // Thời gian chờ: 3-8 giây (cần tốt → ngắn hơn, cá to hơn)
@@ -144,6 +162,25 @@ module.exports = {
         });
         await incrementCaught(userId);
 
+        // Giam do ben sau khi cau thanh cong
+        let newDur = currentDurability;
+        if (currentDurability !== null) {
+            newDur = currentDurability - 1;
+            await updateRodDurability(userId, newDur);
+            if (newDur === 5) {
+                await interaction.followUp({ content: `⚠️ **${rod.emoji} ${rod.name}** sắp gãy! Chỉ còn **5 độ bền**. Hãy mua cần mới tại \`/fishshop\`!`, ephemeral: true }).catch(() => {});
+            }
+            if (newDur <= 0) {
+                const defaultRod = RODS[0];
+                await setUserRod(userId, defaultRod.id, defaultRod.maxDurability);
+                await interaction.followUp({ content: `🚨 **${rod.emoji} ${rod.name}** đã **gãy** sau ván câu này! Bạn được đổi về **🎋 Cần Tre**.`, ephemeral: true }).catch(() => {});
+            }
+        }
+
+        const durFooter = currentDurability !== null
+            ? `Cần: ${rod.emoji} ${rod.name} | ❤️ Độ bền: ${Math.max(0, newDur)}/${rod.maxDurability}`
+            : `Cần: ${rod.emoji} ${rod.name}`;
+
         const resultColor = isShiny
             ? 0xFFD700
             : [0x808080, 0x4CAF50, 0x2196F3, 0x9C27B0, 0xFF9800, 0xF44336, 0xE91E63, 0xFFD700][fish.tier - 1] || 0x808080;
@@ -157,7 +194,7 @@ module.exports = {
                 `**Giá trị:** **${price.toLocaleString()} 🪙**\n\n` +
                 `Dùng \`/inventory\` để xem và bán cá!`
             )
-            .setFooter({ text: `Cần: ${rod.emoji} ${rod.name}` });
+            .setFooter({ text: durFooter });
 
         await interaction.editReply({ embeds: [embed] });
     }

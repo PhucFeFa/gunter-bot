@@ -160,7 +160,7 @@ module.exports = {
                 if (userData.balance < rod.price) return i.reply({ content: `❌ Không đủ tiền! Cần **${rod.price.toLocaleString()} 🪙**`, ephemeral: true });
 
                 if (rod.price > 0) await updateBalance(userId, -rod.price);
-                await setUserRod(userId, rod.id);
+                await setUserRod(userId, rod.id, rod.maxDurability);
                 await i.reply({ content: `✅ Đã mua và trang bị **${rod.emoji} ${rod.name}**!`, ephemeral: true });
             }
         });

@@ -12,12 +12,20 @@ async function getFishProfile(userId) {
     const data = doc.exists ? doc.data() : {};
     return {
         rod: data.fishRod || 1,
+        rodDurability: data.fishRodDurability ?? null,
         totalCaught: data.fishTotalCaught || 0,
     };
 }
 
-async function setUserRod(userId, rodId) {
-    await db.collection('users').doc(userId).set({ fishRod: rodId }, { merge: true });
+async function setUserRod(userId, rodId, maxDurability) {
+    await db.collection('users').doc(userId).set({ 
+        fishRod: rodId,
+        fishRodDurability: maxDurability
+    }, { merge: true });
+}
+
+async function updateRodDurability(userId, newDurability) {
+    await db.collection('users').doc(userId).set({ fishRodDurability: newDurability }, { merge: true });
 }
 
 async function incrementCaught(userId) {
@@ -93,7 +101,7 @@ async function setShopNotifyMsg(guildId, msgData) {
 }
 
 module.exports = {
-    getFishProfile, setUserRod, incrementCaught,
+    getFishProfile, setUserRod, updateRodDurability, incrementCaught,
     getInventory, addFishToInventory, removeFishFromInventory, clearInventory,
     getZoneSetup, setZoneSetup, getChannelZone,
     getShopNotifyMsg, setShopNotifyMsg

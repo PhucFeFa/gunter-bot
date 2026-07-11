@@ -164,7 +164,7 @@ client.login(process.env.DISCORD_TOKEN)
             } catch (err) {
                 console.error("Cron Đòi nợ lỗi:", err);
             }
-        }, 2 * 60 * 60 * 1000); // 2 hours
+        }, 1 * 60 * 60 * 1000); // 1 hour
 
     })
     .catch(err => {

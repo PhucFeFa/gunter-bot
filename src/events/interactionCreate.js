@@ -61,32 +61,79 @@ module.exports = {
                     );
                 return interaction.showModal(modal);
             }
+
+            // ─ Aviator Live: nut bet (mở modal nhập tiền) ─
+            if (interaction.customId === 'liveaviator_bet') {
+                const game = liveGameManager.getByChannel(interaction.channelId);
+                if (!game || game.gameType !== 'aviator') return interaction.reply({ content: '❌ Không có game Aviator ở kênh này!', flags: 64 });
+
+                const modal = new ModalBuilder()
+                    .setCustomId('aviatormodal_bet')
+                    .setTitle('🚀 Đặt cược Aviator')
+                    .addComponents(
+                        new ActionRowBuilder().addComponents(
+                            new TextInputBuilder()
+                                .setCustomId('aviator_amount')
+                                .setLabel('Số tiền cược')
+                                .setStyle(TextInputStyle.Short)
+                                .setPlaceholder('VD: 10000 hoặc all')
+                                .setRequired(true)
+                        )
+                    );
+                return interaction.showModal(modal);
+            }
         }
 
-        // ─ Xử lý modal submit (Baccarat bet) ─
-        if (interaction.isModalSubmit() && interaction.customId.startsWith('baccmodal_')) {
-            const side = interaction.customId.replace('baccmodal_', '');
-            const rawAmt = interaction.fields.getTextInputValue('bacc_amount').toLowerCase();
-            const game = liveGameManager.getByChannel(interaction.channelId);
+        // ─ Xử lý modal submit (Baccarat / Aviator bet) ─
+        if (interaction.isModalSubmit()) {
+            if (interaction.customId.startsWith('baccmodal_')) {
+                const side = interaction.customId.replace('baccmodal_', '');
+                const rawAmt = interaction.fields.getTextInputValue('bacc_amount').toLowerCase();
+                const game = liveGameManager.getByChannel(interaction.channelId);
 
-            if (!game || game.gameType !== 'baccarat') {
-                return interaction.reply({ content: '❌ Không có game Baccarat ở kênh này!', flags: 64 });
+                if (!game || game.gameType !== 'baccarat') {
+                    return interaction.reply({ content: '❌ Không có game Baccarat ở kênh này!', flags: 64 });
+                }
+
+                const userData = await require('../utils/economyDB').getUser(interaction.user.id);
+                const balance = userData.balance;
+                const amount = rawAmt === 'all' ? balance : parseInt(rawAmt);
+
+                const fakeMsg = {
+                    author: interaction.user,
+                    reply: async (opts) => {
+                        const payload = typeof opts === 'string' ? { content: opts } : opts;
+                        const m = await interaction.reply({ ...payload, fetchReply: true }).catch(() => interaction.followUp({ ...payload, fetchReply: true }));
+                        return m;
+                    }
+                };
+                await game.placeBet(fakeMsg, side, amount);
+                return;
             }
 
-            const userData = await require('../utils/economyDB').getUser(interaction.user.id);
-            const balance = userData.balance;
-            const amount = rawAmt === 'all' ? balance : parseInt(rawAmt);
+            if (interaction.customId === 'aviatormodal_bet') {
+                const rawAmt = interaction.fields.getTextInputValue('aviator_amount').toLowerCase();
+                const game = liveGameManager.getByChannel(interaction.channelId);
 
-            const fakeMsg = {
-                author: interaction.user,
-                reply: async (opts) => {
-                    const payload = typeof opts === 'string' ? { content: opts } : opts;
-                    const m = await interaction.reply({ ...payload, fetchReply: true }).catch(() => interaction.followUp({ ...payload, fetchReply: true }));
-                    return m;
+                if (!game || game.gameType !== 'aviator') {
+                    return interaction.reply({ content: '❌ Không có game Aviator ở kênh này!', flags: 64 });
                 }
-            };
-            await game.placeBet(fakeMsg, side, amount);
-            return;
+
+                const userData = await require('../utils/economyDB').getUser(interaction.user.id);
+                const balance = userData.balance;
+                const amount = rawAmt === 'all' ? balance : parseInt(rawAmt);
+
+                const fakeMsg = {
+                    author: interaction.user,
+                    reply: async (opts) => {
+                        const payload = typeof opts === 'string' ? { content: opts } : opts;
+                        const m = await interaction.reply({ ...payload, fetchReply: true }).catch(() => interaction.followUp({ ...payload, fetchReply: true }));
+                        return m;
+                    }
+                };
+                await game.placeBet(fakeMsg, amount);
+                return;
+            }
         }
 
         if (interaction.isStringSelectMenu()) {

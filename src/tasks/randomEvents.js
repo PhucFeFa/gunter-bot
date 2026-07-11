@@ -6,27 +6,27 @@ const MAIN_CHAT_ID = '1494709251187150860';
 const THREAD_CHANNEL_ID = '1524752989091270768';
 
 function initRandomEvents(client) {
-    // Chạy bộ đếm mỗi 45 phút một lần
+    // Chạy bộ đếm mỗi 1 tiếng một lần
     setInterval(async () => {
         try {
             // Lắc xúc xắc (1-100) để quyết định event
             const dice = Math.floor(Math.random() * 100) + 1;
 
-            if (dice <= 15) {
-                // 15% Tỷ lệ: Gửi một câu trêu ghẹo vào Main Chat
+            if (dice <= 30) {
+                // 30% Tỷ lệ: Gửi một câu trêu ghẹo vào Main Chat
                 await triggerRandomJoke(client);
-            } else if (dice > 15 && dice <= 25) {
-                // 10% Tỷ lệ: Tạo một Thread thảo luận xàm xí
+            } else if (dice > 30 && dice <= 60) {
+                // 30% Tỷ lệ: Tạo một Thread thảo luận xàm xí
                 await triggerRandomThread(client);
-            } else if (dice > 25 && dice <= 40) {
-                // 15% Tỷ lệ: Thả hộp quà (Airdrop tiền)
+            } else if (dice > 60 && dice <= 90) {
+                // 30% Tỷ lệ: Thả hộp quà (Airdrop tiền)
                 await triggerAirdrop(client);
             }
-            // 60% còn lại: Bot ngủ im không làm gì cả
+            // 10% còn lại: Bot ngủ im không làm gì cả
         } catch (error) {
             console.error('[RandomEvents] Lỗi khi chạy random event:', error);
         }
-    }, 3 * 60 * 60 * 1000); // 3 tiếng
+    }, 1 * 60 * 60 * 1000); // 1 tiếng
 }
 
 async function triggerRandomJoke(client) {
@@ -80,7 +80,7 @@ async function triggerAirdrop(client) {
     const channel = client.channels.cache.get(MAIN_CHAT_ID);
     if (!channel) return;
 
-    const dropAmount = Math.floor(Math.random() * 400) + 100; // 100 - 500 coins
+    const dropAmount = Math.floor(Math.random() * 450000) + 50000; // 50,000 - 500,000 coins
 
     const embed = new EmbedBuilder()
         .setColor(0xE74C3C)

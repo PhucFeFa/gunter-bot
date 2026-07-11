@@ -3,9 +3,10 @@
  * Routes incoming slash commands to the correct handler.
  */
 
-const { Events, InteractionType, EmbedBuilder } = require('discord.js');
+const { Events, InteractionType, EmbedBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
 const { getConfig } = require('../utils/configDB');
 const { checkCooldown } = require('../utils/cooldown');
+const liveGameManager = require('../utils/liveGameManager');
 
 module.exports = {
     name: Events.InteractionCreate,
@@ -25,6 +26,67 @@ module.exports = {
             if (interaction.customId.startsWith('ticket_')) {
                 return await handleTicketButton(interaction);
             }
+
+            // ─ Aviator Live: nut cashout ─
+            if (interaction.customId === 'liveaviator_cashout') {
+                const game = liveGameManager.getByChannel(interaction.channelId);
+                if (game && game.gameType === 'aviator') {
+                    const result = await game.cashout(interaction.user.id, interaction.user.username);
+                    if (result) {
+                        return interaction.reply({ content: `💵 **${interaction.user.username}** đã rút tại **${result.mult.toFixed(2)}x** — nhận **${result.winAmount.toLocaleString()} 🪙**!` });
+                    } else {
+                        return interaction.reply({ content: '❌ Không thể rút (chưa đặt cược hoặc đã rút rồi)!', flags: 64 });
+                    }
+                }
+            }
+
+            // ─ Baccarat Live: nut bet (mở modal nhập tiền) ─
+            if (['livebacc_banker', 'livebacc_player', 'livebacc_tie'].includes(interaction.customId)) {
+                const game = liveGameManager.getByChannel(interaction.channelId);
+                if (!game || game.gameType !== 'baccarat') return interaction.reply({ content: '❌ Không có game Baccarat ở kênh này!', flags: 64 });
+
+                const side = interaction.customId.replace('livebacc_', '');
+                const modal = new ModalBuilder()
+                    .setCustomId(`baccmodal_${side}`)
+                    .setTitle(`🎴 Bạn đặt cược ${side.toUpperCase()}`)
+                    .addComponents(
+                        new ActionRowBuilder().addComponents(
+                            new TextInputBuilder()
+                                .setCustomId('bacc_amount')
+                                .setLabel('Số tiền cược')
+                                .setStyle(TextInputStyle.Short)
+                                .setPlaceholder('VD: 10000 hoặc all')
+                                .setRequired(true)
+                        )
+                    );
+                return interaction.showModal(modal);
+            }
+        }
+
+        // ─ Xử lý modal submit (Baccarat bet) ─
+        if (interaction.isModalSubmit() && interaction.customId.startsWith('baccmodal_')) {
+            const side = interaction.customId.replace('baccmodal_', '');
+            const rawAmt = interaction.fields.getTextInputValue('bacc_amount').toLowerCase();
+            const game = liveGameManager.getByChannel(interaction.channelId);
+
+            if (!game || game.gameType !== 'baccarat') {
+                return interaction.reply({ content: '❌ Không có game Baccarat ở kênh này!', flags: 64 });
+            }
+
+            const userData = await require('../utils/economyDB').getUser(interaction.user.id);
+            const balance = userData.balance;
+            const amount = rawAmt === 'all' ? balance : parseInt(rawAmt);
+
+            // Giả lập message object cho placeBet
+            const fakeMsg = {
+                author: interaction.user,
+                reply: async (opts) => {
+                    const m = await interaction.reply({ ...opts, fetchReply: true }).catch(() => interaction.followUp(opts));
+                    return m;
+                }
+            };
+            await game.placeBet(fakeMsg, side, amount);
+            return;
         }
 
         if (interaction.isStringSelectMenu()) {

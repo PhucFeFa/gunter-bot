@@ -15,6 +15,7 @@ const { getConfig } = require('../utils/configDB');
 const { handleGeminiChat } = require('../utils/geminiChat');
 const { handleGroqChat } = require('../utils/groqChat');
 const { getResponses } = require('../utils/autoResponderDB');
+const liveGameManager = require('../utils/liveGameManager');
 
 const autoResponderCooldowns = new Map();
 
@@ -129,6 +130,30 @@ module.exports = {
                     await message.reply('❌ Có lỗi xảy ra khi thực hiện lệnh này (Có thể lệnh này cần tham số phức tạp của Slash Command).');
                 }
                 return; // Nếu là prefix command hợp lệ thì dừng, không xử lý các tính năng dưới
+            }
+
+            // ─── Live Game Commands (g!bet, g!cashout) ─────────────
+            if (commandName === 'bet') {
+                const liveGame = liveGameManager.getByChannel(message.channel.id);
+                if (liveGame) {
+                    if (liveGame.gameType === 'baccarat') {
+                        // g!bet banker/player/tie <amount>
+                        const side = (args[0] || '').toLowerCase();
+                        const rawAmt = args[1] || '';
+                        const userData = await require('../utils/economyDB').getUser(message.author.id);
+                        const balance = userData.balance;
+                        const amount = rawAmt.toLowerCase() === 'all' ? balance : parseInt(rawAmt);
+                        await liveGame.placeBet(message, side, amount);
+                    } else if (liveGame.gameType === 'aviator') {
+                        // g!bet <amount>
+                        const rawAmt = (args[0] || '').toLowerCase();
+                        const userData = await require('../utils/economyDB').getUser(message.author.id);
+                        const balance = userData.balance;
+                        const amount = rawAmt === 'all' ? balance : parseInt(rawAmt);
+                        await liveGame.placeBet(message, amount);
+                    }
+                    return;
+                }
             }
         }
 

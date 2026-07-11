@@ -6,7 +6,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { getUser, updateBalance } = require('../../utils/economyDB');
 const { getFishProfile, getChannelZone, addFishToInventory, incrementCaught } = require('../../utils/fishDB');
-const { RODS, getWeightedFish, rollFishSize, calcFishPrice, rollChest } = require('../../data/fishData');
+const { RODS, getWeightedFish, rollFishSize, calcFishPrice, rollChest, rollShiny, applyShiny } = require('../../data/fishData');
 
 // Cooldown per user (ms)
 const COOLDOWN = new Map();
@@ -106,29 +106,43 @@ module.exports = {
         // ─── Get fish ───
         const fish = getWeightedFish(zoneId);
 
-        // Size bonus from rod + wait time (lâu hơn → to hơn)
+        // Size bonus from rod + wait time
         const timeBonus = Math.min(rod.bonusSize + (waitTime / 10000) * 0.3, 1.2);
         const rawSize = rollFishSize(fish);
         const size = Math.min(Math.floor(rawSize * (1 + timeBonus)), fish.maxSize);
-        const price = calcFishPrice(fish, size);
+        let price = calcFishPrice(fish, size);
+        let fishName = fish.name;
+        let isShiny = false;
+
+        // ─── Shiny check ───
+        if (rollShiny(fish, rod)) {
+            const shinyResult = applyShiny({ name: fishName, price });
+            fishName = shinyResult.name;
+            price = shinyResult.price;
+            isShiny = true;
+        }
 
         // Save to inventory
         await addFishToInventory(userId, {
             fishId: fish.id,
-            name: fish.name,
+            name: fishName,
             emoji: fish.emoji,
             zone: fish.zone,
             tier: fish.tier,
             size,
             price,
+            isShiny,
         });
         await incrementCaught(userId);
 
-        const resultColor = [0x808080, 0x4CAF50, 0x2196F3, 0x9C27B0, 0xFF9800, 0xF44336, 0xE91E63, 0xFFD700][fish.tier - 1] || 0x808080;
+        const resultColor = isShiny
+            ? 0xFFD700
+            : [0x808080, 0x4CAF50, 0x2196F3, 0x9C27B0, 0xFF9800, 0xF44336, 0xE91E63, 0xFFD700][fish.tier - 1] || 0x808080;
 
         embed.setColor(resultColor)
-            .setTitle(`${fish.emoji} Câu được ${fish.name}!`)
+            .setTitle(`${fish.emoji} Câu được ${fishName}!`)
             .setDescription(
+                `${isShiny ? '🌟 **SHINY! Giá x5!**\n' : ''}` +
                 `**Vùng:** ${{ 1:'🏖️ Vịnh Làng Chài', 2:'🌊 Đại Dương Sâu Thẳm', 3:'💀 Vùng Biển Tử Thần' }[fish.zone]}\n` +
                 `**Tier:** ${getTierStars(fish.tier)}\n` +
                 `**Kích thước:** ${size} cm\n` +

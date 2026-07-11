@@ -39,6 +39,12 @@ class LiveGameManager {
         const g = this.games.get(`${guildId}:${gameType}`);
         return g ? g.running : false;
     }
+
+    /** Lấy channelId của game đang chạy theo guild + type */
+    getChannelByType(guildId, gameType) {
+        const g = this.games.get(`${guildId}:${gameType}`);
+        return g ? g.channelId : null;
+    }
 }
 
 module.exports = new LiveGameManager();

@@ -63,7 +63,7 @@ class AviatorLiveGame {
         if (this.bets.has(message.author.id)) return message.reply('⛔ Bạn đã đặt cược rồi!').then(m => setTimeout(() => m.delete().catch(() => {}), 5000));
 
         const userData = await getUser(message.author.id);
-        const usable = Math.max(0, userData.balance - (userData.loanAmount || 0));
+        const usable = userData.balance;
         if (isNaN(amount) || amount <= 0) return message.reply('❌ Số tiền không hợp lệ!').then(m => setTimeout(() => m.delete().catch(() => {}), 5000));
         if (amount > usable) return message.reply(`❌ Bạn chỉ có **${usable.toLocaleString()} 🪙** có thể dùng!`).then(m => setTimeout(() => m.delete().catch(() => {}), 5000));
 
@@ -127,13 +127,14 @@ class AviatorLiveGame {
 
     // ─── Betting Phase ────────────────────────────────────────
     async showBettingPhase() {
-        const embed = this.buildBettingEmbed(30);
+        const histEmbed = this.buildHistoryEmbed();
+        const betEmbed = this.buildBettingEmbed(30);
         const row = this.betRow();
         if (this.mainMsg) {
-            this.mainMsg = await this.mainMsg.edit({ embeds: [embed], components: [row] }).catch(() => null);
+            this.mainMsg = await this.mainMsg.edit({ embeds: [histEmbed, betEmbed], components: [row] }).catch(() => null);
         }
         if (!this.mainMsg) {
-            this.mainMsg = await this.channel.send({ embeds: [embed], components: [row] });
+            this.mainMsg = await this.channel.send({ embeds: [histEmbed, betEmbed], components: [row] });
         }
     }
 
@@ -141,9 +142,16 @@ class AviatorLiveGame {
         for (let s = seconds - 5; s > 0; s -= 5) {
             await this.sleep(5000);
             if (!this.running) return;
-            await this.mainMsg?.edit({ embeds: [this.buildBettingEmbed(s)], components: [this.betRow()] }).catch(() => {});
+            await this.mainMsg?.edit({ embeds: [this.buildHistoryEmbed(), this.buildBettingEmbed(s)], components: [this.betRow()] }).catch(() => {});
         }
         await this.sleep(5000);
+    }
+
+    buildHistoryEmbed() {
+        return new EmbedBuilder()
+            .setColor(0x1A1A2E)
+            .setTitle(`📈 Lịch sử Aviator (${this.history.length} ván gần nhất)`)
+            .setDescription(this.getHistory());
     }
 
     buildBettingEmbed(timeLeft) {
@@ -153,7 +161,6 @@ class AviatorLiveGame {
             .setTitle(`🚀 AVIATOR LIVE — Ván #${this.round}`)
             .setDescription(`⏳ **Còn ${timeLeft} giây để đặt cược!**\n\nGõ: \`g!bet <số tiền>\` để đặt cược\nNhớ bấm **💰 Rút** trước khi nổ!`)
             .addFields(
-                { name: '📈 Lịch sử các ván (gần nhất)', value: this.getHistory(), inline: false },
                 { name: `👥 Người chơi (${this.bets.size})`, value: betLines.length ? betLines.join('\n') : '*Chưa có ai*', inline: false }
             )
             .setFooter({ text: 'Nhấn nút hoặc gõ lệnh để đặt cược' });
@@ -208,7 +215,7 @@ class AviatorLiveGame {
                 .setDescription(`${env}`)
                 .addFields({ name: '💰 Lãi dự kiến (chưa rút)', value: profitLines || '*Không có ai*', inline: false });
 
-            await this.mainMsg?.edit({ embeds: [embed], components: [cashoutRow] }).catch(() => {});
+            await this.mainMsg?.edit({ embeds: [this.buildHistoryEmbed(), embed], components: [cashoutRow] }).catch(() => {});
         }
 
         collector?.stop();
@@ -241,7 +248,8 @@ class AviatorLiveGame {
         if (loseList.length) embed.addFields({ name: '💸 Bốc hơi', value: loseList.join('\n'), inline: false });
         embed.setFooter({ text: 'Ván tiếp theo bắt đầu sau 5 giây...' });
 
-        await this.mainMsg?.edit({ embeds: [embed], components: [] }).catch(() => {});
+        // Cập nhật ngay lịch sử để hiển thị cho embed kết quả
+        await this.mainMsg?.edit({ embeds: [this.buildHistoryEmbed(), embed], components: [] }).catch(() => {});
     }
 
     // ─── Helpers ─────────────────────────────────────────────

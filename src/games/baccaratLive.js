@@ -81,8 +81,7 @@ class BaccaratLiveGame {
         }
 
         const userData = await getUser(message.author.id);
-        const loan = userData.loanAmount || 0;
-        const usable = Math.max(0, userData.balance - loan);
+        const usable = userData.balance;
 
         if (amount <= 0 || isNaN(amount)) return message.reply('❌ Số tiền không hợp lệ!').then(m => setTimeout(() => m.delete().catch(()=>{}), 5000));
         if (amount > usable) return message.reply(`❌ Bạn chỉ có thể cược tối đa **${usable.toLocaleString()} 🪙** (đã trừ tiền đang nợ)!`).then(m => setTimeout(() => m.delete().catch(()=>{}), 5000));
@@ -136,19 +135,27 @@ class BaccaratLiveGame {
 
     // ─── Betting Phase ────────────────────────────────────────
     async showBettingPhase() {
-        const embed = this.buildBettingEmbed(30);
+        const roadEmbed = this.buildRoadEmbed();
+        const betEmbed = this.buildBettingEmbed(30);
         const row = this.betRow();
         if (this.mainMsg) {
-            this.mainMsg = await this.mainMsg.edit({ embeds: [embed], components: [row] }).catch(() => null);
+            this.mainMsg = await this.mainMsg.edit({ embeds: [roadEmbed, betEmbed], components: [row] }).catch(() => null);
         }
         if (!this.mainMsg) {
-            this.mainMsg = await this.channel.send({ embeds: [embed], components: [row] });
+            this.mainMsg = await this.channel.send({ embeds: [roadEmbed, betEmbed], components: [row] });
         }
     }
 
     async updateBettingEmbed() {
         if (!this.mainMsg) return;
-        await this.mainMsg.edit({ embeds: [this.buildBettingEmbed(null)], components: [this.betRow()] }).catch(() => {});
+        await this.mainMsg.edit({ embeds: [this.buildRoadEmbed(), this.buildBettingEmbed(null)], components: [this.betRow()] }).catch(() => {});
+    }
+
+    buildRoadEmbed() {
+        return new EmbedBuilder()
+            .setColor(0x2C3E50)
+            .setTitle(`📊 Bảng Cầu Baccarat (${this.road.length} ván gần nhất)`)
+            .setDescription(this.getRoad());
     }
 
     buildBettingEmbed(timeLeft) {
@@ -165,7 +172,6 @@ class BaccaratLiveGame {
             )
             .addFields(
                 { name: '💰 Tỉ lệ thưởng', value: '🔴 Banker: **0.95x** | 🔵 Player: **1x** | 🟢 Tie: **8x**', inline: false },
-                { name: `📊 Cầu (${this.road.length} ván gần nhất)`, value: this.getRoad(), inline: false },
                 { name: `👥 Người chơi (${this.bets.size})`, value: betterLines.length ? betterLines.join('\n') : '*Chưa có ai*', inline: false }
             )
             .setFooter({ text: 'Đặt cược qua lệnh g!bet hoặc nhấn nút bên dưới' });
@@ -184,7 +190,7 @@ class BaccaratLiveGame {
             await this.sleep(5000);
             if (!this.running) return;
             await this.mainMsg?.edit({
-                embeds: [this.buildBettingEmbed(s)],
+                embeds: [this.buildRoadEmbed(), this.buildBettingEmbed(s)],
                 components: [this.betRow()]
             }).catch(() => {});
         }
@@ -201,7 +207,7 @@ class BaccaratLiveGame {
                     { name: `🔵 Player [${handTotal(pShown)}]`, value: pShown.map(fmt).join('  ') + (r.pCards.length > pShown.length ? '  🎴' : ''), inline: true },
                     { name: `🔴 Banker [${handTotal(bShown)}]`, value: bShown.map(fmt).join('  ') + (r.bCards.length > bShown.length ? '  🎴' : ''), inline: true }
                 );
-            await this.mainMsg?.edit({ embeds: [e], components: [] }).catch(() => {});
+            await this.mainMsg?.edit({ embeds: [this.buildRoadEmbed(), e], components: [] }).catch(() => {});
         };
 
         await step([r.pCards[0]], [r.bCards[0]], '🎴 Đang chia bài...');
@@ -241,14 +247,14 @@ class BaccaratLiveGame {
             .setTitle(`🎴 BACCARAT LIVE — Ván #${this.round} — ${RESULT_LABEL[r.result]}`)
             .addFields(
                 { name: `🔵 Player [${r.pTotal}]`, value: r.pCards.map(fmt).join('  '), inline: true },
-                { name: `🔴 Banker [${r.bTotal}]`, value: r.bCards.map(fmt).join('  '), inline: true },
-                { name: '📊 Cầu cập nhật', value: roadStr || '—', inline: false }
+                { name: `🔴 Banker [${r.bTotal}]`, value: r.bCards.map(fmt).join('  '), inline: true }
             );
         if (winList.length) finalEmbed.addFields({ name: '🏆 Thắng', value: winList.join('\n'), inline: true });
         if (loseList.length) finalEmbed.addFields({ name: '💸 Thua', value: loseList.join('\n'), inline: true });
         finalEmbed.setFooter({ text: 'Ván tiếp theo bắt đầu sau 6 giây...' });
 
-        await this.mainMsg?.edit({ embeds: [finalEmbed], components: [] }).catch(() => {});
+        // Update road immediately for the final embed
+        await this.mainMsg?.edit({ embeds: [this.buildRoadEmbed(), finalEmbed], components: [] }).catch(() => {});
     }
 
     // ─── Payouts ─────────────────────────────────────────────

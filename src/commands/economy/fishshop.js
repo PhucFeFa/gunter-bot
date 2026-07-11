@@ -59,7 +59,7 @@ module.exports = {
             for (const zr of ZONE_ROLES) {
                 const roleId = zones[`zone${zr.zone}Role`];
                 const hasRole = roleId && member.roles.cache.has(roleId);
-                const rolePrices = { 1: 0, 2: 500000, 3: 2000000 };
+                const rolePrices = { 1: 0, 2: 5000000, 3: 15000000 };
                 const price = rolePrices[zr.zone];
                 lines.push(`${zr.name} — **${price === 0 ? 'Miễn phí' : price.toLocaleString() + ' 🪙'}** ${hasRole ? '✅ Đã có' : ''}`);
             }
@@ -87,7 +87,7 @@ module.exports = {
 
             collector.on('collect', async i => {
                 const zoneNum = parseInt(i.customId.split('_')[1]);
-                const rolePrices = { 1: 0, 2: 500000, 3: 2000000 };
+                const rolePrices = { 1: 0, 2: 5000000, 3: 15000000 };
                 const price = rolePrices[zoneNum];
                 const roleId = zones[`zone${zoneNum}Role`];
                 if (!roleId) return i.reply({ content: '❌ Role chưa được setup!', ephemeral: true });

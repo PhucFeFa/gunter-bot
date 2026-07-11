@@ -18,7 +18,7 @@ function generateCrashPoint() {
 // ─── Space animation helpers ─────────────────────────────────
 function generateEnvironment(mult, crashed) {
     let pool = ['☁️'];
-    if (mult >= 2 && mult < 5)  pool = ['☁️', '🌙'];
+    if (mult >= 2 && mult < 5) pool = ['☁️', '🌙'];
     else if (mult >= 5 && mult < 10) pool = ['⭐', '🌙', '✨'];
     else if (mult >= 10) pool = ['🪐', '⭐', '✨', '☄️'];
 
@@ -42,6 +42,7 @@ class AviatorLiveGame {
         this.bets = new Map();  // userId → amount
         this.cashedOut = new Map(); // userId → { amount, mult, winAmount }
         this.betMsgs = [];
+        this.cashoutMsgs = [];
         this.mainMsg = null;
         this.currentMult = 1.0;
         this.crashPoint = 1.0;
@@ -50,7 +51,7 @@ class AviatorLiveGame {
     }
 
     async start() { this.running = true; await this.loop(); }
-    stop()        { this.running = false; }
+    stop() { this.running = false; }
 
     /** Đặt cược – gọi từ messageCreate (g!bet <tiền>) hoặc modal */
     async placeBet(message, amount) {
@@ -67,7 +68,7 @@ class AviatorLiveGame {
 
         const confirm = await message.reply(`✅ **${message.author.username}** đã bet **${amount.toLocaleString()} 🪙** — Nhớ bấm 💰 Rút trước khi nổ!`);
         this.betMsgs.push(message, confirm);
-        
+
         await this._editMain(this._buildHistoryEmbed(), this._buildBettingEmbed(), this._betRow());
     }
 
@@ -80,7 +81,7 @@ class AviatorLiveGame {
         const amount = this.bets.get(userId);
         const mult = this.currentMult;
         const winAmount = Math.floor(amount * mult);
-        await updateBalance(userId, winAmount).catch(() => {});
+        await updateBalance(userId, winAmount).catch(() => { });
         this.cashedOut.set(userId, { amount, mult, winAmount });
         return { amount, mult, winAmount };
     }
@@ -92,11 +93,33 @@ class AviatorLiveGame {
             components: [this._betRow()]
         });
 
+        const collector = this.mainMsg.createMessageComponentCollector({ componentType: ComponentType.Button });
+        collector.on('collect', async (i) => {
+            if (i.customId === 'liveaviator_bet') {
+                return i.reply({ content: 'Vui lòng gõ `g!bet <số tiền>` để đặt cược!', ephemeral: true });
+            }
+            const result = await this.cashout(i.user.id, i.user.username);
+            if (result) {
+                const msg = await i.reply({ content: `💵 **${i.user.username}** đã rút tại **${result.mult.toFixed(2)}x** — nhận **${result.winAmount.toLocaleString()} 🪙**!`, ephemeral: false, fetchReply: true }).catch(() => null);
+                if (msg) this.cashoutMsgs.push(msg);
+            } else {
+                await i.reply({ content: '❌ Không thể rút!', ephemeral: true }).catch(() => {});
+            }
+        });
+
         while (this.running) {
             this.round++;
             this.bets.clear();
             this.cashedOut.clear();
             this.betMsgs = [];
+            
+            if (this.cashoutMsgs) {
+                for (const m of this.cashoutMsgs) {
+                    if (m && typeof m.delete === 'function') m.delete().catch(() => {});
+                }
+            }
+            this.cashoutMsgs = [];
+
             this.currentMult = 1.0;
             this.crashPoint = generateCrashPoint();
             this.phase = 'betting';
@@ -109,7 +132,7 @@ class AviatorLiveGame {
 
             // Xóa tin nhắn bet cũ
             for (const m of this.betMsgs) {
-                if (m && typeof m.delete === 'function') m.delete().catch(() => {});
+                if (m && typeof m.delete === 'function') m.delete().catch(() => { });
             }
             this.betMsgs = [];
 
@@ -242,7 +265,7 @@ class AviatorLiveGame {
 
     async _reply(message, content) {
         const m = await message.reply(content);
-        setTimeout(() => { if (m && typeof m.delete === 'function') m.delete().catch(() => {}) }, 5000);
+        setTimeout(() => { if (m && typeof m.delete === 'function') m.delete().catch(() => { }) }, 5000);
         return m;
     }
 

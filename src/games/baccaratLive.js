@@ -12,7 +12,7 @@ const { getUser, updateBalance } = require('../utils/economyDB');
 const SUITS = ['♠️', '♣️', '♥️', '♦️'];
 const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
 const drawCard = () => ({ rank: RANKS[Math.floor(Math.random() * RANKS.length)], suit: SUITS[Math.floor(Math.random() * SUITS.length)] });
-const cardVal = r => (r === 'A' ? 1 : ['10','J','Q','K'].includes(r) ? 0 : parseInt(r));
+const cardVal = r => (r === 'A' ? 1 : ['10', 'J', 'Q', 'K'].includes(r) ? 0 : parseInt(r));
 const handTotal = cards => cards.reduce((s, c) => s + cardVal(c.rank), 0) % 10;
 const fmt = c => `\`${c.rank}${c.suit}\``;
 
@@ -41,34 +41,34 @@ function dealBaccarat() {
     return { pCards, bCards, pTotal, bTotal, result };
 }
 
-const ROAD_ICON  = { banker: '🔴', player: '🔵', tie: '🟢' };
-const ROAD_LABEL = { banker: 'B',   player: 'P',   tie: 'T'  };
+const ROAD_ICON = { banker: '🔴', player: '🔵', tie: '🟢' };
+const ROAD_LABEL = { banker: 'B', player: 'P', tie: 'T' };
 const RESULT_COLOR = { banker: 0xFF4444, player: 0x4488FF, tie: 0x44FF88 };
 const RESULT_LABEL = { banker: '🔴 BANKER THẮNG!', player: '🔵 PLAYER THẮNG!', tie: '🟢 HÒA!' };
 
 // ─── BaccaratLiveGame ────────────────────────────────────────
 class BaccaratLiveGame {
     constructor(channel, client, guildId) {
-        this.channel   = channel;
+        this.channel = channel;
         this.channelId = channel.id;
-        this.client    = client;
-        this.guildId   = guildId;
-        this.gameType  = 'baccarat';
-        this.running   = false;
-        this.round     = 0;
-        this.road      = [];        // Tối đa 20 kết quả
-        this.bets      = new Map(); // userId → { side, amount }
-        this.betMsgs   = [];        // Tin nhắn cược để xóa sau
-        this.mainMsg   = null;      // Embed chính (không đổi trong suốt game)
-        this.timeLeft  = 30;        // Giây còn lại phase betting
+        this.client = client;
+        this.guildId = guildId;
+        this.gameType = 'baccarat';
+        this.running = false;
+        this.round = 0;
+        this.road = [];        // Tối đa 20 kết quả
+        this.bets = new Map(); // userId → { side, amount }
+        this.betMsgs = [];        // Tin nhắn cược để xóa sau
+        this.mainMsg = null;      // Embed chính (không đổi trong suốt game)
+        this.timeLeft = 30;        // Giây còn lại phase betting
     }
 
     async start() { this.running = true; await this.loop(); }
-    stop()        { this.running = false; }
+    stop() { this.running = false; }
 
     // ─── Đặt cược (từ prefix hoặc modal) ─────────────────────
     async placeBet(message, side, amount) {
-        if (!['banker','player','tie'].includes(side))
+        if (!['banker', 'player', 'tie'].includes(side))
             return this._reply(message, '❌ Cửa không hợp lệ! Dùng: `banker`, `player` hoặc `tie`');
 
         const userData = await getUser(message.author.id);
@@ -115,7 +115,7 @@ class BaccaratLiveGame {
 
             // Xóa tin nhắn bet cũ
             for (const m of this.betMsgs) {
-                if (m && typeof m.delete === 'function') m.delete().catch(() => {});
+                if (m && typeof m.delete === 'function') m.delete().catch(() => { });
             }
             this.betMsgs = [];
 
@@ -154,18 +154,18 @@ class BaccaratLiveGame {
             await this._editMain(this._buildRoadEmbed(), e);
         };
 
-        await step([r.pCards[0]],                         [r.bCards[0]],                         '🎴 Đang chia bài...');
+        await step([r.pCards[0]], [r.bCards[0]], '🎴 Đang chia bài...');
         await this.sleep(850);
-        await step([r.pCards[0]],                         [r.bCards[0], r.bCards[1]],             '🎴 Đang chia bài...');
+        await step([r.pCards[0]], [r.bCards[0], r.bCards[1]], '🎴 Đang chia bài...');
         await this.sleep(850);
-        await step([r.pCards[0], r.pCards[1]],            [r.bCards[0], r.bCards[1]],             '🎴 Đang chia bài...');
+        await step([r.pCards[0], r.pCards[1]], [r.bCards[0], r.bCards[1]], '🎴 Đang chia bài...');
         await this.sleep(850);
         if (r.pCards[2]) {
-            await step(r.pCards,                          [r.bCards[0], r.bCards[1]],             '🎴 Player rút thêm bài...');
+            await step(r.pCards, [r.bCards[0], r.bCards[1]], '🎴 Player rút thêm bài...');
             await this.sleep(850);
         }
         if (r.bCards[2]) {
-            await step(r.pCards,                          r.bCards,                               '🎴 Banker rút thêm bài...');
+            await step(r.pCards, r.bCards, '🎴 Banker rút thêm bài...');
             await this.sleep(850);
         }
 
@@ -191,8 +191,8 @@ class BaccaratLiveGame {
                 { name: `🔵 Player [${r.pTotal}]`, value: r.pCards.map(fmt).join('  '), inline: true },
                 { name: `🔴 Banker [${r.bTotal}]`, value: r.bCards.map(fmt).join('  '), inline: true }
             );
-        if (winList.length)  finalEmbed.addFields({ name: '🏆 Thắng',  value: winList.join('\n'),  inline: false });
-        if (loseList.length) finalEmbed.addFields({ name: '💸 Thua',   value: loseList.join('\n'), inline: false });
+        if (winList.length) finalEmbed.addFields({ name: '🏆 Thắng', value: winList.join('\n'), inline: false });
+        if (loseList.length) finalEmbed.addFields({ name: '💸 Thua', value: loseList.join('\n'), inline: false });
         finalEmbed.setFooter({ text: 'Ván tiếp theo bắt đầu sau 6 giây...' });
 
         // Show kết quả với bảng cầu đã cập nhật
@@ -205,7 +205,7 @@ class BaccaratLiveGame {
         for (const [uid, b] of this.bets) {
             if (b.side === r.result) {
                 const profit = b.side === 'banker' ? Math.floor(b.amount * 0.95) : b.side === 'tie' ? b.amount * 8 : b.amount;
-                tasks.push(updateBalance(uid, b.amount + profit).catch(() => {}));
+                tasks.push(updateBalance(uid, b.amount + profit).catch(() => { }));
             }
         }
         await Promise.all(tasks);
@@ -265,7 +265,7 @@ class BaccaratLiveGame {
     // ─── Reply helper (auto delete 5s) ────────────────────────
     async _reply(message, content) {
         const m = await message.reply(content);
-        setTimeout(() => { if (m && typeof m.delete === 'function') m.delete().catch(() => {}) }, 5000);
+        setTimeout(() => { if (m && typeof m.delete === 'function') m.delete().catch(() => { }) }, 5000);
         return m;
     }
 

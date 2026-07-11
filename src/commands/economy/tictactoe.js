@@ -343,7 +343,7 @@ module.exports = {
                 if (currentTurn === 'X') {
                     // P1 thắng
                     if (mode === 'pvp') amountWon = bet * 2;
-                    else amountWon = bet + Math.floor(bet * rewardMultiplier);
+                    else amountWon = Math.floor(bet * rewardMultiplier);
                     await updateBalance(p1.id, amountWon);
                 } else {
                     // P2 thắng

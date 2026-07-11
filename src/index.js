@@ -114,6 +114,10 @@ client.login(process.env.DISCORD_TOKEN)
         // Đây cũng là cổng để UptimeRobot ping giữ bot thức 24/7.
         startServer(client);
 
+        // --- Fish Shop Reset Scheduler ---
+        const { startFishShopScheduler } = require('./utils/fishShopReset');
+        startFishShopScheduler(client);
+
         // --- Cron Job Đòi Nợ ---
         const { getAllDebtors } = require('./utils/economyDB');
         setInterval(async () => {

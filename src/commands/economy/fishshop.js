@@ -20,9 +20,19 @@ module.exports = {
         .addSubcommand(s => s.setName('myrod').setDescription('Xem cần câu hiện tại của bạn')),
 
     async execute(interaction) {
-        await interaction.deferReply();
+        await interaction.deferReply({ ephemeral: true });
         const sub = interaction.options.getSubcommand();
         const userId = interaction.user.id;
+        const guildId = interaction.guildId;
+
+        // ─── Kiểm tra kênh shop ───
+        const zones = await getZoneSetup(guildId);
+        if (!zones.shopChannel) {
+            return interaction.editReply('❌ Admin chưa setup kênh shop câu cá! Dùng lệnh `/fishsetup shop #kênh`.');
+        }
+        if (interaction.channelId !== zones.shopChannel) {
+            return interaction.editReply(`❌ Shop câu cá chỉ hoạt động tại <#${zones.shopChannel}>!`);
+        }
 
         if (sub === 'myrod') {
             const profile = await getFishProfile(userId);

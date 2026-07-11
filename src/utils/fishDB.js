@@ -78,8 +78,23 @@ async function getChannelZone(guildId, channelId) {
     return null;
 }
 
+// ─── Shop notify message tracking ────────────────────────────────
+async function getShopNotifyMsg(guildId) {
+    const doc = await db.collection('guildConfig').doc(guildId).get();
+    const data = doc.exists ? doc.data() : {};
+    return data.fishShopNotifyMsg || null; // { messageId, channelId }
+}
+
+async function setShopNotifyMsg(guildId, msgData) {
+    await db.collection('guildConfig').doc(guildId).set(
+        { fishShopNotifyMsg: msgData },
+        { merge: true }
+    );
+}
+
 module.exports = {
     getFishProfile, setUserRod, incrementCaught,
     getInventory, addFishToInventory, removeFishFromInventory, clearInventory,
-    getZoneSetup, setZoneSetup, getChannelZone
+    getZoneSetup, setZoneSetup, getChannelZone,
+    getShopNotifyMsg, setShopNotifyMsg
 };

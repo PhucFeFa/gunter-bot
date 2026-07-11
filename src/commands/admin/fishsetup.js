@@ -28,6 +28,11 @@ module.exports = {
             .setDescription('Tự động tạo 3 role vùng câu cá cho server')
         )
         .addSubcommand(s => s
+            .setName('shop')
+            .setDescription('ℹ️ Gán kênh shop câu cá & thao tác shop')
+            .addChannelOption(o => o.setName('channel').setDescription('Kênh shop câu cá').addChannelTypes(ChannelType.GuildText).setRequired(true))
+        )
+        .addSubcommand(s => s
             .setName('view')
             .setDescription('Xem cấu hình hiện tại')
         ),
@@ -65,6 +70,14 @@ module.exports = {
             return interaction.editReply(`✅ Đã tạo/gán 3 role vùng câu:\n${created.join('\n')}`);
         }
 
+        if (sub === 'shop') {
+            const channel = interaction.options.getChannel('channel');
+            const current = await getZoneSetup(guildId);
+            current.shopChannel = channel.id;
+            await setZoneSetup(guildId, current);
+            return interaction.editReply(`✅ Đã gán kênh shop câu cá vào \u003c#${channel.id}\u003e!\n\nBot sẽ tự động gửi thông báo reset shop tại kênh này mỗi ngày (reset mỗi 12 giờ).`);
+        }
+
         if (sub === 'view') {
             const zones = await getZoneSetup(guildId);
             const lines = [1, 2, 3].map(n => {
@@ -72,6 +85,8 @@ module.exports = {
                 const ro = zones[`zone${n}Role`] ? `<@&${zones[`zone${n}Role`]}>` : '*chưa tạo*';
                 return `**Vùng ${n}:** Kênh: ${ch} | Role: ${ro}`;
             });
+            const shopCh = zones.shopChannel ? `<#${zones.shopChannel}>` : '*chưa setup*';
+            lines.push(`**Shop:** ${shopCh}`);
             return interaction.editReply(lines.join('\n'));
         }
     }

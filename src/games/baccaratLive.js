@@ -114,7 +114,9 @@ class BaccaratLiveGame {
             if (!this.running) break;
 
             // Xóa tin nhắn bet cũ
-            for (const m of this.betMsgs) m.delete().catch(() => {});
+            for (const m of this.betMsgs) {
+                if (m && typeof m.delete === 'function') m.delete().catch(() => {});
+            }
             this.betMsgs = [];
 
             // Không có người cược → bỏ qua
@@ -273,7 +275,7 @@ class BaccaratLiveGame {
     // ─── Reply helper (auto delete 5s) ────────────────────────
     async _reply(message, content) {
         const m = await message.reply(content);
-        setTimeout(() => m.delete().catch(() => {}), 5000);
+        setTimeout(() => { if (m && typeof m.delete === 'function') m.delete().catch(() => {}) }, 5000);
         return m;
     }
 

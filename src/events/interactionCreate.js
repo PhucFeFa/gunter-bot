@@ -77,11 +77,11 @@ module.exports = {
             const balance = userData.balance;
             const amount = rawAmt === 'all' ? balance : parseInt(rawAmt);
 
-            // Giả lập message object cho placeBet
             const fakeMsg = {
                 author: interaction.user,
                 reply: async (opts) => {
-                    const m = await interaction.reply({ ...opts, fetchReply: true }).catch(() => interaction.followUp(opts));
+                    const payload = typeof opts === 'string' ? { content: opts } : opts;
+                    const m = await interaction.reply({ ...payload, fetchReply: true }).catch(() => interaction.followUp({ ...payload, fetchReply: true }));
                     return m;
                 }
             };

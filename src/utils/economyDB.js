@@ -212,4 +212,17 @@ async function updateLastWork(userId) {
     await ref.update({ lastWork: Date.now() });
 }
 
-module.exports = { getUser, updateBalance, claimDaily, incrementMsgCount, addVoiceTime, getTopUsers, transferMoney, recordTarotPlay, DAILY_AMOUNT, STARTING_BALANCE, getJobData, setJob, updateLastWork, updateLoan };
+/**
+ * Lấy danh sách những người đang có nợ
+ */
+async function getAllDebtors() {
+    const snapshot = await db.collection(USERS_COLLECTION)
+        .where('loanAmount', '>', 0)
+        .get();
+
+    const debtors = [];
+    snapshot.forEach(doc => debtors.push(doc.data()));
+    return debtors;
+}
+
+module.exports = { getUser, updateBalance, claimDaily, incrementMsgCount, addVoiceTime, getTopUsers, transferMoney, recordTarotPlay, DAILY_AMOUNT, STARTING_BALANCE, getJobData, setJob, updateLastWork, updateLoan, getAllDebtors };

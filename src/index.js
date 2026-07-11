@@ -113,6 +113,45 @@ client.login(process.env.DISCORD_TOKEN)
         // Bật Web API để Render.com có thể nhận diện cổng (Port) và không bị báo lỗi.
         // Đây cũng là cổng để UptimeRobot ping giữ bot thức 24/7.
         startServer(client);
+
+        // --- Cron Job Đòi Nợ ---
+        const { getAllDebtors } = require('./utils/economyDB');
+        setInterval(async () => {
+            try {
+                const debtors = await getAllDebtors();
+                if (debtors.length === 0) return;
+                
+                const channel = client.channels.cache.get('1525454150803128371');
+                
+                const msgs = [
+                    "Mày tính quịt nợ tao à? Đừng để tao phải xuống tận nhà!",
+                    "Tới giờ trả tiền rồi con trai, giang hồ không có kiên nhẫn đâu!",
+                    "Số nợ của mày ngày càng phình to rồi đấy, tính bùng hả?",
+                    "Alo alo, nợ nần sòng phẳng đi mày ơi, nhà bao việc!",
+                    "Chưa thấy tiền vào tài khoản? Mày định báo nhà à?"
+                ];
+
+                for (const user of debtors) {
+                    const randomMsg = msgs[Math.floor(Math.random() * msgs.length)];
+                    
+                    if (channel) {
+                        const text = `⚠️ **ĐÒI NỢ THUÊ**\nÊ <@${user.userId}>, mày đang nợ ngân hàng Gunter **${user.loanAmount.toLocaleString()} 🪙**.\n${randomMsg}\n(Dùng lệnh \`/loan repay\` hoặc \`/work\` để trừ nợ ngay!)`;
+                        await channel.send(text);
+                    }
+                    
+                    // DM
+                    try {
+                        const discordUser = await client.users.fetch(user.userId);
+                        await discordUser.send(`🔪 **GIANG HỒ ĐÒI NỢ:**\nMày đang nợ tao **${user.loanAmount.toLocaleString()} 🪙**.\n${randomMsg}`);
+                    } catch(e) {
+                        // Ignore if DM is closed
+                    }
+                }
+            } catch (err) {
+                console.error("Cron Đòi nợ lỗi:", err);
+            }
+        }, 2 * 60 * 60 * 1000); // 2 hours
+
     })
     .catch(err => {
         console.error('[FATAL] Failed to login:', err.message);

@@ -37,10 +37,12 @@ module.exports = {
         let bet = 0;
         if (betRaw.toLowerCase() === 'all') {
             bet = currentBalance;
+            if (bet > 250000000) bet = 250000000;
             if (bet <= 0) return interaction.editReply('❌ Bạn làm gì có tiền mà đòi all in!');
         } else {
             bet = parseInt(betRaw);
             if (isNaN(bet) || bet <= 0) return interaction.editReply('❌ Số tiền cược không hợp lệ!');
+            if (bet > 250000000) return interaction.editReply('❌ Mức cược tối đa cho Tic-Tac-Toe là 250,000,000 $!');
         }
         if (currentBalance < bet) {
             return interaction.editReply(`❌ Bạn không có đủ tiền! Số dư của bạn: **${currentBalance.toLocaleString()} $**`);
@@ -124,9 +126,9 @@ module.exports = {
             .setCustomId('caro_difficulty')
             .setPlaceholder('Chọn độ khó')
             .addOptions([
-                { label: 'Dễ (Easy)', description: 'Bot đánh ngẫu nhiên. Thưởng: 1.5x cược', value: 'easy' },
-                { label: 'Trung Bình (Medium)', description: 'Bot biết chặn đường. Thưởng: 2.0x cược', value: 'medium' },
-                { label: 'Khó (Hard)', description: 'Bot biết tính toán. Thưởng: 3.0x cược', value: 'hard' }
+                { label: 'Dễ (Easy)', description: 'Bot đánh ngẫu nhiên. Thưởng: 1.1x cược', value: 'easy' },
+                { label: 'Trung Bình (Medium)', description: 'Bot biết chặn đường. Thưởng: 1.5x cược', value: 'medium' },
+                { label: 'Khó (Hard)', description: 'Bot biết tính toán. Thưởng: 2.5x cược', value: 'hard' }
             ]);
 
         const row = new ActionRowBuilder().addComponents(menu);
@@ -152,9 +154,9 @@ module.exports = {
             await i.update({ content: `✅ Đã chọn độ khó **${difficulty.toUpperCase()}**. Trừ ${bet.toLocaleString()} $. Bắt đầu...`, components: [] });
             collector.stop('started');
 
-            let rewardMultiplier = 1.5;
-            if (difficulty === 'medium') rewardMultiplier = 2.0;
-            if (difficulty === 'hard') rewardMultiplier = 3.0;
+            let rewardMultiplier = 1.1;
+            if (difficulty === 'medium') rewardMultiplier = 1.5;
+            if (difficulty === 'hard') rewardMultiplier = 2.5;
 
             this.runGame(interaction, p1, { id: 'bot', username: 'Gunter Bot' }, bet, 'pve', rewardMultiplier, difficulty);
         });

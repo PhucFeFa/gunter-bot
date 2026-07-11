@@ -53,13 +53,13 @@ module.exports = {
         let loanInfo = '';
 
         if (user.loanAmount && user.loanAmount > 0) {
-            // Trừ 30% lương để trả nợ
-            const maxDeduct = Math.floor(originalSalary * 0.30);
+            // Trừ 35% lương để trả nợ
+            const maxDeduct = Math.floor(originalSalary * 0.35);
             debtPaid = Math.min(maxDeduct, user.loanAmount);
             salary = originalSalary - debtPaid;
             
             await updateLoan(userId, -debtPaid);
-            loanInfo = `\n\n🏦 **Giang hồ tới siết cổ (30%):** -${debtPaid.toLocaleString()} 🪙\n📉 **Còn nợ tao:** ${(user.loanAmount - debtPaid).toLocaleString()} 🪙. Trốn đi đâu?`;
+            loanInfo = `\n\n🏦 **Giang hồ tới siết cổ (35%):** -${debtPaid.toLocaleString()} 🪙\n📉 **Còn nợ tao:** ${(user.loanAmount - debtPaid).toLocaleString()} 🪙. Trốn đi đâu?`;
         }
 
         // Cập nhật Database

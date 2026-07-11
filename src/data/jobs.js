@@ -7,7 +7,7 @@ module.exports = {
             color: 0x95a5a6,
             minSalary: 1000,
             maxSalary: 5000,
-            weight: 150,
+            weight: 300,
             dialogues: [
                 "Bạn cầm nón lá ngồi ngoài chợ, người qua đường thương tình cho bạn chút tiền lẻ.",
                 "Bạn múa hát xin tiền ở ngã tư, bị công an đuổi chạy rơi cả dép nhưng vẫn giữ được tiền.",
@@ -24,7 +24,7 @@ module.exports = {
             color: 0x7f8c8d,
             minSalary: 2000,
             maxSalary: 10000,
-            weight: 140,
+            weight: 280,
             dialogues: [
                 "Bạn bới được một đống vỏ lon bia sau đêm chung kết bóng đá.",
                 "Đang bới rác thì bị chó cắn, nhưng bù lại tìm được cái quạt cháy đem bán phế liệu.",
@@ -41,7 +41,7 @@ module.exports = {
             color: 0x27ae60,
             minSalary: 5000,
             maxSalary: 15000,
-            weight: 130,
+            weight: 260,
             dialogues: [
                 "Bạn mời khách nhậu mua vé số, họ trúng kèo cá cược nên bao luôn nguyên xấp.",
                 "Đang đi bộ bán thì trời mưa to, ướt sũng nhưng may mắn bán hết trước giờ xổ.",
@@ -58,7 +58,7 @@ module.exports = {
             color: 0x2ecc71,
             minSalary: 10000,
             maxSalary: 30000,
-            weight: 120,
+            weight: 240,
             dialogues: [
                 "Vụ lúa này trúng mùa, lúa chất đầy bồ chờ giá lên.",
                 "Đàn gà đẻ trứng nhiều bất thường, bạn đem ra chợ bán hết sạch.",
@@ -75,7 +75,7 @@ module.exports = {
             color: 0xe67e22,
             minSalary: 15000,
             maxSalary: 40000,
-            weight: 110,
+            weight: 220,
             dialogues: [
                 "Xách vữa từ sáng đến chiều không nghỉ tay, cai thầu khen ngợi và thưởng thêm tiền.",
                 "Trộn nhầm tỷ lệ xi măng, bị thợ chính chửi một trận nhưng vẫn lấy được tiền công.",
@@ -92,7 +92,7 @@ module.exports = {
             color: 0x34495e,
             minSalary: 25000,
             maxSalary: 55000,
-            weight: 90,
+            weight: 45,
             dialogues: [
                 "Trực đêm quán net bắt được trộm xe, chủ quán thưởng nóng cho bạn.",
                 "Ngủ gục trong bốt gác bị quản lý bắt quả tang, bị trừ lương một ít.",
@@ -109,7 +109,7 @@ module.exports = {
             color: 0xe74c3c,
             minSalary: 30000,
             maxSalary: 65000,
-            weight: 80,
+            weight: 40,
             dialogues: [
                 "Chạy bàn không ngừng nghỉ cuối tuần, khách nước ngoài tip hậu hĩnh bằng Đô la.",
                 "Làm đổ nước tương lên áo khách, bị trừ lương nhưng quản lý vẫn tha cho.",
@@ -126,7 +126,7 @@ module.exports = {
             color: 0x1abc9c,
             minSalary: 40000,
             maxSalary: 80000,
-            weight: 75,
+            weight: 37,
             dialogues: [
                 "Tăng ca làm thêm giờ đến tận đêm, tiền lương cuối tháng cộng thêm một khoản lớn.",
                 "Làm việc đạt năng suất vượt định mức, quản đốc thưởng chuyên cần.",
@@ -143,7 +143,7 @@ module.exports = {
             color: 0xf39c12,
             minSalary: 50000,
             maxSalary: 100000,
-            weight: 70,
+            weight: 35,
             dialogues: [
                 "Giao đơn hàng cách xa 15km giữa trưa nắng vỡ đầu, khách thấy tội nên boa thêm tiền!",
                 "Dính quả bom hàng trà sữa, phải tự uống hết nhưng được app hỗ trợ đền bù một phần.",
@@ -160,7 +160,7 @@ module.exports = {
             color: 0xf1c40f,
             minSalary: 60000,
             maxSalary: 120000,
-            weight: 60,
+            weight: 30,
             dialogues: [
                 "Chở khách đi tỉnh xa một chuyến, cuốc xe này thơm phức thu về bộn tiền.",
                 "Khách say xỉn nôn ra xe, bạn bắt đền được tiền rửa xe và thêm tiền bồi thường.",
@@ -177,7 +177,7 @@ module.exports = {
             color: 0x8e44ad,
             minSalary: 80000,
             maxSalary: 150000,
-            weight: 45,
+            weight: 11,
             dialogues: [
                 "Bổ máy xe tay ga cho khách mất cả ngày, nhưng tiền công cực kỳ xứng đáng.",
                 "Sửa pan xe dọc đường giữa đêm, chém giá gấp đôi khách vẫn gật đầu trả.",
@@ -194,7 +194,7 @@ module.exports = {
             color: 0x2980b9,
             minSalary: 100000,
             maxSalary: 200000,
-            weight: 40,
+            weight: 10,
             dialogues: [
                 "Làm xong báo cáo trước deadline, sếp thưởng nóng cho cái thẻ quà tặng.",
                 "Làm việc thảnh thơi vừa lướt web vừa uống trà sữa, đến tháng vẫn nhận lương đều.",
@@ -211,7 +211,7 @@ module.exports = {
             color: 0x16a085,
             minSalary: 120000,
             maxSalary: 220000,
-            weight: 35,
+            weight: 8,
             dialogues: [
                 "Dạy kèm học sinh cá biệt tiến bộ rõ rệt, phụ huynh tặng phong bì cảm ơn.",
                 "Chấm bài kiểm tra giữa kỳ xuyên đêm, mắt mờ đi nhưng tiền thù lao chấm bài khá ổn.",
@@ -228,7 +228,7 @@ module.exports = {
             color: 0x3498db,
             minSalary: 150000,
             maxSalary: 300000,
-            weight: 15,
+            weight: 1,
             dialogues: [
                 "Thức 3 ngày 3 đêm để fix một con bug siêu dị trên production. Cuối cùng code cũng chạy!",
                 "Nhận đi cài Win dạo và sửa máy in cho nguyên một văn phòng, kiếm được một mớ.",
@@ -245,7 +245,7 @@ module.exports = {
             color: 0x9b59b6,
             minSalary: 200000,
             maxSalary: 350000,
-            weight: 12,
+            weight: 1,
             dialogues: [
                 "Thực hiện thành công một ca phẫu thuật phức tạp kéo dài 8 tiếng đồng hồ.",
                 "Hôm nay phòng khám tư đông nghẹt bệnh nhân, khám mỏi tay nhưng thu nhập cực khủng.",
@@ -262,7 +262,7 @@ module.exports = {
             color: 0x34495e,
             minSalary: 250000,
             maxSalary: 400000,
-            weight: 10,
+            weight: 1,
             dialogues: [
                 "Cãi thắng một vụ kiện tranh chấp đất đai lớn, thân chủ trả phí hoa hồng cực cao.",
                 "Tư vấn pháp lý cho tập đoàn đa quốc gia, chỉ nói vài câu mà tiền vô như nước.",
@@ -279,7 +279,7 @@ module.exports = {
             color: 0xd35400,
             minSalary: 350000,
             maxSalary: 500000,
-            weight: 4,
+            weight: 1,
             dialogues: [
                 "Ký duyệt dự án đầu tư sinh lời 300%, công ty ăn nên làm ra, tiền thưởng ngập mặt.",
                 "Đi đánh golf cuối tuần tiện thể chốt luôn được hợp đồng hàng chục tỷ.",
@@ -296,7 +296,7 @@ module.exports = {
             color: 0xc0392b,
             minSalary: 450000,
             maxSalary: 600000,
-            weight: 2,
+            weight: 1,
             hidden: true, // Ẩn khỏi danh sách
             dialogues: [
                 "Cô gái đó dám tát bạn? Bạn lập tức mua lại toàn bộ công ty của cô ta chỉ trong 5 phút.",
@@ -332,7 +332,7 @@ module.exports = {
             color: 0xbdc3c7,
             minSalary: 3000,
             maxSalary: 12000,
-            weight: 135,
+            weight: 270,
             dialogues: [
                 "Quét rác công viên mỏi tay, lượm được chai nhựa đem bán ve chai thêm tiền.",
                 "Lau dọn nhà vệ sinh công cộng, khách qua đường thấy tội nghiệp cho thêm tiền tip.",
@@ -349,7 +349,7 @@ module.exports = {
             color: 0xf1c40f,
             minSalary: 35000,
             maxSalary: 70000,
-            weight: 85,
+            weight: 42,
             dialogues: [
                 "Sửa mạch điện bị chập cho một biệt thự, chủ nhà giàu có boa thêm khá nhiều.",
                 "Leo cột điện giữa trưa nắng để nối dây, xuống đất hoa cả mắt nhưng nhận đủ tiền công.",
@@ -366,7 +366,7 @@ module.exports = {
             color: 0xe67e22,
             minSalary: 45000,
             maxSalary: 85000,
-            weight: 80,
+            weight: 40,
             dialogues: [
                 "Livestream chốt được 100 đơn hàng trong 1 tiếng, lợi nhuận tăng vọt.",
                 "Bị khách bom hàng 5 đơn, buồn thiu nhưng gỡ lại nhờ khách VIP mua sỉ.",
@@ -383,7 +383,7 @@ module.exports = {
             color: 0xe74c3c,
             minSalary: 90000,
             maxSalary: 180000,
-            weight: 45,
+            weight: 11,
             dialogues: [
                 "Video review đồ ăn lọt top thịnh hành, lượt view tăng chóng mặt kéo theo tiền quảng cáo.",
                 "Bị gậy bản quyền vì lỡ chèn nhạc dính bản quyền, doanh thu giảm sút đôi chút.",
@@ -400,7 +400,7 @@ module.exports = {
             color: 0x3498db,
             minSalary: 130000,
             maxSalary: 250000,
-            weight: 30,
+            weight: 7,
             dialogues: [
                 "Lái chuyến bay quốc tế đường dài an toàn, nhận lương chuyến bay cực hậu hĩnh.",
                 "Vượt qua vùng thời tiết xấu một cách ngoạn mục, hành khách vỗ tay rào rào.",
@@ -417,7 +417,7 @@ module.exports = {
             color: 0xf39c12,
             minSalary: 180000,
             maxSalary: 320000,
-            weight: 18,
+            weight: 1,
             dialogues: [
                 "Đóng vai nam/nữ chính trong bộ phim truyền hình ăn khách, cát-xê tăng vọt.",
                 "Phải quay đi quay lại một cảnh khóc 20 lần, mệt lả người nhưng nhận được thù lao xứng đáng.",
@@ -434,7 +434,7 @@ module.exports = {
             color: 0x2ecc71,
             minSalary: 220000,
             maxSalary: 380000,
-            weight: 14,
+            weight: 1,
             dialogues: [
                 "Phát minh ra loại vật liệu mới, bán bằng sáng chế cho tập đoàn công nghệ thu về số tiền lớn.",
                 "Công bố bài báo khoa học trên tạp chí quốc tế, nhận được học bổng và quỹ tài trợ khổng lồ.",
@@ -451,7 +451,7 @@ module.exports = {
             color: 0x8e44ad,
             minSalary: 400000,
             maxSalary: 600000,
-            weight: 3,
+            weight: 1,
             dialogues: [
                 "Ký thông qua đạo luật kích thích kinh tế, cổ phiếu bạn ngầm sở hữu tăng phi mã.",
                 "Đi công du nước ngoài, mang về các bản hợp đồng kinh tế tỷ đô cho đất nước (và tiền hoa hồng cho bạn).",
@@ -514,6 +514,24 @@ module.exports = {
                 "Hack vào vệ tinh quân sự, bán thông tin tuyệt mật trên Dark Web với giá trên trời.",
                 "Chỉ với vài dòng lệnh, bạn đánh cắp toàn bộ mã nguồn của một trò chơi chưa phát hành để tống tiền."
             ]
+        },
+        kho_ga_mixi: {
+            id: 'kho_ga_mixi',
+            name: 'Khô Gà Mixi Seller',
+            rarity: 'Secret',
+            color: 0xffa500,
+            minSalary: 1000000,
+            maxSalary: 2500000,
+            weight: 0, // Không dùng hệ thống weight thông thường
+            hidden: true,
+            dialogues: [
+                "Bán khô gà lá chanh mỏi tay, khách mua đông nườm nượp, tiền bay vào tài khoản liên tục.",
+                "Stream một tiếng bán hết kho khô gà 5 tấn, bạn chốt đơn mà không kịp đọc chat.",
+                "Ship khô gà xuyên quốc gia, lợi nhuận khổng lồ giúp bạn mua hẳn cái biệt thự mới.",
+                "Công thức khô gà Mixi được truyền lại, bạn bán cháy hàng ngay trên livestream.",
+                "Khách hàng đòi mua sỉ khô gà với số lượng không tưởng, bạn thu về doanh thu bạc tỷ.",
+                "Hôm nay tung mã giảm giá khô gà 50%, doanh thu x3, bạn vui vẻ đi sắm đồ hiệu."
+            ]
         }
     },
     
@@ -521,7 +539,12 @@ module.exports = {
      * Quay ngẫu nhiên một công việc dựa trên tỷ lệ (weight)
      */
     spinJob: function() {
-        const jobList = Object.values(module.exports.jobs);
+        // Tỷ lệ bí mật 0.01% ra Khô Gà Mixi
+        if (Math.random() < 0.0001) {
+            return module.exports.jobs['kho_ga_mixi'];
+        }
+
+        const jobList = Object.values(module.exports.jobs).filter(j => j.weight > 0);
         const totalWeight = jobList.reduce((sum, job) => sum + job.weight, 0);
         let random = Math.floor(Math.random() * totalWeight);
         

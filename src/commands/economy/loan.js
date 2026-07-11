@@ -11,7 +11,7 @@ module.exports = {
             .setDescription('Xem thông tin khoản vay và hạn mức của bạn'))
         .addSubcommand(sub => sub
             .setName('borrow')
-            .setDescription('Vay tiền từ ngân hàng (Lãi suất 10%)')
+            .setDescription('Vay tiền từ ngân hàng (Lãi suất 35%)')
             .addStringOption(opt => opt
                 .setName('amount')
                 .setDescription('Số tiền muốn vay (hoặc "max")')
@@ -51,7 +51,7 @@ module.exports = {
                     { name: 'Tao cho mày mượn tối đa', value: `**${maxLoanLimit.toLocaleString()} 🪙**`, inline: true },
                     { name: 'Đang thiếu nợ tao', value: `**${currentLoan.toLocaleString()} 🪙**`, inline: false }
                 )
-                .setFooter({ text: 'Lãi cắt cổ: 10% | Cứ đi làm là tao siết 30% lương. Trốn đi đâu con trai?' });
+                .setFooter({ text: 'Lãi cắt cổ: 35% | Cứ đi làm là tao siết 35% lương. Trốn đi đâu con trai?' });
             return interaction.editReply({ embeds: [embed] });
         }
 
@@ -85,8 +85,8 @@ module.exports = {
                 return interaction.editReply(`❌ Mày tính lừa ngân hàng hả? Tao chỉ cho mày mượn tối đa **${availableToBorrow.toLocaleString()} 🪙** thôi con chó!`);
             }
 
-            // Tiền gốc + 10% lãi suất cố định
-            const totalDebt = Math.floor(borrowAmount * 1.10);
+            // Tiền gốc + 35% lãi suất cố định
+            const totalDebt = Math.floor(borrowAmount * 1.35);
 
             await updateBalance(userId, borrowAmount); // Nhận tiền mặt
             await updateLoan(userId, totalDebt); // Ghi nợ + lãi
@@ -95,9 +95,20 @@ module.exports = {
                 .setColor(0x00FF00)
                 .setTitle('✅ RẢI HỌ THÀNH CÔNG')
                 .setDescription(`Đã quăng cho mày **${borrowAmount.toLocaleString()} 🪙** vào mõm!\n\n` +
-                                `📈 **Lãi cắt cổ:** 10%\n` +
+                                `📈 **Lãi cắt cổ:** 35%\n` +
                                 `💸 **Sổ ghi nợ:** ${totalDebt.toLocaleString()} 🪙\n\n` +
-                                `*(Cứ đi làm \`/work\` là giang hồ tới siết 30% lương. Liệu hồn mà trả!)*`);
+                                `*(Cứ đi làm \`/work\` là giang hồ tới siết 35% lương. Liệu hồn mà trả!)*`);
+            
+            // Thông báo lên kênh đòi nợ
+            try {
+                const alertChannel = interaction.client.channels.cache.get('1525454150803128371');
+                if (alertChannel) {
+                    await alertChannel.send(`⚠️ **CẢNH BÁO NỢ XẤU**\nThằng bá dơ <@${userId}> vừa bốc bát họ số tiền **${borrowAmount.toLocaleString()} 🪙**.\nTổng nợ phải trả: **${totalDebt.toLocaleString()} 🪙**.\nGiang hồ đã đưa mày vào tầm ngắm, liệu hồn mà cày cuốc trả nợ đi con trai!`);
+                }
+            } catch (err) {
+                console.log("Không thể gửi thông báo vay nợ", err);
+            }
+
             return interaction.editReply({ embeds: [embed] });
         }
 

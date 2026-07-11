@@ -109,6 +109,31 @@ module.exports = {
                 console.log("Không thể gửi thông báo vay nợ", err);
             }
 
+            // Gửi tin nhắn riêng bốc bát họ
+            try {
+                const dmTemplates = [
+                    "CẢNH BÁO ĐỐI TƯỢNG {user} đang có hành vi bốc bát họ của NHÀ CÁI GUNTER. Bọn tao đã nắm danh bạ, địa chỉ IP của mày. Khôn hồn thì cày cuốc mà trả nợ {debt} 🪙. Đừng để bọn tao lôi đầu giám đốc, người yêu cũ mày ra đòi nợ thay nhé thằng lỏi!",
+                    "VÔ LÊ {user}! Đừng bao giờ nghĩ quỵt được nợ của anh em Gunter. Nợ {debt} 🪙 không tự mất đi, nó chỉ chuyển từ ví mày sang máu của mày. Bỏ ngay tư tưởng trốn nợ đi con trai, cày /work đi đéo nói nhiều!",
+                    "Giờ sao? Cầm {borrowed} 🪙 của bọn tao về xài cho sướng rồi định trốn à {user}? Đang có công ăn việc làm /work tử tế. Trả {debt} 🪙 nhanh, đừng để tao quậy nát cái server này tìm mày!",
+                    "Tử tế với mày mày đéo muốn đúng không {user}? Cơ hội cuối cùng trước khi cái bản mặt avatar của mày bị đăng lên mạng xã hội là thằng bốc bát họ đéo chịu trả. Nợ {debt} 🪙, lo mà cày trả đi con chó!",
+                    "{user}, mày đéo trả nợ {debt} 🪙 cho app Gunter Tín Dụng thì để bọn tao lôi đầu từng thằng đệ mày ra trả thay. Đăng tải mặt mày lên cờ bạc mạng. Có mấy đồng bạc lẻ mà trốn chui trốn nhủi như con chó rách!",
+                    "THÔNG BÁO TÌM CHÓ LẠC: Tên {user}, vừa cạp {borrowed} 🪙 của ngân hàng Gunter. Nợ tổng {debt} 🪙. Ai thấy thằng này ở đâu xin báo ngay cho giang hồ Gunter để tới cắt gân nó. Cảm ơn hậu tạ!",
+                    "Mày tưởng mày vay xong là ấm à {user}? Hệ thống đã kích hoạt chế độ dí nợ tự động. Mỗi lần mày đi làm là tao siết cổ 35% lương. Nợ {debt} 🪙, trốn đi đâu cho thoát, hả con?",
+                    "Hồ sơ bốc bát họ của mày đã được chuyển qua bộ phận Xử Lý Nợ Xấu Cấp Độ Đỏ. Mày nợ {debt} 🪙. Bọn tao đã gửi giang hồ xăm trổ đứng rình sẵn ngoài cửa mỗi khi mày gõ /work. Liệu hồn!",
+                    "Alo {user}? Anh em tao ở Gunter Finance đã duyệt giải ngân {borrowed} 🪙 cho mày. Lãi cắt cổ, nợ tổng {debt} 🪙. Nhớ làm lụng chăm chỉ, không trả nợ là tao bắt mày đi nhặt rác cả đời đấy con ạ!",
+                    "Đừng như con nít lên ba {user}! Lớn rồi, có vay có trả. Gói họ {debt} 🪙 của mày đã chính thức có hiệu lực. Nửa đêm ngủ cẩn thận, tao tới đòi nợ lúc nào đéo biết đâu."
+                ];
+                
+                const randomDm = dmTemplates[Math.floor(Math.random() * dmTemplates.length)]
+                    .replace(/{user}/g, interaction.user.username)
+                    .replace(/{borrowed}/g, borrowAmount.toLocaleString())
+                    .replace(/{debt}/g, totalDebt.toLocaleString());
+                
+                await interaction.user.send(randomDm);
+            } catch (err) {
+                console.log("Không thể gửi DM đòi nợ cho user", err);
+            }
+
             return interaction.editReply({ embeds: [embed] });
         }
 

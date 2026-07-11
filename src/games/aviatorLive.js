@@ -47,6 +47,9 @@ class AviatorLiveGame {
         this.currentMult = 1.0;
         this.crashPoint = 1.0;
         this.phase = 'idle';    // 'betting' | 'flying' | 'crashed'
+        this.currentTimeLeft = null;
+        this.isEditingEmbed = false;
+        this.needsUpdate = false;
     }
 
     // ─── Public API ───
@@ -117,10 +120,6 @@ class AviatorLiveGame {
             this.phase = 'crashed';
             await this.showCrashedPhase();
 
-            // Cập nhật history
-            this.history.push(this.crashPoint.toFixed(2) + 'x');
-            if (this.history.length > 15) this.history.shift();
-
             await this.sleep(5000);
         }
     }
@@ -139,12 +138,29 @@ class AviatorLiveGame {
     }
 
     async countdown(seconds) {
+        this.currentTimeLeft = seconds;
         for (let s = seconds - 5; s > 0; s -= 5) {
             await this.sleep(5000);
             if (!this.running) return;
-            await this.mainMsg?.edit({ embeds: [this.buildHistoryEmbed(), this.buildBettingEmbed(s)], components: [this.betRow()] }).catch(() => {});
+            this.currentTimeLeft = s;
+            this.updateBettingEmbed();
         }
         await this.sleep(5000);
+        this.currentTimeLeft = 0;
+    }
+
+    async updateBettingEmbed() {
+        if (!this.mainMsg) return;
+        if (this.isEditingEmbed) {
+            this.needsUpdate = true;
+            return;
+        }
+        this.isEditingEmbed = true;
+        do {
+            this.needsUpdate = false;
+            await this.mainMsg.edit({ embeds: [this.buildHistoryEmbed(), this.buildBettingEmbed(this.currentTimeLeft)], components: [this.betRow()] }).catch(() => {});
+        } while (this.needsUpdate);
+        this.isEditingEmbed = false;
     }
 
     buildHistoryEmbed() {
@@ -247,6 +263,10 @@ class AviatorLiveGame {
         if (winList.length) embed.addFields({ name: '🏆 Đã rút kịp', value: winList.join('\n'), inline: false });
         if (loseList.length) embed.addFields({ name: '💸 Bốc hơi', value: loseList.join('\n'), inline: false });
         embed.setFooter({ text: 'Ván tiếp theo bắt đầu sau 5 giây...' });
+
+        // Cập nhật history trước khi show
+        this.history.push(this.crashPoint.toFixed(2) + 'x');
+        if (this.history.length > 15) this.history.shift();
 
         // Cập nhật ngay lịch sử để hiển thị cho embed kết quả
         await this.mainMsg?.edit({ embeds: [this.buildHistoryEmbed(), embed], components: [] }).catch(() => {});

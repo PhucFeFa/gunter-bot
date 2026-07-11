@@ -64,6 +64,9 @@ class BaccaratLiveGame {
         this.bets = new Map();  // userId → { side, amount }
         this.betMsgs = [];      // Tin nhắn xác nhận cược để xóa sau
         this.mainMsg = null;    // Tin nhắn embed chính
+        this.currentTimeLeft = null;
+        this.isEditingEmbed = false;
+        this.needsUpdate = false;
     }
 
     // ─── Public API ───
@@ -125,10 +128,6 @@ class BaccaratLiveGame {
             // Phase 3: Payout
             await this.processPayouts(result);
 
-            // Update road
-            this.road.push(result.result);
-            if (this.road.length > 20) this.road.shift();
-
             await this.sleep(6000);
         }
     }
@@ -148,7 +147,16 @@ class BaccaratLiveGame {
 
     async updateBettingEmbed() {
         if (!this.mainMsg) return;
-        await this.mainMsg.edit({ embeds: [this.buildRoadEmbed(), this.buildBettingEmbed(null)], components: [this.betRow()] }).catch(() => {});
+        if (this.isEditingEmbed) {
+            this.needsUpdate = true;
+            return;
+        }
+        this.isEditingEmbed = true;
+        do {
+            this.needsUpdate = false;
+            await this.mainMsg.edit({ embeds: [this.buildRoadEmbed(), this.buildBettingEmbed(this.currentTimeLeft)], components: [this.betRow()] }).catch(() => {});
+        } while (this.needsUpdate);
+        this.isEditingEmbed = false;
     }
 
     buildRoadEmbed() {
@@ -186,15 +194,15 @@ class BaccaratLiveGame {
     }
 
     async countdown(seconds) {
+        this.currentTimeLeft = seconds;
         for (let s = seconds - 5; s > 0; s -= 5) {
             await this.sleep(5000);
             if (!this.running) return;
-            await this.mainMsg?.edit({
-                embeds: [this.buildRoadEmbed(), this.buildBettingEmbed(s)],
-                components: [this.betRow()]
-            }).catch(() => {});
+            this.currentTimeLeft = s;
+            this.updateBettingEmbed();
         }
         await this.sleep(5000);
+        this.currentTimeLeft = 0;
     }
 
     // ─── Card reveal animation ────────────────────────────────
@@ -254,6 +262,9 @@ class BaccaratLiveGame {
         finalEmbed.setFooter({ text: 'Ván tiếp theo bắt đầu sau 6 giây...' });
 
         // Update road immediately for the final embed
+        this.road.push(r.result);
+        if (this.road.length > 20) this.road.shift();
+
         await this.mainMsg?.edit({ embeds: [this.buildRoadEmbed(), finalEmbed], components: [] }).catch(() => {});
     }
 

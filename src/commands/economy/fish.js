@@ -5,7 +5,7 @@
 
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { getUser, updateBalance } = require('../../utils/economyDB');
-const { getFishProfile, getChannelZone, addFishToInventory, incrementCaught } = require('../../utils/fishDB');
+const { getFishProfile, getChannelZone, addFishToInventory, incrementCaught, getZoneSetup } = require('../../utils/fishDB');
 const { RODS, getWeightedFish, rollFishSize, calcFishPrice, rollChest, rollShiny, applyShiny } = require('../../data/fishData');
 
 // Cooldown per user (ms)
@@ -44,6 +44,15 @@ module.exports = {
         const zoneId = await getChannelZone(guildId, interaction.channelId);
         if (!zoneId) {
             return interaction.editReply('❌ Kênh này không phải kênh câu cá! Nhờ admin dùng `/fishsetup` để thiết lập.');
+        }
+
+        // Role check cho Vùng 2 và 3
+        if (zoneId > 1) {
+            const zones = await getZoneSetup(guildId);
+            const roleId = zones[`zone${zoneId}Role`];
+            if (roleId && !interaction.member.roles.cache.has(roleId)) {
+                return interaction.editReply(`❌ Bạn chưa có quyền câu ở vùng này! Hãy dùng lệnh \`/fishshop role\` để đổi vùng (mua bằng 🪙).`);
+            }
         }
 
         // Rod check

@@ -215,6 +215,17 @@ const FISH_LIST = [
     { id: 188, name: 'Cá Thần Rồng Xanh', emoji: '🐉', zone: 3, tier: 8, basePrice: 14500000, minSize: 800, maxSize: 2000, shinyRate: 0.006 },
     { id: 189, name: 'Poseidon', emoji: '🔱', zone: 3, tier: 8, basePrice: 15000000, minSize: 2000, maxSize: 4500, shinyRate: 0.004 },
     { id: 190, name: 'Cthulhu', emoji: '👾', zone: 3, tier: 8, basePrice: 15000000, minSize: 5000, maxSize: 10000, shinyRate: 0.002 },
+    // ── SUPER ULTRA FISHES (id 191-200) ────────────────────────
+    { id: 191, name: 'Cá Siêu Tân Tinh', emoji: '🌟', zone: 3, tier: 8, basePrice: 30000000, minSize: 1000, maxSize: 5000, shinyRate: 0.003 },
+    { id: 192, name: 'Cá Quỷ Vương', emoji: '👹', zone: 3, tier: 8, basePrice: 45000000, minSize: 2000, maxSize: 6000, shinyRate: 0.002 },
+    { id: 193, name: 'Cá Hố Đen Vũ Trụ', emoji: '🌌', zone: 3, tier: 8, basePrice: 60000000, minSize: 3000, maxSize: 8000, shinyRate: 0.001 },
+    { id: 194, name: 'Megalodon', emoji: '🦈', zone: 3, tier: 8, basePrice: 80000000, minSize: 15000, maxSize: 30000, shinyRate: 0.001 },
+    { id: 195, name: 'Thần Thú Jörmungandr', emoji: '🐍', zone: 3, tier: 8, basePrice: 120000000, minSize: 20000, maxSize: 50000, shinyRate: 0.0005 },
+    { id: 196, name: 'Cá Voi Hư Không', emoji: '🐋', zone: 3, tier: 8, basePrice: 150000000, minSize: 30000, maxSize: 80000, shinyRate: 0.0003 },
+    { id: 197, name: 'Bạch Long Vĩ', emoji: '🐉', zone: 3, tier: 8, basePrice: 180000000, minSize: 25000, maxSize: 60000, shinyRate: 0.0002 },
+    { id: 198, name: 'Cá Chép Hóa Rồng', emoji: '🐲', zone: 3, tier: 8, basePrice: 200000000, minSize: 10000, maxSize: 30000, shinyRate: 0.0001 },
+    { id: 199, name: 'Gunter Bí Ẩn', emoji: '🐧', zone: 3, tier: 8, basePrice: 300000000, minSize: 500, maxSize: 1000, shinyRate: 0.00005 },
+    { id: 200, name: 'Cá Thần Khởi Nguyên', emoji: '🧿', zone: 3, tier: 8, basePrice: 500000000, minSize: 100000, maxSize: 500000, shinyRate: 0.00001 },
 ];
 
 // Weight per tier (higher tier = rarer)
@@ -244,11 +255,11 @@ const RODS = [
     { id: 9, name: 'Cần Thủy Thần', emoji: '⚓', price: 50000000, limited: false, tier: 5, bonusLuck: 50, bonusSize: 0.85, bonusTime: 12, bonusShiny: 10, maxDurability: 2000, desc: 'Truyền thuyết ngư dân. (2000 độ bền)' },
     { id: 10, name: 'Cần Huyền Thoại', emoji: '✨', price: 100000000, limited: false, tier: 5, bonusLuck: 62, bonusSize: 1.0, bonusTime: 14, bonusShiny: 15, maxDurability: 3000, desc: 'Đỉnh cao câu cá thông thường. (3000 độ bền)' },
     // Limited shop (id 11-15)
-    { id: 11, name: 'Cần Băng Giá', emoji: '❄️', price: 20000000, limited: true, tier: 3, bonusLuck: 20, bonusSize: 0.3, bonusTime: 5, bonusShiny: 8, maxDurability: 400, shopWeight: 50, desc: '[GIỚI HẠN] Tăng tỉ lệ rương báu. (400 độ bền)' },
-    { id: 12, name: 'Cần Lửa Địa Ngục', emoji: '🔥', price: 50000000, limited: true, tier: 4, bonusLuck: 35, bonusSize: 0.6, bonusTime: 9, bonusShiny: 12, maxDurability: 800, shopWeight: 35, desc: '[GIỚI HẠN] Tăng tỉ lệ cá tier cao. (800 độ bền)' },
-    { id: 13, name: 'Cần Sét', emoji: '⚡', price: 100000000, limited: true, tier: 4, bonusLuck: 48, bonusSize: 0.75, bonusTime: 12, bonusShiny: 16, maxDurability: 1500, shopWeight: 25, desc: '[GIỚI HẠN] Cá lên cực nhanh, rất may mắn. (1500 độ bền)' },
-    { id: 14, name: 'Cần Bóng Tối', emoji: '🌑', price: 150000000, limited: true, tier: 5, bonusLuck: 70, bonusSize: 1.0, bonusTime: 16, bonusShiny: 25, maxDurability: 4000, shopWeight: 18, desc: '[GIỚI HẠN] Quyền năng bóng tối. (4000 độ bền)' },
-    { id: 15, name: 'Cần Thần Thánh', emoji: '🌟', price: 250000000, limited: true, tier: 5, bonusLuck: 90, bonusSize: 1.3, bonusTime: 20, bonusShiny: 38, maxDurability: 10000, shopWeight: 8, desc: '[GIỚI HẠN] Tốt nhất tuyệt đối. (10000 độ bền)' },
+    { id: 11, name: 'Cần Băng Giá', emoji: '❄️', price: 20000000, limited: true, tier: 3, bonusLuck: 40, bonusSize: 0.5, bonusTime: 5, bonusShiny: 8, maxDurability: 1000, shopWeight: 50, desc: '[GIỚI HẠN] Tăng tỉ lệ rương báu. (1000 độ bền)' },
+    { id: 12, name: 'Cần Lửa Địa Ngục', emoji: '🔥', price: 50000000, limited: true, tier: 4, bonusLuck: 65, bonusSize: 0.8, bonusTime: 9, bonusShiny: 12, maxDurability: 2500, shopWeight: 35, desc: '[GIỚI HẠN] Tăng tỉ lệ cá tier cao. (2500 độ bền)' },
+    { id: 13, name: 'Cần Sét', emoji: '⚡', price: 100000000, limited: true, tier: 4, bonusLuck: 95, bonusSize: 1.2, bonusTime: 12, bonusShiny: 16, maxDurability: 5000, shopWeight: 25, desc: '[GIỚI HẠN] Cá lên cực nhanh, rất may mắn. (5000 độ bền)' },
+    { id: 14, name: 'Cần Bóng Tối', emoji: '🌑', price: 150000000, limited: true, tier: 5, bonusLuck: 150, bonusSize: 1.8, bonusTime: 16, bonusShiny: 25, maxDurability: 10000, shopWeight: 18, desc: '[GIỚI HẠN] Quyền năng bóng tối. (10000 độ bền)' },
+    { id: 15, name: 'Cần Thần Thánh', emoji: '🌟', price: 250000000, limited: true, tier: 5, bonusLuck: 250, bonusSize: 3.0, bonusTime: 20, bonusShiny: 60, maxDurability: 50000, shopWeight: 8, desc: '[GIỚI HẠN] Tốt nhất tuyệt đối. (50000 độ bền)' },
     // Thêm 10 cần mới (id 16-25)
     { id: 16, name: 'Cần Mây', emoji: '☁️', price: 150000, limited: false, tier: 2, bonusLuck: 4, bonusSize: 0.08, bonusTime: 1, bonusShiny: 1, maxDurability: 120, desc: 'Nhẹ như mây. (120 độ bền)' },
     { id: 17, name: 'Cần Đồng', emoji: '🎣', price: 350000, limited: false, tier: 2, bonusLuck: 6, bonusSize: 0.12, bonusTime: 2, bonusShiny: 0, maxDurability: 160, desc: 'Bền chắc. (160 độ bền)' },

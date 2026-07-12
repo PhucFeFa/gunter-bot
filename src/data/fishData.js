@@ -216,20 +216,20 @@ const FISH_LIST = [
     { id: 189, name: 'Poseidon', emoji: '🔱', zone: 3, tier: 8, basePrice: 15000000, minSize: 2000, maxSize: 4500, shinyRate: 0.004 },
     { id: 190, name: 'Cthulhu', emoji: '👾', zone: 3, tier: 8, basePrice: 15000000, minSize: 5000, maxSize: 10000, shinyRate: 0.002 },
     // ── SUPER ULTRA FISHES (id 191-200) ────────────────────────
-    { id: 191, name: 'Cá Siêu Tân Tinh', emoji: '🌟', zone: 3, tier: 8, basePrice: 30000000, minSize: 1000, maxSize: 5000, shinyRate: 0.003 },
-    { id: 192, name: 'Cá Quỷ Vương', emoji: '👹', zone: 3, tier: 8, basePrice: 45000000, minSize: 2000, maxSize: 6000, shinyRate: 0.002 },
-    { id: 193, name: 'Cá Hố Đen Vũ Trụ', emoji: '🌌', zone: 3, tier: 8, basePrice: 60000000, minSize: 3000, maxSize: 8000, shinyRate: 0.001 },
-    { id: 194, name: 'Megalodon', emoji: '🦈', zone: 3, tier: 8, basePrice: 80000000, minSize: 15000, maxSize: 30000, shinyRate: 0.001 },
-    { id: 195, name: 'Thần Thú Jörmungandr', emoji: '🐍', zone: 3, tier: 8, basePrice: 120000000, minSize: 20000, maxSize: 50000, shinyRate: 0.0005 },
-    { id: 196, name: 'Cá Voi Hư Không', emoji: '🐋', zone: 3, tier: 8, basePrice: 150000000, minSize: 30000, maxSize: 80000, shinyRate: 0.0003 },
-    { id: 197, name: 'Bạch Long Vĩ', emoji: '🐉', zone: 3, tier: 8, basePrice: 180000000, minSize: 25000, maxSize: 60000, shinyRate: 0.0002 },
-    { id: 198, name: 'Cá Chép Hóa Rồng', emoji: '🐲', zone: 3, tier: 8, basePrice: 200000000, minSize: 10000, maxSize: 30000, shinyRate: 0.0001 },
-    { id: 199, name: 'Gunter Bí Ẩn', emoji: '🐧', zone: 3, tier: 8, basePrice: 300000000, minSize: 500, maxSize: 1000, shinyRate: 0.00005 },
-    { id: 200, name: 'Cá Thần Khởi Nguyên', emoji: '🧿', zone: 3, tier: 8, basePrice: 500000000, minSize: 100000, maxSize: 500000, shinyRate: 0.00001 },
+    { id: 191, name: 'Cá Siêu Tân Tinh', emoji: '🌟', zone: 3, tier: 9, basePrice: 30000000, minSize: 1000, maxSize: 5000, shinyRate: 0.003 },
+    { id: 192, name: 'Cá Quỷ Vương', emoji: '👹', zone: 3, tier: 9, basePrice: 45000000, minSize: 2000, maxSize: 6000, shinyRate: 0.002 },
+    { id: 193, name: 'Cá Hố Đen Vũ Trụ', emoji: '🌌', zone: 3, tier: 9, basePrice: 60000000, minSize: 3000, maxSize: 8000, shinyRate: 0.001 },
+    { id: 194, name: 'Megalodon', emoji: '🦈', zone: 3, tier: 9, basePrice: 80000000, minSize: 15000, maxSize: 30000, shinyRate: 0.001 },
+    { id: 195, name: 'Thần Thú Jörmungandr', emoji: '🐍', zone: 3, tier: 9, basePrice: 120000000, minSize: 20000, maxSize: 50000, shinyRate: 0.0005 },
+    { id: 196, name: 'Cá Voi Hư Không', emoji: '🐋', zone: 3, tier: 9, basePrice: 150000000, minSize: 30000, maxSize: 80000, shinyRate: 0.0003 },
+    { id: 197, name: 'Bạch Long Vĩ', emoji: '🐉', zone: 3, tier: 9, basePrice: 180000000, minSize: 25000, maxSize: 60000, shinyRate: 0.0002 },
+    { id: 198, name: 'Cá Chép Hóa Rồng', emoji: '🐲', zone: 3, tier: 9, basePrice: 200000000, minSize: 10000, maxSize: 30000, shinyRate: 0.0001 },
+    { id: 199, name: 'Gunter Bí Ẩn', emoji: '🐧', zone: 3, tier: 9, basePrice: 300000000, minSize: 500, maxSize: 1000, shinyRate: 0.00005 },
+    { id: 200, name: 'Cá Thần Khởi Nguyên', emoji: '🧿', zone: 3, tier: 9, basePrice: 500000000, minSize: 100000, maxSize: 500000, shinyRate: 0.00001 },
 ];
 
 // Weight per tier (higher tier = rarer)
-const TIER_WEIGHT = { 1: 35, 2: 25, 3: 18, 4: 10, 5: 6, 6: 3, 7: 2, 8: 1 };
+const TIER_WEIGHT = { 1: 35, 2: 25, 3: 18, 4: 10, 5: 6, 6: 3, 7: 2, 8: 1, 9: 0.1 };
 
 // Chest rewards (VNĐ xu)
 const CHEST_REWARDS = [

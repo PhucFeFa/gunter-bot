@@ -135,16 +135,43 @@ module.exports = {
 
         // Normal / Limited rods
         const isLimited = sub === 'limited';
-        const rods = RODS.filter(r => isLimited ? r.limited : !r.limited || r.id <= 10);
+        let rods;
+
+        if (isLimited) {
+            // Weighted random daily rotation – seed bằng ngày hiện tại
+            const allLimited = RODS.filter(r => r.limited);
+            const today = new Date();
+            const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+            // Seeded shuffle dựa trên ngày
+            function seededRand(s) { let x = Math.sin(s) * 10000; return x - Math.floor(x); }
+            const pool = [];
+            for (const rod of allLimited) {
+                const w = rod.shopWeight ?? 10;
+                for (let i = 0; i < w; i++) pool.push(rod.id);
+            }
+            // Chọn 5 cần khác nhau theo weight
+            const picked = [];
+            const used = new Set();
+            for (let i = 0; i < pool.length && picked.length < 5; i++) {
+                const idx = Math.floor(seededRand(seed + i * 37) * pool.length);
+                const rodId = pool[idx];
+                if (!used.has(rodId)) { used.add(rodId); picked.push(RODS.find(r => r.id === rodId)); }
+            }
+            rods = picked.length >= 1 ? picked : allLimited.slice(0, 5);
+        } else {
+            rods = RODS.filter(r => !r.limited || r.id <= 10);
+        }
+
         let page = 0;
         const totalPages = Math.ceil(rods.length / PAGE_SIZE);
 
         const buildRodEmbed = (p) => {
             const slice = rods.slice(p * PAGE_SIZE, (p + 1) * PAGE_SIZE);
+            const totalPages2 = Math.ceil(rods.length / PAGE_SIZE);
             const embed = new EmbedBuilder()
                 .setColor(isLimited ? 0xFF6B6B : 0x1E90FF)
-                .setTitle(isLimited ? '🌟 Shop Cần Giới Hạn' : '🏪 Shop Cần Câu')
-                .setFooter({ text: `Trang ${p + 1}/${totalPages} | Dùng nút Mua để mua cần` });
+                .setTitle(isLimited ? '🌟 Shop Cần Giới Hạn (Daily Rotation)' : '🏪 Shop Cần Câu')
+                .setFooter({ text: isLimited ? `Trang ${p + 1}/${totalPages2} | 🔄 Shop đổi hàng mỗi ngày — cần xịn hiếm xuất hiện hơn!` : `Trang ${p + 1}/${totalPages2} | Dùng nút Mua để mua cần` });
 
             for (const rod of slice) {
                 embed.addFields({

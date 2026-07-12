@@ -1,0 +1,1000 @@
+at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.showModal (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525854567328125048/aW50ZXJhY3Rpb246MTUyNTg1NDU2NzMyODEyNTA0ODp0QjB0UWtJZEQ5R3AwdkZkS1ZJczBBY0tpZExBQ1JNMFgyeWUxM2Y2bmNZNEo2dlh3UUFQb2VKZWJGenY4Q2FPMFZ0ZWtzQmtIMlNmUURUWFNLdlg2WlJ6VGlqalBDd0N3RGZLMVBVVTNMc05tRmpZV1dDbW0wRmxHWmVmWTRmMA/callback?with_response=false'
+} origin: uncaughtException
+[ERROR] Uncaught Exception (bot tiếp tục chạy): Unknown interaction
+(node:6159) Warning: Supplying "fetchReply" for interaction response options is deprecated. Utilize "withResponse" instead or fetch the response after using the method.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6452) Warning: Supplying "fetchReply" for interaction response options is deprecated. Utilize "withResponse" instead or fetch the response after using the method.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6452) Warning: Supplying "ephemeral" for interaction response options is deprecated. Utilize flags instead.
+[CMD] Error executing /loan: TypeError: Cannot read properties of null (reading 'id')
+    at Object.execute (/root/gunter-bot/src/commands/economy/loan.js:107:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Object.execute (/root/gunter-bot/src/events/interactionCreate.js:185:13)
+[CMD] Error executing /loan: TypeError: Cannot read properties of null (reading 'id')
+    at Object.execute (/root/gunter-bot/src/commands/economy/loan.js:107:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Object.execute (/root/gunter-bot/src/events/interactionCreate.js:185:13)
+(node:6645) Warning: Supplying "fetchReply" for interaction response options is deprecated. Utilize "withResponse" instead or fetch the response after using the method.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6645) Warning: Supplying "ephemeral" for interaction response options is deprecated. Utilize flags instead.
+(node:6801) Warning: Supplying "fetchReply" for interaction response options is deprecated. Utilize "withResponse" instead or fetch the response after using the method.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6801) Warning: Supplying "ephemeral" for interaction response options is deprecated. Utilize flags instead.
+[ANTI-CRASH] Uncaught Exception Monitor: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.showModal (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525866813525852170/aW50ZXJhY3Rpb246MTUyNTg2NjgxMzUyNTg1MjE3MDpZQVFwMkd6eGlTSnk1OUlTOXBORktOdm9tdGFQWmlpaUtDWUhsallVT0VmaGtGalRtcEN6TTM0U0VUMnA2MXJMYW9vbEplbDBQV3lPVGQ1SUpMR0FOdVpVc2NZckRZN0RFemtReXdzdFVIbnFQSHRxano5c25sekxheVdPdVI0Zw/callback?with_response=false'
+} origin: uncaughtException
+DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.showModal (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525866813525852170/aW50ZXJhY3Rpb246MTUyNTg2NjgxMzUyNTg1MjE3MDpZQVFwMkd6eGlTSnk1OUlTOXBORktOdm9tdGFQWmlpaUtDWUhsallVT0VmaGtGalRtcEN6TTM0U0VUMnA2MXJMYW9vbEplbDBQV3lPVGQ1SUpMR0FOdVpVc2NZckRZN0RFemtReXdzdFVIbnFQSHRxano5c25sekxheVdPdVI0Zw/callback?with_response=false'
+}
+[ANTI-CRASH] Uncaught Exception: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.showModal (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525866813525852170/aW50ZXJhY3Rpb246MTUyNTg2NjgxMzUyNTg1MjE3MDpZQVFwMkd6eGlTSnk1OUlTOXBORktOdm9tdGFQWmlpaUtDWUhsallVT0VmaGtGalRtcEN6TTM0U0VUMnA2MXJMYW9vbEplbDBQV3lPVGQ1SUpMR0FOdVpVc2NZckRZN0RFemtReXdzdFVIbnFQSHRxano5c25sekxheVdPdVI0Zw/callback?with_response=false'
+} origin: uncaughtException
+[ERROR] Uncaught Exception (bot tiếp tục chạy): Unknown interaction
+[ANTI-CRASH] Uncaught Exception Monitor: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.showModal (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525866825684881559/aW50ZXJhY3Rpb246MTUyNTg2NjgyNTY4NDg4MTU1OTo2dUh4SjNuZElqZEhmYlVPZmhtUk1TRkxKZG9kUDhRa3FtejVTbmh6WEJoMEkxV0NvRk00bUxJbXRDRk9HemlORTJ5ZXhyNjJROUlYSW1OWnd6bjN1YnhWaHgzNDE1WGFPWTA0YUxCcThtajdnUXdLN05SekdBdVRlemFXRm5Gag/callback?with_response=false'
+} origin: uncaughtException
+DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.showModal (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525866825684881559/aW50ZXJhY3Rpb246MTUyNTg2NjgyNTY4NDg4MTU1OTo2dUh4SjNuZElqZEhmYlVPZmhtUk1TRkxKZG9kUDhRa3FtejVTbmh6WEJoMEkxV0NvRk00bUxJbXRDRk9HemlORTJ5ZXhyNjJROUlYSW1OWnd6bjN1YnhWaHgzNDE1WGFPWTA0YUxCcThtajdnUXdLN05SekdBdVRlemFXRm5Gag/callback?with_response=false'
+}
+[ANTI-CRASH] Uncaught Exception: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.showModal (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525866825684881559/aW50ZXJhY3Rpb246MTUyNTg2NjgyNTY4NDg4MTU1OTo2dUh4SjNuZElqZEhmYlVPZmhtUk1TRkxKZG9kUDhRa3FtejVTbmh6WEJoMEkxV0NvRk00bUxJbXRDRk9HemlORTJ5ZXhyNjJROUlYSW1OWnd6bjN1YnhWaHgzNDE1WGFPWTA0YUxCcThtajdnUXdLN05SekdBdVRlemFXRm5Gag/callback?with_response=false'
+} origin: uncaughtException
+[ERROR] Uncaught Exception (bot tiếp tục chạy): Unknown interaction
+DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525866838951596072/aW50ZXJhY3Rpb246MTUyNTg2NjgzODk1MTU5NjA3Mjp5eHN2aDZoTVhiYjJVMzQzVUhjV0ZKcG1VM1VySTNHOHFNTWN1Q2dMcnJlTFBoSktGekhDb1MwRTY2cGVRMzNPb2NjcVRVZUJaOUhrdWRzcmlJSktTbUQyN2xTMmtrOXZuankzYlJGTklTWGZLRTIwbGJEbVhEWkx1ZlBEZ3hCNA/callback?with_response=false'
+}
+[ANTI-CRASH] Unhandled Rejection at: Promise {
+  <rejected> DiscordAPIError[10062]: Unknown interaction
+      at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+      at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+      at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+    requestBody: { files: [], json: [Object] },
+    rawError: { message: 'Unknown interaction', code: 10062 },
+    code: 10062,
+    status: 404,
+    method: 'POST',
+    url: 'https://discord.com/api/v10/interactions/1525866838951596072/aW50ZXJhY3Rpb246MTUyNTg2NjgzODk1MTU5NjA3Mjp5eHN2aDZoTVhiYjJVMzQzVUhjV0ZKcG1VM1VySTNHOHFNTWN1Q2dMcnJlTFBoSktGekhDb1MwRTY2cGVRMzNPb2NjcVRVZUJaOUhrdWRzcmlJSktTbUQyN2xTMmtrOXZuankzYlJGTklTWGZLRTIwbGJEbVhEWkx1ZlBEZ3hCNA/callback?with_response=false'
+  }
+} reason: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525866838951596072/aW50ZXJhY3Rpb246MTUyNTg2NjgzODk1MTU5NjA3Mjp5eHN2aDZoTVhiYjJVMzQzVUhjV0ZKcG1VM1VySTNHOHFNTWN1Q2dMcnJlTFBoSktGekhDb1MwRTY2cGVRMzNPb2NjcVRVZUJaOUhrdWRzcmlJSktTbUQyN2xTMmtrOXZuankzYlJGTklTWGZLRTIwbGJEbVhEWkx1ZlBEZ3hCNA/callback?with_response=false'
+}
+[ERROR] Unhandled Rejection (bot tiếp tục chạy): Unknown interaction
+[ANTI-CRASH] Uncaught Exception Monitor: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.showModal (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525867083597086772/aW50ZXJhY3Rpb246MTUyNTg2NzA4MzU5NzA4Njc3MjpSNXlDRzE2RHY3dlllQ1pWMklZYW81WTBmNG1kUnhVUDI5RnNiM2g2N2tTaUM2dVYwUjZHZGV1dHFoY3dreVJ5Z3Z2TGt3a3hQSElQYTRURDJQc1pXWW91TVkxb25mR2ZmZTRHa0FBVUFpVFZEalNrdkJxZ0xFSzBtbmd1NlB1NA/callback?with_response=false'
+} origin: uncaughtException
+DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.showModal (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525867083597086772/aW50ZXJhY3Rpb246MTUyNTg2NzA4MzU5NzA4Njc3MjpSNXlDRzE2RHY3dlllQ1pWMklZYW81WTBmNG1kUnhVUDI5RnNiM2g2N2tTaUM2dVYwUjZHZGV1dHFoY3dreVJ5Z3Z2TGt3a3hQSElQYTRURDJQc1pXWW91TVkxb25mR2ZmZTRHa0FBVUFpVFZEalNrdkJxZ0xFSzBtbmd1NlB1NA/callback?with_response=false'
+}
+[ANTI-CRASH] Uncaught Exception: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.showModal (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525867083597086772/aW50ZXJhY3Rpb246MTUyNTg2NzA4MzU5NzA4Njc3MjpSNXlDRzE2RHY3dlllQ1pWMklZYW81WTBmNG1kUnhVUDI5RnNiM2g2N2tTaUM2dVYwUjZHZGV1dHFoY3dreVJ5Z3Z2TGt3a3hQSElQYTRURDJQc1pXWW91TVkxb25mR2ZmZTRHa0FBVUFpVFZEalNrdkJxZ0xFSzBtbmd1NlB1NA/callback?with_response=false'
+} origin: uncaughtException
+[ERROR] Uncaught Exception (bot tiếp tục chạy): Unknown interaction
+DiscordAPIError[40060]: Interaction has already been acknowledged.
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: {
+    message: 'Interaction has already been acknowledged.',
+    code: 40060
+  },
+  code: 40060,
+  status: 400,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525867091775721655/aW50ZXJhY3Rpb246MTUyNTg2NzA5MTc3NTcyMTY1NTpiSjNLSkdidWlzTTd4c1d2YkszT1lRdFJ3VTFsTlp1NjR6czBsczdYa1hzYVdxOE4zNUo0bUxWMzE4MFRjNExwYmNhUkk5SHNVN0lSSHZnSUl2ak5uYWFxOWVocW1WU1p1TlUzWEM3b3h6Znd2OU11WWFKQ3c5cFppdklGVFl5QQ/callback?with_response=false'
+}
+[ANTI-CRASH] Unhandled Rejection at: Promise {
+  <rejected> DiscordAPIError[40060]: Interaction has already been acknowledged.
+      at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+      at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+      at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+    requestBody: { files: [], json: [Object] },
+    rawError: {
+      message: 'Interaction has already been acknowledged.',
+      code: 40060
+    },
+    code: 40060,
+    status: 400,
+    method: 'POST',
+    url: 'https://discord.com/api/v10/interactions/1525867091775721655/aW50ZXJhY3Rpb246MTUyNTg2NzA5MTc3NTcyMTY1NTpiSjNLSkdidWlzTTd4c1d2YkszT1lRdFJ3VTFsTlp1NjR6czBsczdYa1hzYVdxOE4zNUo0bUxWMzE4MFRjNExwYmNhUkk5SHNVN0lSSHZnSUl2ak5uYWFxOWVocW1WU1p1TlUzWEM3b3h6Znd2OU11WWFKQ3c5cFppdklGVFl5QQ/callback?with_response=false'
+  }
+} reason: DiscordAPIError[40060]: Interaction has already been acknowledged.
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: {
+    message: 'Interaction has already been acknowledged.',
+    code: 40060
+  },
+  code: 40060,
+  status: 400,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525867091775721655/aW50ZXJhY3Rpb246MTUyNTg2NzA5MTc3NTcyMTY1NTpiSjNLSkdidWlzTTd4c1d2YkszT1lRdFJ3VTFsTlp1NjR6czBsczdYa1hzYVdxOE4zNUo0bUxWMzE4MFRjNExwYmNhUkk5SHNVN0lSSHZnSUl2ak5uYWFxOWVocW1WU1p1TlUzWEM3b3h6Znd2OU11WWFKQ3c5cFppdklGVFl5QQ/callback?with_response=false'
+}
+[ERROR] Unhandled Rejection (bot tiếp tục chạy): Interaction has already been acknowledged.
+DiscordAPIError[40060]: Interaction has already been acknowledged.
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: {
+    message: 'Interaction has already been acknowledged.',
+    code: 40060
+  },
+  code: 40060,
+  status: 400,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525867328753893396/aW50ZXJhY3Rpb246MTUyNTg2NzMyODc1Mzg5MzM5NjpmTENtU09oTFFWdFJiTEJKWVEwaFozOTVBRXpmVm5McDV6dVRJbDgxVk84bTN2WTNhSWJoUWVrVlkyWXhPZnNRQnllM0MyZHZMQjJoMUt4NlF1VWNVTWhhUDlBUlIzeGU0aEx3MzRIZXNvSEI2TGpRZE5MZzlpZEQwNTU3SXJiMw/callback?with_response=false'
+}
+[ANTI-CRASH] Unhandled Rejection at: Promise {
+  <rejected> DiscordAPIError[40060]: Interaction has already been acknowledged.
+      at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+      at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+      at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+    requestBody: { files: [], json: [Object] },
+    rawError: {
+      message: 'Interaction has already been acknowledged.',
+      code: 40060
+    },
+    code: 40060,
+    status: 400,
+    method: 'POST',
+    url: 'https://discord.com/api/v10/interactions/1525867328753893396/aW50ZXJhY3Rpb246MTUyNTg2NzMyODc1Mzg5MzM5NjpmTENtU09oTFFWdFJiTEJKWVEwaFozOTVBRXpmVm5McDV6dVRJbDgxVk84bTN2WTNhSWJoUWVrVlkyWXhPZnNRQnllM0MyZHZMQjJoMUt4NlF1VWNVTWhhUDlBUlIzeGU0aEx3MzRIZXNvSEI2TGpRZE5MZzlpZEQwNTU3SXJiMw/callback?with_response=false'
+  }
+} reason: DiscordAPIError[40060]: Interaction has already been acknowledged.
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: {
+    message: 'Interaction has already been acknowledged.',
+    code: 40060
+  },
+  code: 40060,
+  status: 400,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525867328753893396/aW50ZXJhY3Rpb246MTUyNTg2NzMyODc1Mzg5MzM5NjpmTENtU09oTFFWdFJiTEJKWVEwaFozOTVBRXpmVm5McDV6dVRJbDgxVk84bTN2WTNhSWJoUWVrVlkyWXhPZnNRQnllM0MyZHZMQjJoMUt4NlF1VWNVTWhhUDlBUlIzeGU0aEx3MzRIZXNvSEI2TGpRZE5MZzlpZEQwNTU3SXJiMw/callback?with_response=false'
+}
+[ERROR] Unhandled Rejection (bot tiếp tục chạy): Interaction has already been acknowledged.
+DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525867459125710908/aW50ZXJhY3Rpb246MTUyNTg2NzQ1OTEyNTcxMDkwODpYUEJkRExUbjZwR2RCQUk5eU9za2lTMjVXU2JtSTR3cGJzWUk2U1BTWlloS2ZKempXdURuVjJENFc3SVFLSWo4S0hxZ0h3WG1yR0dMT0xySWN3UXRvbTgyd1pIcnYza2lrYmtTZklIcjBxTWFmVTlIbHI2NENDQkdyUU1URDI1Wg/callback?with_response=false'
+}
+[ANTI-CRASH] Unhandled Rejection at: Promise {
+  <rejected> DiscordAPIError[10062]: Unknown interaction
+      at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+      at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+      at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+    requestBody: { files: [], json: [Object] },
+    rawError: { message: 'Unknown interaction', code: 10062 },
+    code: 10062,
+    status: 404,
+    method: 'POST',
+    url: 'https://discord.com/api/v10/interactions/1525867459125710908/aW50ZXJhY3Rpb246MTUyNTg2NzQ1OTEyNTcxMDkwODpYUEJkRExUbjZwR2RCQUk5eU9za2lTMjVXU2JtSTR3cGJzWUk2U1BTWlloS2ZKempXdURuVjJENFc3SVFLSWo4S0hxZ0h3WG1yR0dMT0xySWN3UXRvbTgyd1pIcnYza2lrYmtTZklIcjBxTWFmVTlIbHI2NENDQkdyUU1URDI1Wg/callback?with_response=false'
+  }
+} reason: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525867459125710908/aW50ZXJhY3Rpb246MTUyNTg2NzQ1OTEyNTcxMDkwODpYUEJkRExUbjZwR2RCQUk5eU9za2lTMjVXU2JtSTR3cGJzWUk2U1BTWlloS2ZKempXdURuVjJENFc3SVFLSWo4S0hxZ0h3WG1yR0dMT0xySWN3UXRvbTgyd1pIcnYza2lrYmtTZklIcjBxTWFmVTlIbHI2NENDQkdyUU1URDI1Wg/callback?with_response=false'
+}
+[ERROR] Unhandled Rejection (bot tiếp tục chạy): Unknown interaction
+[ANTI-CRASH] Uncaught Exception Monitor: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.showModal (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525867608635736176/aW50ZXJhY3Rpb246MTUyNTg2NzYwODYzNTczNjE3Njp0ZG1DcW9SWERTVUhUYzM0MFpRMkQ5RnBhQno5VVdSTGI1U052QkVMNGRPUjkxRVNiTHBmT2FDMjIzV09aSWxZcFhoNG1iWW9Gak5jTXJVazBrcGlpNnkwcHRkSkhsRW5FOE4yTWp1Q0xCM3ZySWZGUVI5cHk4dmhCVFBRa2NSSg/callback?with_response=false'
+} origin: uncaughtException
+DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.showModal (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525867608635736176/aW50ZXJhY3Rpb246MTUyNTg2NzYwODYzNTczNjE3Njp0ZG1DcW9SWERTVUhUYzM0MFpRMkQ5RnBhQno5VVdSTGI1U052QkVMNGRPUjkxRVNiTHBmT2FDMjIzV09aSWxZcFhoNG1iWW9Gak5jTXJVazBrcGlpNnkwcHRkSkhsRW5FOE4yTWp1Q0xCM3ZySWZGUVI5cHk4dmhCVFBRa2NSSg/callback?with_response=false'
+}
+[ANTI-CRASH] Uncaught Exception: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.showModal (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525867608635736176/aW50ZXJhY3Rpb246MTUyNTg2NzYwODYzNTczNjE3Njp0ZG1DcW9SWERTVUhUYzM0MFpRMkQ5RnBhQno5VVdSTGI1U052QkVMNGRPUjkxRVNiTHBmT2FDMjIzV09aSWxZcFhoNG1iWW9Gak5jTXJVazBrcGlpNnkwcHRkSkhsRW5FOE4yTWp1Q0xCM3ZySWZGUVI5cHk4dmhCVFBRa2NSSg/callback?with_response=false'
+} origin: uncaughtException
+[ERROR] Uncaught Exception (bot tiếp tục chạy): Unknown interaction
+[ANTI-CRASH] Uncaught Exception Monitor: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.showModal (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525867616370163802/aW50ZXJhY3Rpb246MTUyNTg2NzYxNjM3MDE2MzgwMjp3NmRZRkpmbHVLSG5obVhOb0RDTkRhUnV3STA0eU5XUld5VUVRbTFONk1lSXNwb3RKMTBBb3ZkNEFVUElZMHEwUTZtNmoxcWIxZEp6cXhUdTZBdWQ5MDN0ZmdBRkhoNWNlWWdGMXpMZFRMSUVXU3c1RnNNOGxFeVRYaHhMOXNQTA/callback?with_response=false'
+} origin: uncaughtException
+DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.showModal (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525867616370163802/aW50ZXJhY3Rpb246MTUyNTg2NzYxNjM3MDE2MzgwMjp3NmRZRkpmbHVLSG5obVhOb0RDTkRhUnV3STA0eU5XUld5VUVRbTFONk1lSXNwb3RKMTBBb3ZkNEFVUElZMHEwUTZtNmoxcWIxZEp6cXhUdTZBdWQ5MDN0ZmdBRkhoNWNlWWdGMXpMZFRMSUVXU3c1RnNNOGxFeVRYaHhMOXNQTA/callback?with_response=false'
+}
+[ANTI-CRASH] Uncaught Exception: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.showModal (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525867616370163802/aW50ZXJhY3Rpb246MTUyNTg2NzYxNjM3MDE2MzgwMjp3NmRZRkpmbHVLSG5obVhOb0RDTkRhUnV3STA0eU5XUld5VUVRbTFONk1lSXNwb3RKMTBBb3ZkNEFVUElZMHEwUTZtNmoxcWIxZEp6cXhUdTZBdWQ5MDN0ZmdBRkhoNWNlWWdGMXpMZFRMSUVXU3c1RnNNOGxFeVRYaHhMOXNQTA/callback?with_response=false'
+} origin: uncaughtException
+[ERROR] Uncaught Exception (bot tiếp tục chạy): Unknown interaction
+[ANTI-CRASH] Uncaught Exception Monitor: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.showModal (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525867624246935696/aW50ZXJhY3Rpb246MTUyNTg2NzYyNDI0NjkzNTY5NjpPRklJUzJHbFNpdEg5UUtSQmlpNWJ4RmNQeGxwbGVaZkJnS25YU1NpOEZRMXlHSkYzQnF2M0tUMGtyNXd4SGRycVFIY1FYTHRSUHc0SGlmcnlNdkQ4Ymkwd1RIdGFaTTdYNkFSNEZlN1d2aUdYVUNnTVVJZ3JDRjFLaXdtWDhwYw/callback?with_response=false'
+} origin: uncaughtException
+DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.showModal (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525867624246935696/aW50ZXJhY3Rpb246MTUyNTg2NzYyNDI0NjkzNTY5NjpPRklJUzJHbFNpdEg5UUtSQmlpNWJ4RmNQeGxwbGVaZkJnS25YU1NpOEZRMXlHSkYzQnF2M0tUMGtyNXd4SGRycVFIY1FYTHRSUHc0SGlmcnlNdkQ4Ymkwd1RIdGFaTTdYNkFSNEZlN1d2aUdYVUNnTVVJZ3JDRjFLaXdtWDhwYw/callback?with_response=false'
+}
+[ANTI-CRASH] Uncaught Exception: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.showModal (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525867624246935696/aW50ZXJhY3Rpb246MTUyNTg2NzYyNDI0NjkzNTY5NjpPRklJUzJHbFNpdEg5UUtSQmlpNWJ4RmNQeGxwbGVaZkJnS25YU1NpOEZRMXlHSkYzQnF2M0tUMGtyNXd4SGRycVFIY1FYTHRSUHc0SGlmcnlNdkQ4Ymkwd1RIdGFaTTdYNkFSNEZlN1d2aUdYVUNnTVVJZ3JDRjFLaXdtWDhwYw/callback?with_response=false'
+} origin: uncaughtException
+[ERROR] Uncaught Exception (bot tiếp tục chạy): Unknown interaction
+DiscordAPIError[40060]: Interaction has already been acknowledged.
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: {
+    message: 'Interaction has already been acknowledged.',
+    code: 40060
+  },
+  code: 40060,
+  status: 400,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525867646783066263/aW50ZXJhY3Rpb246MTUyNTg2NzY0Njc4MzA2NjI2MzpMRnhmNVluQ01XajE3UFFIY2dtUnNKeUhxUUdVZkh1OFo4QUE4NUVFZ2FXd2ZKN3JnWnNOU2tSWTEwdHBiZkRKQklvT3pISXRqeFBVbTBWT0hIVlY2UmNIcHZUQmw3YkR2emw1UDZNMU9LQm9GUWJiRFJPNGNyV3pnYnNJamt0bQ/callback?with_response=false'
+}
+[ANTI-CRASH] Unhandled Rejection at: Promise {
+  <rejected> DiscordAPIError[40060]: Interaction has already been acknowledged.
+      at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+      at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+      at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+    requestBody: { files: [], json: [Object] },
+    rawError: {
+      message: 'Interaction has already been acknowledged.',
+      code: 40060
+    },
+    code: 40060,
+    status: 400,
+    method: 'POST',
+    url: 'https://discord.com/api/v10/interactions/1525867646783066263/aW50ZXJhY3Rpb246MTUyNTg2NzY0Njc4MzA2NjI2MzpMRnhmNVluQ01XajE3UFFIY2dtUnNKeUhxUUdVZkh1OFo4QUE4NUVFZ2FXd2ZKN3JnWnNOU2tSWTEwdHBiZkRKQklvT3pISXRqeFBVbTBWT0hIVlY2UmNIcHZUQmw3YkR2emw1UDZNMU9LQm9GUWJiRFJPNGNyV3pnYnNJamt0bQ/callback?with_response=false'
+  }
+} reason: DiscordAPIError[40060]: Interaction has already been acknowledged.
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: {
+    message: 'Interaction has already been acknowledged.',
+    code: 40060
+  },
+  code: 40060,
+  status: 400,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525867646783066263/aW50ZXJhY3Rpb246MTUyNTg2NzY0Njc4MzA2NjI2MzpMRnhmNVluQ01XajE3UFFIY2dtUnNKeUhxUUdVZkh1OFo4QUE4NUVFZ2FXd2ZKN3JnWnNOU2tSWTEwdHBiZkRKQklvT3pISXRqeFBVbTBWT0hIVlY2UmNIcHZUQmw3YkR2emw1UDZNMU9LQm9GUWJiRFJPNGNyV3pnYnNJamt0bQ/callback?with_response=false'
+}
+[ERROR] Unhandled Rejection (bot tiếp tục chạy): Interaction has already been acknowledged.
+DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525868156764029020/aW50ZXJhY3Rpb246MTUyNTg2ODE1Njc2NDAyOTAyMDpRdUdDVDU3ZDYyNnJ2bEFVN2hCMlZSaFN3b0dmd0NyRXhUYTA1b3hMcXhpT0RXZEM1Ync4NnQxN2JKTTBrMDZKb1pqWWFtQUlaeUFJM3Q2N2g4YW85aktuaTg1anl4VG9NdmVDMmxjZ1VLNXU0RG5zb0o4UEJRREFGSzVqakJNbQ/callback?with_response=false'
+}
+[ANTI-CRASH] Unhandled Rejection at: Promise {
+  <rejected> DiscordAPIError[10062]: Unknown interaction
+      at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+      at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+      at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+    requestBody: { files: [], json: [Object] },
+    rawError: { message: 'Unknown interaction', code: 10062 },
+    code: 10062,
+    status: 404,
+    method: 'POST',
+    url: 'https://discord.com/api/v10/interactions/1525868156764029020/aW50ZXJhY3Rpb246MTUyNTg2ODE1Njc2NDAyOTAyMDpRdUdDVDU3ZDYyNnJ2bEFVN2hCMlZSaFN3b0dmd0NyRXhUYTA1b3hMcXhpT0RXZEM1Ync4NnQxN2JKTTBrMDZKb1pqWWFtQUlaeUFJM3Q2N2g4YW85aktuaTg1anl4VG9NdmVDMmxjZ1VLNXU0RG5zb0o4UEJRREFGSzVqakJNbQ/callback?with_response=false'
+  }
+} reason: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525868156764029020/aW50ZXJhY3Rpb246MTUyNTg2ODE1Njc2NDAyOTAyMDpRdUdDVDU3ZDYyNnJ2bEFVN2hCMlZSaFN3b0dmd0NyRXhUYTA1b3hMcXhpT0RXZEM1Ync4NnQxN2JKTTBrMDZKb1pqWWFtQUlaeUFJM3Q2N2g4YW85aktuaTg1anl4VG9NdmVDMmxjZ1VLNXU0RG5zb0o4UEJRREFGSzVqakJNbQ/callback?with_response=false'
+}
+[ERROR] Unhandled Rejection (bot tiếp tục chạy): Unknown interaction
+DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525877272387784786/aW50ZXJhY3Rpb246MTUyNTg3NzI3MjM4Nzc4NDc4NjpGN0paWUp2dGNqcGVTZzMzV3dLblB6VXk5ZERrQmk0NmRNMjdxSVhybGpKSXNnUGxBODVuZmJqbGl1a3RlZk94ZWNsczdQWmxEM1BYS1VjbTVjWjdXOWFSZ3FHZ1k4dVpsZlFkQXgxc01qMFc0c0Y5dnVYZnBTNkpsOWpvSEQ3Tw/callback?with_response=false'
+}
+[ANTI-CRASH] Unhandled Rejection at: Promise {
+  <rejected> DiscordAPIError[10062]: Unknown interaction
+      at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+      at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+      at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+    requestBody: { files: [], json: [Object] },
+    rawError: { message: 'Unknown interaction', code: 10062 },
+    code: 10062,
+    status: 404,
+    method: 'POST',
+    url: 'https://discord.com/api/v10/interactions/1525877272387784786/aW50ZXJhY3Rpb246MTUyNTg3NzI3MjM4Nzc4NDc4NjpGN0paWUp2dGNqcGVTZzMzV3dLblB6VXk5ZERrQmk0NmRNMjdxSVhybGpKSXNnUGxBODVuZmJqbGl1a3RlZk94ZWNsczdQWmxEM1BYS1VjbTVjWjdXOWFSZ3FHZ1k4dVpsZlFkQXgxc01qMFc0c0Y5dnVYZnBTNkpsOWpvSEQ3Tw/callback?with_response=false'
+  }
+} reason: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525877272387784786/aW50ZXJhY3Rpb246MTUyNTg3NzI3MjM4Nzc4NDc4NjpGN0paWUp2dGNqcGVTZzMzV3dLblB6VXk5ZERrQmk0NmRNMjdxSVhybGpKSXNnUGxBODVuZmJqbGl1a3RlZk94ZWNsczdQWmxEM1BYS1VjbTVjWjdXOWFSZ3FHZ1k4dVpsZlFkQXgxc01qMFc0c0Y5dnVYZnBTNkpsOWpvSEQ3Tw/callback?with_response=false'
+}
+[ERROR] Unhandled Rejection (bot tiếp tục chạy): Unknown interaction
+[ANTI-CRASH] Uncaught Exception Monitor: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.showModal (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525877604652159119/aW50ZXJhY3Rpb246MTUyNTg3NzYwNDY1MjE1OTExOTowcDhieDM4R2Y4WGJua0hEWFhOS1E5M2RIOFllZm9TN3NXeURsWkY2SUNaMHlibkFhbGhLdXEzeHE2NE9KajZoUEUzQVBmVkZZWFFveFlvdkFxbGJnT3JubG1qNlhJamVkU09iTFVZZllTQ3B6VU9CNzJUdUVxT1pRVmJ2VHd5NA/callback?with_response=false'
+} origin: uncaughtException
+DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.showModal (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525877604652159119/aW50ZXJhY3Rpb246MTUyNTg3NzYwNDY1MjE1OTExOTowcDhieDM4R2Y4WGJua0hEWFhOS1E5M2RIOFllZm9TN3NXeURsWkY2SUNaMHlibkFhbGhLdXEzeHE2NE9KajZoUEUzQVBmVkZZWFFveFlvdkFxbGJnT3JubG1qNlhJamVkU09iTFVZZllTQ3B6VU9CNzJUdUVxT1pRVmJ2VHd5NA/callback?with_response=false'
+}
+[ANTI-CRASH] Uncaught Exception: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.showModal (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525877604652159119/aW50ZXJhY3Rpb246MTUyNTg3NzYwNDY1MjE1OTExOTowcDhieDM4R2Y4WGJua0hEWFhOS1E5M2RIOFllZm9TN3NXeURsWkY2SUNaMHlibkFhbGhLdXEzeHE2NE9KajZoUEUzQVBmVkZZWFFveFlvdkFxbGJnT3JubG1qNlhJamVkU09iTFVZZllTQ3B6VU9CNzJUdUVxT1pRVmJ2VHd5NA/callback?with_response=false'
+} origin: uncaughtException
+[ERROR] Uncaught Exception (bot tiếp tục chạy): Unknown interaction
+DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525877621055819786/aW50ZXJhY3Rpb246MTUyNTg3NzYyMTA1NTgxOTc4Njp5eTk5c1ZacE1BZ0JYaHBXUVlFeEtyQjVZZHdvQVNOUHJNQlJFcW9VWnlZaE90dFJRVTRTYTlNUTRHeDR1cTdxeWVzNGRHeE45SXgySklqeEV4T2lHSlAwdmJrVkRmanR4ZGwwSlpJbUNvUDlDOVF4ZkxoYkl6T0pweW4zdHpEMg/callback?with_response=false'
+}
+[ANTI-CRASH] Unhandled Rejection at: Promise {
+  <rejected> DiscordAPIError[10062]: Unknown interaction
+      at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+      at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+      at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+    requestBody: { files: [], json: [Object] },
+    rawError: { message: 'Unknown interaction', code: 10062 },
+    code: 10062,
+    status: 404,
+    method: 'POST',
+    url: 'https://discord.com/api/v10/interactions/1525877621055819786/aW50ZXJhY3Rpb246MTUyNTg3NzYyMTA1NTgxOTc4Njp5eTk5c1ZacE1BZ0JYaHBXUVlFeEtyQjVZZHdvQVNOUHJNQlJFcW9VWnlZaE90dFJRVTRTYTlNUTRHeDR1cTdxeWVzNGRHeE45SXgySklqeEV4T2lHSlAwdmJrVkRmanR4ZGwwSlpJbUNvUDlDOVF4ZkxoYkl6T0pweW4zdHpEMg/callback?with_response=false'
+  }
+} reason: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525877621055819786/aW50ZXJhY3Rpb246MTUyNTg3NzYyMTA1NTgxOTc4Njp5eTk5c1ZacE1BZ0JYaHBXUVlFeEtyQjVZZHdvQVNOUHJNQlJFcW9VWnlZaE90dFJRVTRTYTlNUTRHeDR1cTdxeWVzNGRHeE45SXgySklqeEV4T2lHSlAwdmJrVkRmanR4ZGwwSlpJbUNvUDlDOVF4ZkxoYkl6T0pweW4zdHpEMg/callback?with_response=false'
+}
+[ERROR] Unhandled Rejection (bot tiếp tục chạy): Unknown interaction
+[ANTI-CRASH] Uncaught Exception Monitor: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525877827960967320/aW50ZXJhY3Rpb246MTUyNTg3NzgyNzk2MDk2NzMyMDo0TDVQeEI1a2k4N2V1ZXIwNTN3TXFZYlJaZVZ6VE54WHFydUhXRktaQ2kzQzVQNDZIdmYxOGFQUWFuaEg5dlN6ajZVUWt6dnk1OGR6MmJ5Vnc5MnFsb3Z1RFJPMk83MGNxSm1rNGRMSWV6R2tpaGtIdzBHajdIWjl6UTJlY2FDWA/callback?with_response=false'
+} origin: uncaughtException
+DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525877827960967320/aW50ZXJhY3Rpb246MTUyNTg3NzgyNzk2MDk2NzMyMDo0TDVQeEI1a2k4N2V1ZXIwNTN3TXFZYlJaZVZ6VE54WHFydUhXRktaQ2kzQzVQNDZIdmYxOGFQUWFuaEg5dlN6ajZVUWt6dnk1OGR6MmJ5Vnc5MnFsb3Z1RFJPMk83MGNxSm1rNGRMSWV6R2tpaGtIdzBHajdIWjl6UTJlY2FDWA/callback?with_response=false'
+}
+[ANTI-CRASH] Uncaught Exception: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525877827960967320/aW50ZXJhY3Rpb246MTUyNTg3NzgyNzk2MDk2NzMyMDo0TDVQeEI1a2k4N2V1ZXIwNTN3TXFZYlJaZVZ6VE54WHFydUhXRktaQ2kzQzVQNDZIdmYxOGFQUWFuaEg5dlN6ajZVUWt6dnk1OGR6MmJ5Vnc5MnFsb3Z1RFJPMk83MGNxSm1rNGRMSWV6R2tpaGtIdzBHajdIWjl6UTJlY2FDWA/callback?with_response=false'
+} origin: uncaughtException
+[ERROR] Uncaught Exception (bot tiếp tục chạy): Unknown interaction
+DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525879368822554624/aW50ZXJhY3Rpb246MTUyNTg3OTM2ODgyMjU1NDYyNDpFMzlFenQ3eWo0VVM1eFZvS094TUF3TURKbVFESURMOUFNYmVOeDFXRHBUUFNVekwzelJ3NEo5OHUyTFRFblpzaVJ0VVM4Ymk3endWYjZSOVN2OHhaUzZ1ak1xNktyZ3RsTjB2NWVwVDVkSlYxVlcwbGZSMHcxdjZhUlpLY2xSUQ/callback?with_response=false'
+}
+[ANTI-CRASH] Unhandled Rejection at: Promise {
+  <rejected> DiscordAPIError[10062]: Unknown interaction
+      at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+      at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+      at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+    requestBody: { files: [], json: [Object] },
+    rawError: { message: 'Unknown interaction', code: 10062 },
+    code: 10062,
+    status: 404,
+    method: 'POST',
+    url: 'https://discord.com/api/v10/interactions/1525879368822554624/aW50ZXJhY3Rpb246MTUyNTg3OTM2ODgyMjU1NDYyNDpFMzlFenQ3eWo0VVM1eFZvS094TUF3TURKbVFESURMOUFNYmVOeDFXRHBUUFNVekwzelJ3NEo5OHUyTFRFblpzaVJ0VVM4Ymk3endWYjZSOVN2OHhaUzZ1ak1xNktyZ3RsTjB2NWVwVDVkSlYxVlcwbGZSMHcxdjZhUlpLY2xSUQ/callback?with_response=false'
+  }
+} reason: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525879368822554624/aW50ZXJhY3Rpb246MTUyNTg3OTM2ODgyMjU1NDYyNDpFMzlFenQ3eWo0VVM1eFZvS094TUF3TURKbVFESURMOUFNYmVOeDFXRHBUUFNVekwzelJ3NEo5OHUyTFRFblpzaVJ0VVM4Ymk3endWYjZSOVN2OHhaUzZ1ak1xNktyZ3RsTjB2NWVwVDVkSlYxVlcwbGZSMHcxdjZhUlpLY2xSUQ/callback?with_response=false'
+}
+[ERROR] Unhandled Rejection (bot tiếp tục chạy): Unknown interaction
+[ANTI-CRASH] Uncaught Exception Monitor: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525879594811527228/aW50ZXJhY3Rpb246MTUyNTg3OTU5NDgxMTUyNzIyODphMm1HSW9iMThGUExObDVKUFViSlBqdXlFRU4yTVlJWGRUWjdRRmRpczgxYjM2OEhPdWVRbjlpYm1iNml1UzdLVVNZSGFlZVBoQVV4OTVVVWNpeW4xNUk1OEQzb1FqQmVHeVBxMjB3SllxVkxvNzFFcHhGU1hzYW83bDdjcmFGVQ/callback?with_response=false'
+} origin: uncaughtException
+DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525879594811527228/aW50ZXJhY3Rpb246MTUyNTg3OTU5NDgxMTUyNzIyODphMm1HSW9iMThGUExObDVKUFViSlBqdXlFRU4yTVlJWGRUWjdRRmRpczgxYjM2OEhPdWVRbjlpYm1iNml1UzdLVVNZSGFlZVBoQVV4OTVVVWNpeW4xNUk1OEQzb1FqQmVHeVBxMjB3SllxVkxvNzFFcHhGU1hzYW83bDdjcmFGVQ/callback?with_response=false'
+}
+[ANTI-CRASH] Uncaught Exception: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525879594811527228/aW50ZXJhY3Rpb246MTUyNTg3OTU5NDgxMTUyNzIyODphMm1HSW9iMThGUExObDVKUFViSlBqdXlFRU4yTVlJWGRUWjdRRmRpczgxYjM2OEhPdWVRbjlpYm1iNml1UzdLVVNZSGFlZVBoQVV4OTVVVWNpeW4xNUk1OEQzb1FqQmVHeVBxMjB3SllxVkxvNzFFcHhGU1hzYW83bDdjcmFGVQ/callback?with_response=false'
+} origin: uncaughtException
+[ERROR] Uncaught Exception (bot tiếp tục chạy): Unknown interaction
+DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525880040657785053/aW50ZXJhY3Rpb246MTUyNTg4MDA0MDY1Nzc4NTA1MzpNVml6cWdtRlBzN29YZUxkWUNVRTk2SHNZNkxySThlbVdlclRvWjk0OVo2WG9sN0VHb1VBallxVERScXMzZTVtZjZsSHVNSXNvN1lwSlNDNkIydk1iNGNEcENWWFR5UUh6Q01JWXNLNWFLb3VaelFqcEJhclBqVU1KZGhNV0x4ZA/callback?with_response=false'
+}
+[ANTI-CRASH] Unhandled Rejection at: Promise {
+  <rejected> DiscordAPIError[10062]: Unknown interaction
+      at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+      at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+      at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+    requestBody: { files: [], json: [Object] },
+    rawError: { message: 'Unknown interaction', code: 10062 },
+    code: 10062,
+    status: 404,
+    method: 'POST',
+    url: 'https://discord.com/api/v10/interactions/1525880040657785053/aW50ZXJhY3Rpb246MTUyNTg4MDA0MDY1Nzc4NTA1MzpNVml6cWdtRlBzN29YZUxkWUNVRTk2SHNZNkxySThlbVdlclRvWjk0OVo2WG9sN0VHb1VBallxVERScXMzZTVtZjZsSHVNSXNvN1lwSlNDNkIydk1iNGNEcENWWFR5UUh6Q01JWXNLNWFLb3VaelFqcEJhclBqVU1KZGhNV0x4ZA/callback?with_response=false'
+  }
+} reason: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525880040657785053/aW50ZXJhY3Rpb246MTUyNTg4MDA0MDY1Nzc4NTA1MzpNVml6cWdtRlBzN29YZUxkWUNVRTk2SHNZNkxySThlbVdlclRvWjk0OVo2WG9sN0VHb1VBallxVERScXMzZTVtZjZsSHVNSXNvN1lwSlNDNkIydk1iNGNEcENWWFR5UUh6Q01JWXNLNWFLb3VaelFqcEJhclBqVU1KZGhNV0x4ZA/callback?with_response=false'
+}
+[ERROR] Unhandled Rejection (bot tiếp tục chạy): Unknown interaction
+DiscordAPIError[40060]: Interaction has already been acknowledged.
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: {
+    message: 'Interaction has already been acknowledged.',
+    code: 40060
+  },
+  code: 40060,
+  status: 400,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525880224800182344/aW50ZXJhY3Rpb246MTUyNTg4MDIyNDgwMDE4MjM0NDpUNVFmR054YkVRYnU2MDBKRTR4SGpkSTFQYnQ3Y1B1Q2VnemxLVkRPWjEwOFZHWjNoS2Y1ZlhPNElJOEZsTFZvbjVVYXU4ZFBzanE2NzJKaVlBd0x4UlhmdkVsVnUzMUw5NmdDQU5oRnFSTEJTOXdaYWI2YlhLMkttYWNick9laQ/callback?with_response=false'
+}
+[ANTI-CRASH] Unhandled Rejection at: Promise {
+  <rejected> DiscordAPIError[40060]: Interaction has already been acknowledged.
+      at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+      at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+      at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+    requestBody: { files: [], json: [Object] },
+    rawError: {
+      message: 'Interaction has already been acknowledged.',
+      code: 40060
+    },
+    code: 40060,
+    status: 400,
+    method: 'POST',
+    url: 'https://discord.com/api/v10/interactions/1525880224800182344/aW50ZXJhY3Rpb246MTUyNTg4MDIyNDgwMDE4MjM0NDpUNVFmR054YkVRYnU2MDBKRTR4SGpkSTFQYnQ3Y1B1Q2VnemxLVkRPWjEwOFZHWjNoS2Y1ZlhPNElJOEZsTFZvbjVVYXU4ZFBzanE2NzJKaVlBd0x4UlhmdkVsVnUzMUw5NmdDQU5oRnFSTEJTOXdaYWI2YlhLMkttYWNick9laQ/callback?with_response=false'
+  }
+} reason: DiscordAPIError[40060]: Interaction has already been acknowledged.
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: {
+    message: 'Interaction has already been acknowledged.',
+    code: 40060
+  },
+  code: 40060,
+  status: 400,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525880224800182344/aW50ZXJhY3Rpb246MTUyNTg4MDIyNDgwMDE4MjM0NDpUNVFmR054YkVRYnU2MDBKRTR4SGpkSTFQYnQ3Y1B1Q2VnemxLVkRPWjEwOFZHWjNoS2Y1ZlhPNElJOEZsTFZvbjVVYXU4ZFBzanE2NzJKaVlBd0x4UlhmdkVsVnUzMUw5NmdDQU5oRnFSTEJTOXdaYWI2YlhLMkttYWNick9laQ/callback?with_response=false'
+}
+[ERROR] Unhandled Rejection (bot tiếp tục chạy): Interaction has already been acknowledged.
+Lỗi khi siết cần câu: TypeError: getRod is not a function
+    at Timeout._onTimeout (/root/gunter-bot/src/index.js:185:51)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Lỗi khi siết cần câu: TypeError: getRod is not a function
+    at Timeout._onTimeout (/root/gunter-bot/src/index.js:185:51)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Lỗi khi siết cần câu: TypeError: getRod is not a function
+    at Timeout._onTimeout (/root/gunter-bot/src/index.js:185:51)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Lỗi khi siết cần câu: TypeError: getRod is not a function
+    at Timeout._onTimeout (/root/gunter-bot/src/index.js:185:51)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Lỗi khi siết cần câu: TypeError: getRod is not a function
+    at Timeout._onTimeout (/root/gunter-bot/src/index.js:185:51)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Lỗi khi siết cần câu: TypeError: getRod is not a function
+    at Timeout._onTimeout (/root/gunter-bot/src/index.js:185:51)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Lỗi khi siết cần câu: TypeError: getRod is not a function
+    at Timeout._onTimeout (/root/gunter-bot/src/index.js:185:51)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Lỗi khi siết cần câu: TypeError: getRod is not a function
+    at Timeout._onTimeout (/root/gunter-bot/src/index.js:185:51)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525887644913893466/aW50ZXJhY3Rpb246MTUyNTg4NzY0NDkxMzg5MzQ2NjozYnduZU9JNHV3OHIyVHkzNm9ER2ZCVFBYTG5PQ01KQVlkRkRYeEdjUFVWNDRpVGJHbWhnbVV6ZkxpQ3ZZNm1tbHJwWEZOQWV5SGtxWmVZeDExMVZzQUlZY0R0SExEOGlKUjdZMDhpUjVMS0hnZzFMYWt3SFVTREQ0YWpkbmVDaQ/callback?with_response=false'
+}
+[ANTI-CRASH] Unhandled Rejection at: Promise {
+  <rejected> DiscordAPIError[10062]: Unknown interaction
+      at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+      at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+      at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+    requestBody: { files: [], json: [Object] },
+    rawError: { message: 'Unknown interaction', code: 10062 },
+    code: 10062,
+    status: 404,
+    method: 'POST',
+    url: 'https://discord.com/api/v10/interactions/1525887644913893466/aW50ZXJhY3Rpb246MTUyNTg4NzY0NDkxMzg5MzQ2NjozYnduZU9JNHV3OHIyVHkzNm9ER2ZCVFBYTG5PQ01KQVlkRkRYeEdjUFVWNDRpVGJHbWhnbVV6ZkxpQ3ZZNm1tbHJwWEZOQWV5SGtxWmVZeDExMVZzQUlZY0R0SExEOGlKUjdZMDhpUjVMS0hnZzFMYWt3SFVTREQ0YWpkbmVDaQ/callback?with_response=false'
+  }
+} reason: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525887644913893466/aW50ZXJhY3Rpb246MTUyNTg4NzY0NDkxMzg5MzQ2NjozYnduZU9JNHV3OHIyVHkzNm9ER2ZCVFBYTG5PQ01KQVlkRkRYeEdjUFVWNDRpVGJHbWhnbVV6ZkxpQ3ZZNm1tbHJwWEZOQWV5SGtxWmVZeDExMVZzQUlZY0R0SExEOGlKUjdZMDhpUjVMS0hnZzFMYWt3SFVTREQ0YWpkbmVDaQ/callback?with_response=false'
+}
+[ERROR] Unhandled Rejection (bot tiếp tục chạy): Unknown interaction
+(node:8288) Warning: Supplying "ephemeral" for interaction response options is deprecated. Utilize flags instead.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:8288) Warning: Supplying "fetchReply" for interaction response options is deprecated. Utilize "withResponse" instead or fetch the response after using the method.
+(node:8521) Warning: Supplying "ephemeral" for interaction response options is deprecated. Utilize flags instead.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:8521) Warning: Supplying "fetchReply" for interaction response options is deprecated. Utilize "withResponse" instead or fetch the response after using the method.
+DiscordAPIError[40060]: Interaction has already been acknowledged.
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: {
+    message: 'Interaction has already been acknowledged.',
+    code: 40060
+  },
+  code: 40060,
+  status: 400,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525891974228480032/aW50ZXJhY3Rpb246MTUyNTg5MTk3NDIyODQ4MDAzMjpWMktoZEc5YUl4VlFKRWJHNzY3bzNHQ2kwRjdwck10c1lCaUlwZHR4d1pacEN6SUprRkJOclFBeDkzc3VJZkFHN0J0ZGpLWHJJTzdNaTRNQzFLbDF4Zm85RkVndktYM052eEgwME51U2wzWDV2aEZlaVVadFdqWXl2WXVLT3E3Mw/callback?with_response=false'
+}
+[ANTI-CRASH] Unhandled Rejection at: Promise {
+  <rejected> DiscordAPIError[40060]: Interaction has already been acknowledged.
+      at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+      at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+      at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+    requestBody: { files: [], json: [Object] },
+    rawError: {
+      message: 'Interaction has already been acknowledged.',
+      code: 40060
+    },
+    code: 40060,
+    status: 400,
+    method: 'POST',
+    url: 'https://discord.com/api/v10/interactions/1525891974228480032/aW50ZXJhY3Rpb246MTUyNTg5MTk3NDIyODQ4MDAzMjpWMktoZEc5YUl4VlFKRWJHNzY3bzNHQ2kwRjdwck10c1lCaUlwZHR4d1pacEN6SUprRkJOclFBeDkzc3VJZkFHN0J0ZGpLWHJJTzdNaTRNQzFLbDF4Zm85RkVndktYM052eEgwME51U2wzWDV2aEZlaVVadFdqWXl2WXVLT3E3Mw/callback?with_response=false'
+  }
+} reason: DiscordAPIError[40060]: Interaction has already been acknowledged.
+    at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+    at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+    at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: {
+    message: 'Interaction has already been acknowledged.',
+    code: 40060
+  },
+  code: 40060,
+  status: 400,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1525891974228480032/aW50ZXJhY3Rpb246MTUyNTg5MTk3NDIyODQ4MDAzMjpWMktoZEc5YUl4VlFKRWJHNzY3bzNHQ2kwRjdwck10c1lCaUlwZHR4d1pacEN6SUprRkJOclFBeDkzc3VJZkFHN0J0ZGpLWHJJTzdNaTRNQzFLbDF4Zm85RkVndktYM052eEgwME51U2wzWDV2aEZlaVVadFdqWXl2WXVLT3E3Mw/callback?with_response=false'
+}
+[ERROR] Unhandled Rejection (bot tiếp tục chạy): Interaction has already been acknowledged.

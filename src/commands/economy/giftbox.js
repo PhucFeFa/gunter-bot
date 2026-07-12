@@ -54,10 +54,13 @@ module.exports = {
         const channelId = interaction.channel.id;
         
         const tongTienRaw = interaction.options.getString('amount');
-        const soSuat = interaction.options.getInteger('slots');
+        let soSuat = interaction.options.getInteger('slots') || 10;
         const thoiGian = interaction.options.getInteger('duration') || 5;
         const antiCloneSetting = interaction.options.getString('anti_clone') || 'on';
         const antiClone = (antiCloneSetting === 'on');
+
+        if (soSuat < 1) soSuat = 1;
+        if (soSuat > 50) soSuat = 50;
 
         const creatorData = await getUser(creator.id);
         const currentBalance = creatorData.balance;

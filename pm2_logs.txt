@@ -1,0 +1,104 @@
+[TAILING] Tailing last 50 lines for [gunter-bot] process (change the value with --lines option)
+/root/.pm2/logs/gunter-bot-out.log last 50 lines:
+0|gunter-b | [CMD] Loaded: /giftbox
+0|gunter-b | [CMD] Loaded: /give
+0|gunter-b | [CMD] Loaded: /higherlower
+0|gunter-b | [CMD] Loaded: /inventory
+0|gunter-b | [CMD] Loaded: /job
+0|gunter-b | [CMD] Loaded: /loan
+0|gunter-b | [CMD] Loaded: /mines
+0|gunter-b | [CMD] Loaded: /rps
+0|gunter-b | [CMD] Loaded: /slots
+0|gunter-b | [CMD] Loaded: /tictactoe
+0|gunter-b | [CMD] Loaded: /work
+0|gunter-b | [CMD] Loaded: /ban
+0|gunter-b | [CMD] Loaded: /kick
+0|gunter-b | [CMD] Loaded: /mute
+0|gunter-b | [CMD] Loaded: /prison
+0|gunter-b | [CMD] Loaded: /purge
+0|gunter-b | [CMD] Loaded: /unprison
+0|gunter-b | [CMD] Loaded: /filter
+0|gunter-b | [CMD] Loaded: /pause
+0|gunter-b | [CMD] Loaded: /play
+0|gunter-b | [CMD] Loaded: /queue
+0|gunter-b | [CMD] Loaded: /remove
+0|gunter-b | [CMD] Loaded: /resume
+0|gunter-b | [CMD] Loaded: /shuffle
+0|gunter-b | [CMD] Loaded: /skip
+0|gunter-b | [CMD] Loaded: /skipto
+0|gunter-b | [CMD] Loaded: /stop
+0|gunter-b | [CMD] Loaded: /avatar
+0|gunter-b | [CMD] Loaded: /banner
+0|gunter-b | [CMD] Loaded: /help
+0|gunter-b | [CMD] Loaded: /love-rate
+0|gunter-b | [CMD] Loaded: /pinterest
+0|gunter-b | [CMD] Loaded: /snipe
+0|gunter-b | [CMD] Loaded: /tarot
+0|gunter-b | [CMD] Loaded: /top
+0|gunter-b | [EVT] Loaded: guildMemberAdd
+0|gunter-b | [EVT] Loaded: guildMemberRemove
+0|gunter-b | [EVT] Loaded: interactionCreate
+0|gunter-b | [EVT] Loaded: messageCreate
+0|gunter-b | [EVT] Loaded: messageDelete
+0|gunter-b | [EVT] Loaded: clientReady
+0|gunter-b | [EVT] Loaded: voiceStateUpdate
+0|gunter-b | [MUSIC] Các công cụ giải mã âm thanh đã được tải thành công!
+0|gunter-b | [BOT] Login successful!
+0|gunter-b | [FishShop] Scheduler đã khởi động. Reset mỗi 12 tiếng.
+0|gunter-b | [SERVER] API Backend đang chạy tại http://localhost:3001
+0|gunter-b | [BOT] Logged in as: Gunter#3544
+0|gunter-b | [BOT] Serving 1 guild(s).
+0|gunter-b | [FishShop] Đang reset shop cho 1 guild(s)...
+0|gunter-b | [FishShop] Reset shop guild 1494709249954156564 — lần #38
+
+/root/.pm2/logs/gunter-bot-error.log last 50 lines:
+0|gunter-b | DiscordAPIError[40060]: Interaction has already been acknowledged.
+0|gunter-b |     at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+0|gunter-b |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|gunter-b |     at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+0|gunter-b |     at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+0|gunter-b |     at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+0|gunter-b |   requestBody: { files: [], json: { type: 4, data: [Object] } },
+0|gunter-b |   rawError: {
+0|gunter-b |     message: 'Interaction has already been acknowledged.',
+0|gunter-b |     code: 40060
+0|gunter-b |   },
+0|gunter-b |   code: 40060,
+0|gunter-b |   status: 400,
+0|gunter-b |   method: 'POST',
+0|gunter-b |   url: 'https://discord.com/api/v10/interactions/1525891974228480032/aW50ZXJhY3Rpb246MTUyNTg5MTk3NDIyODQ4MDAzMjpWMktoZEc5YUl4VlFKRWJHNzY3bzNHQ2kwRjdwck10c1lCaUlwZHR4d1pacEN6SUprRkJOclFBeDkzc3VJZkFHN0J0ZGpLWHJJTzdNaTRNQzFLbDF4Zm85RkVndktYM052eEgwME51U2wzWDV2aEZlaVVadFdqWXl2WXVLT3E3Mw/callback?with_response=false'
+0|gunter-b | }
+0|gunter-b | [ANTI-CRASH] Unhandled Rejection at: Promise {
+0|gunter-b |   <rejected> DiscordAPIError[40060]: Interaction has already been acknowledged.
+0|gunter-b |       at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+0|gunter-b |       at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|gunter-b |       at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+0|gunter-b |       at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+0|gunter-b |       at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+0|gunter-b |     requestBody: { files: [], json: [Object] },
+0|gunter-b |     rawError: {
+0|gunter-b |       message: 'Interaction has already been acknowledged.',
+0|gunter-b |       code: 40060
+0|gunter-b |     },
+0|gunter-b |     code: 40060,
+0|gunter-b |     status: 400,
+0|gunter-b |     method: 'POST',
+0|gunter-b |     url: 'https://discord.com/api/v10/interactions/1525891974228480032/aW50ZXJhY3Rpb246MTUyNTg5MTk3NDIyODQ4MDAzMjpWMktoZEc5YUl4VlFKRWJHNzY3bzNHQ2kwRjdwck10c1lCaUlwZHR4d1pacEN6SUprRkJOclFBeDkzc3VJZkFHN0J0ZGpLWHJJTzdNaTRNQzFLbDF4Zm85RkVndktYM052eEgwME51U2wzWDV2aEZlaVVadFdqWXl2WXVLT3E3Mw/callback?with_response=false'
+0|gunter-b |   }
+0|gunter-b | } reason: DiscordAPIError[40060]: Interaction has already been acknowledged.
+0|gunter-b |     at handleErrors (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/Shared.ts:148:10)
+0|gunter-b |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|gunter-b |     at async BurstHandler.runRequest (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/handlers/BurstHandler.ts:144:20)
+0|gunter-b |     at async _REST.request (/root/gunter-bot/node_modules/@discordjs/rest/src/lib/REST.ts:210:20)
+0|gunter-b |     at async ButtonInteraction.reply (/root/gunter-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+0|gunter-b |   requestBody: { files: [], json: { type: 4, data: [Object] } },
+0|gunter-b |   rawError: {
+0|gunter-b |     message: 'Interaction has already been acknowledged.',
+0|gunter-b |     code: 40060
+0|gunter-b |   },
+0|gunter-b |   code: 40060,
+0|gunter-b |   status: 400,
+0|gunter-b |   method: 'POST',
+0|gunter-b |   url: 'https://discord.com/api/v10/interactions/1525891974228480032/aW50ZXJhY3Rpb246MTUyNTg5MTk3NDIyODQ4MDAzMjpWMktoZEc5YUl4VlFKRWJHNzY3bzNHQ2kwRjdwck10c1lCaUlwZHR4d1pacEN6SUprRkJOclFBeDkzc3VJZkFHN0J0ZGpLWHJJTzdNaTRNQzFLbDF4Zm85RkVndktYM052eEgwME51U2wzWDV2aEZlaVVadFdqWXl2WXVLT3E3Mw/callback?with_response=false'
+0|gunter-b | }
+0|gunter-b | [ERROR] Unhandled Rejection (bot tiếp tục chạy): Interaction has already been acknowledged.

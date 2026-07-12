@@ -31,6 +31,10 @@ module.exports = {
         const betRaw = interaction.options.getString('bet');
         let minesCount = interaction.options.getInteger('mines') || 3;
         
+        // Cực kỳ quan trọng: Giới hạn mìn để tránh infinite loop nếu dùng prefix g!mines 500000
+        if (minesCount < 1) minesCount = 1;
+        if (minesCount > 15) minesCount = 15;
+        
         const userData = await getUser(user.id);
         const currentBalance = userData.balance;
 

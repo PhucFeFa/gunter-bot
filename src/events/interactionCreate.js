@@ -103,8 +103,9 @@ module.exports = {
                     author: interaction.user,
                     reply: async (opts) => {
                         const payload = typeof opts === 'string' ? { content: opts } : opts;
-                        const m = await interaction.reply({ ...payload, fetchReply: true }).catch(() => interaction.followUp({ ...payload, fetchReply: true }));
-                        return m;
+                        const response = await interaction.reply({ ...payload, withResponse: true }).catch(() => interaction.followUp({ ...payload, withResponse: true }));
+                        // Return the interaction response message so subsequent edits work correctly
+                        return response?.resource?.message || response;
                     }
                 };
                 await game.placeBet(fakeMsg, side, amount);
@@ -127,8 +128,9 @@ module.exports = {
                     author: interaction.user,
                     reply: async (opts) => {
                         const payload = typeof opts === 'string' ? { content: opts } : opts;
-                        const m = await interaction.reply({ ...payload, fetchReply: true }).catch(() => interaction.followUp({ ...payload, fetchReply: true }));
-                        return m;
+                        const response = await interaction.reply({ ...payload, withResponse: true }).catch(() => interaction.followUp({ ...payload, withResponse: true }));
+                        // Return the interaction response message so subsequent edits work correctly
+                        return response?.resource?.message || response;
                     }
                 };
                 await game.placeBet(fakeMsg, amount);

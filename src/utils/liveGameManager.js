@@ -45,6 +45,19 @@ class LiveGameManager {
         const g = this.games.get(`${guildId}:${gameType}`);
         return g ? g.channelId : null;
     }
+
+    /** Hoàn tiền khi sập/lag/đóng bot */
+    async shutdown() {
+        console.log('[LIVE_GAME] Đang tiến hành hoàn tiền cho người chơi do hệ thống restart/shutdown...');
+        const tasks = [];
+        for (const instance of this.games.values()) {
+            if (typeof instance.refundAll === 'function') {
+                tasks.push(instance.refundAll());
+            }
+        }
+        await Promise.allSettled(tasks);
+        console.log('[LIVE_GAME] Đã hoàn tất hoàn tiền!');
+    }
 }
 
 module.exports = new LiveGameManager();

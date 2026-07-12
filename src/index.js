@@ -175,3 +175,27 @@ client.login(process.env.DISCORD_TOKEN)
         console.error('[FATAL] Failed to login:', err.message);
         process.exit(1);
     });
+
+// --- Xử lý khi bot sập / khởi động lại (Hoàn tiền người chơi) ---
+async function gracefulShutdown(signal) {
+    console.log(`\n[SYSTEM] Nhận tín hiệu ${signal}. Bắt đầu tắt an toàn...`);
+    try {
+        const liveGameManager = require('./utils/liveGameManager');
+        await liveGameManager.shutdown();
+    } catch (e) {
+        console.error('[SYSTEM] Lỗi khi hoàn tiền:', e);
+    }
+    process.exit(0);
+}
+
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('uncaughtException', async (err) => {
+    console.error('[FATAL] Uncaught Exception:', err);
+    await gracefulShutdown('uncaughtException');
+});
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('[FATAL] Unhandled Rejection at:', promise, 'reason:', reason);
+    // Có thể không cần shutdown ngay nếu là lỗi vặt, nhưng an toàn thì gọi:
+    // await gracefulShutdown('unhandledRejection');
+});

@@ -66,6 +66,17 @@ class BaccaratLiveGame {
     async start() { this.running = true; await this.loop(); }
     stop() { this.running = false; }
 
+    async refundAll() {
+        if (!this.bets || this.bets.size === 0) return;
+        console.log(`[BACCARAT] Hoàn tiền cho ${this.bets.size} người chơi do sập/lag.`);
+        const tasks = [];
+        for (const [uid, b] of this.bets) {
+            tasks.push(updateBalance(uid, b.amount).catch(() => {}));
+        }
+        await Promise.allSettled(tasks);
+        this.bets.clear();
+    }
+
     // ─── Đặt cược (từ prefix hoặc modal) ─────────────────────
     async placeBet(message, side, amount) {
         if (!['banker', 'player', 'tie'].includes(side))

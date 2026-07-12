@@ -53,6 +53,19 @@ class AviatorLiveGame {
     async start() { this.running = true; await this.loop(); }
     stop() { this.running = false; }
 
+    async refundAll() {
+        if (!this.bets || this.bets.size === 0) return;
+        console.log(`[AVIATOR] Hoàn tiền cho người chơi do sập/lag.`);
+        const tasks = [];
+        for (const [uid, amount] of this.bets) {
+            if (!this.cashedOut.has(uid)) {
+                tasks.push(updateBalance(uid, amount).catch(() => {}));
+            }
+        }
+        await Promise.allSettled(tasks);
+        this.bets.clear();
+    }
+
     /** Đặt cược – gọi từ messageCreate (g!bet <tiền>) hoặc modal */
     async placeBet(message, amount) {
         if (this.phase !== 'betting') return this._reply(message, '⛔ Ván đang bay! Chờ ván mới để đặt cược.');

@@ -38,6 +38,7 @@
     "googlethis": "^1.8.0",
     "instagram-url-direct": "^2.0.7",
     "node-cron": "^4.6.0",
+    "node-ssh": "^13.2.1",
     "play-dl": "^1.9.7",
     "rahad-all-downloader-v2": "^2.0.3",
     "youtube-ext": "^1.1.25"

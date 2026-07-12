@@ -6,11 +6,11 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('tictactoe')
         .setDescription('Chơi Caro Vô Cực (Infinite Tic-Tac-Toe)')
-        .addStringOption(option => 
+        .addStringOption(option =>
             option.setName('bet')
                 .setDescription('Số tiền cược (Hoặc gõ "all" để chơi tất tay)')
                 .setRequired(true))
-        .addUserOption(option => 
+        .addUserOption(option =>
             option.setName('opponent')
                 .setDescription('Đối thủ (để trống nếu muốn chơi với máy)')
                 .setRequired(false)),
@@ -102,10 +102,10 @@ module.exports = {
                 // Trừ tiền 2 bên
                 await updateBalance(p1.id, -bet);
                 await updateBalance(p2.id, -bet);
-                
+
                 await i.update({ content: `✅ Kèo đã được chốt! Trừ ${bet.toLocaleString()} $ của mỗi người. Bắt đầu ngay...`, components: [] });
                 collector.stop('accepted');
-                
+
                 // Khởi động Game Loop
                 this.runGame(interaction, p1, p2, bet, 'pvp', 1);
             }
@@ -113,7 +113,7 @@ module.exports = {
 
         collector.on('end', (collected, reason) => {
             if (reason === 'time') {
-                interaction.editReply({ content: '⏳ Hết giờ, kèo đã bị hủy.', components: [] }).catch(() => {});
+                interaction.editReply({ content: '⏳ Hết giờ, kèo đã bị hủy.', components: [] }).catch(() => { });
             }
         });
     },
@@ -127,8 +127,8 @@ module.exports = {
             .setPlaceholder('Chọn độ khó')
             .addOptions([
                 { label: 'Dễ (Easy)', description: 'Bot đánh ngẫu nhiên. KHÔNG có thưởng khi thắng!', value: 'easy' },
-                { label: 'Trung Bình (Medium)', description: 'Bot biết chặn đường. Thưởng: 1.5x cược', value: 'medium' },
-                { label: 'Khó (Hard)', description: 'Bot biết tính toán. Thưởng: 2.5x cược', value: 'hard' }
+                { label: 'Trung Bình (Medium)', description: 'Bot biết chặn đường. Thưởng: 1.2x cược', value: 'medium' },
+                { label: 'Khó (Hard)', description: 'Bot biết tính toán. Thưởng: 2x cược', value: 'hard' }
             ]);
 
         const row = new ActionRowBuilder().addComponents(menu);
@@ -143,27 +143,27 @@ module.exports = {
 
         collector.on('collect', async i => {
             const difficulty = i.values[0];
-            
+
             // Trừ tiền
             const p1Data = await getUser(p1.id);
             if (p1Data.balance < bet) {
                 return i.reply({ content: '❌ Bạn không đủ tiền! Ảo thuật à?', ephemeral: true });
             }
             await updateBalance(p1.id, -bet);
-            
+
             await i.update({ content: `✅ Đã chọn độ khó **${difficulty.toUpperCase()}**. Trừ ${bet.toLocaleString()} $. Bắt đầu...`, components: [] });
             collector.stop('started');
 
             let rewardMultiplier = 0; // Easy: không thưởng khi thắng (coi như chơi miễn phí)
-            if (difficulty === 'medium') rewardMultiplier = 1.5;
-            if (difficulty === 'hard') rewardMultiplier = 2.5;
+            if (difficulty === 'medium') rewardMultiplier = 1.2;
+            if (difficulty === 'hard') rewardMultiplier = 2;
 
             this.runGame(interaction, p1, { id: 'bot', username: 'Gunter Bot' }, bet, 'pve', rewardMultiplier, difficulty);
         });
 
         collector.on('end', (collected, reason) => {
             if (reason === 'time') {
-                interaction.editReply({ content: '⏳ Hết giờ chọn độ khó, đã hủy.', components: [] }).catch(() => {});
+                interaction.editReply({ content: '⏳ Hết giờ chọn độ khó, đã hủy.', components: [] }).catch(() => { });
             }
         });
     },
@@ -172,17 +172,17 @@ module.exports = {
     // CORE GAME LOGIC
     // ────────────────────────────────────────────────────────────────
     async runGame(interaction, p1, p2, bet, mode, rewardMultiplier, difficulty = 'easy') {
-        const board = Array(9).fill(null); 
+        const board = Array(9).fill(null);
         // Lịch sử nước đi (Queue): lưu index của các nước đi
-        const history = { X: [], O: [] }; 
+        const history = { X: [], O: [] };
         let currentTurn = 'X'; // X luôn đi trước (P1)
         let isGameOver = false;
 
         const checkWin = (b, player) => {
             const lines = [
-                [0,1,2], [3,4,5], [6,7,8], // Hàng ngang
-                [0,3,6], [1,4,7], [2,5,8], // Hàng dọc
-                [0,4,8], [2,4,6]           // Chéo
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // Hàng ngang
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // Hàng dọc
+                [0, 4, 8], [2, 4, 6]           // Chéo
             ];
             for (let line of lines) {
                 if (b[line[0]] === player && b[line[1]] === player && b[line[2]] === player) return true;
@@ -197,9 +197,9 @@ module.exports = {
                 for (let j = 0; j < 3; j++) {
                     const idx = i * 3 + j;
                     const val = b[idx];
-                    
+
                     const btn = new ButtonBuilder().setCustomId(`caro_${idx}`);
-                    
+
                     if (val === 'X') {
                         btn.setEmoji('❌');
                         // Nếu là quân CŨ NHẤT và đủ 3 quân, nó sẽ nhạt đi (đổi Style)
@@ -234,7 +234,7 @@ module.exports = {
 
         const generateEmbed = (status = 'playing', winner = null, amountWon = 0) => {
             const embed = new EmbedBuilder().setTitle('Caro Vô Cực (Infinite Tic-Tac-Toe)');
-            
+
             const currentPlayer = currentTurn === 'X' ? p1 : p2;
             const nextMark = currentTurn === 'X' ? '❌' : '⭕';
 
@@ -242,8 +242,8 @@ module.exports = {
                 embed.setColor(0x3498DB);
                 const modeStr = mode === 'pve' ? `PvE vs Máy (${difficulty?.toUpperCase()})` : 'PvP';
                 const rewardStr = mode === 'pve' && difficulty === 'easy' ? '⚠️ Chế độ Dễ không có thưởng!' :
-                                  mode === 'pve' && difficulty === 'medium' ? 'Thắng nhận 1.5x' :
-                                  mode === 'pve' && difficulty === 'hard' ? 'Thắng nhận 2.5x' : 'Thắng nhận 2x';
+                    mode === 'pve' && difficulty === 'medium' ? 'Thắng nhận 1.2x' :
+                        mode === 'pve' && difficulty === 'hard' ? 'Thắng nhận 2x' : 'Thắng nhận 2x';
                 embed.setDescription(`**Chế độ:** ${modeStr} | ${rewardStr}\n**Mức cược:** ${bet.toLocaleString()} $\n\nLượt của: <@${currentPlayer.id}> (${nextMark})`);
                 embed.setFooter({ text: 'Luật: Mỗi người tối đa 3 quân. Đánh quân thứ 4 thì quân đầu tiên sẽ biến mất!' });
             } else if (status === 'win') {
@@ -275,7 +275,7 @@ module.exports = {
             if (isGameOver) return;
             // Fake delay 1-2s
             await new Promise(r => setTimeout(r, 1000 + Math.random() * 1000));
-            
+
             // Tìm nước đi
             let move = -1;
             const emptyIndices = board.map((v, i) => v === null ? i : -1).filter(i => i !== -1);
@@ -331,7 +331,7 @@ module.exports = {
             board[idx] = currentTurn;
             const queue = history[currentTurn];
             queue.push(idx);
-            
+
             // Quy tắc vô cực: Xóa quân cũ nhất nếu > 3
             if (queue.length > 3) {
                 const oldest = queue.shift();
@@ -343,7 +343,7 @@ module.exports = {
                 isGameOver = true;
                 collector.stop('win');
                 let amountWon = 0;
-                
+
                 if (currentTurn === 'X') {
                     // P1 thắng
                     if (mode === 'pvp') amountWon = bet * 2;
@@ -382,14 +382,14 @@ module.exports = {
 
         collector.on('collect', async i => {
             if (isGameOver) return;
-            
+
             if (i.customId === 'caro_surrender') {
                 if (i.user.id !== p1.id && i.user.id !== p2.id) {
                     return i.reply({ content: 'Kèo của người ta mà bạn đòi đầu hàng?', ephemeral: true });
                 }
                 isGameOver = true;
                 collector.stop('surrender');
-                
+
                 let surrenderer = i.user;
                 let winner = surrenderer.id === p1.id ? p2 : p1;
 
@@ -422,7 +422,7 @@ module.exports = {
 
                 try {
                     await msg.edit({ embeds: [generateEmbed('timeout')], components: renderBoard(board, history, true) });
-                } catch(e) {}
+                } catch (e) { }
             }
         });
     }

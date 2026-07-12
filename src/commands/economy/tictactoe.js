@@ -133,7 +133,7 @@ module.exports = {
             .setPlaceholder('Chọn độ khó')
             .addOptions([
                 { label: 'Dễ (Easy)', description: 'Bot đánh ngẫu nhiên. KHÔNG có thưởng khi thắng!', value: 'easy' },
-                { label: 'Trung Bình (Medium)', description: 'Bot biết chặn đường. Thưởng: 1.2x cược', value: 'medium' },
+                { label: 'Trung Bình (Medium)', description: 'Bot biết chặn đường. Thưởng: 1.5x cược', value: 'medium' },
                 { label: 'Khó (Hard)', description: 'Bot biết tính toán. Thưởng: 2x cược', value: 'hard' }
             ]);
 
@@ -163,7 +163,7 @@ module.exports = {
 
             let rewardMultiplier = 1; // Easy: Thắng hoàn cược (x1)
             if (difficulty === 'medium') rewardMultiplier = 1.5;
-            if (difficulty === 'hard') rewardMultiplier = 3;
+            if (difficulty === 'hard') rewardMultiplier = 2;
 
             this.runGame(interaction, p1, { id: 'bot', username: 'Gunter Bot' }, bet, 'pve', rewardMultiplier, difficulty);
         });
@@ -250,7 +250,7 @@ module.exports = {
                 const modeStr = mode === 'pve' ? `PvE vs Máy (${difficulty?.toUpperCase()})` : 'PvP';
                 const rewardStr = mode === 'pve' && difficulty === 'easy' ? 'Thắng hoàn cược (x1)' :
                     mode === 'pve' && difficulty === 'medium' ? 'Thắng nhận 1.5x' :
-                        mode === 'pve' && difficulty === 'hard' ? 'Thắng nhận 3x' : 'Thắng nhận 2x';
+                        mode === 'pve' && difficulty === 'hard' ? 'Thắng nhận 2x' : 'Thắng nhận 2x';
                 embed.setDescription(`**Chế độ:** ${modeStr} | ${rewardStr}\n**Mức cược:** ${bet.toLocaleString()} $\n\nLượt của: <@${currentPlayer.id}> (${nextMark})`);
                 embed.setFooter({ text: 'Luật: Mỗi người tối đa 3 quân. Đánh quân thứ 4 thì quân đầu tiên sẽ biến mất!' });
             } else if (status === 'win') {
@@ -350,7 +350,7 @@ module.exports = {
                 isGameOver = true;
                 collector.stop('win');
                 let amountWon = 0;
-                
+
                 liveGameManager.removeActiveBet(p1.id, bet);
                 if (mode === 'pvp') liveGameManager.removeActiveBet(p2.id, bet);
 

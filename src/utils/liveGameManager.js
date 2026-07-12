@@ -6,6 +6,21 @@
 class LiveGameManager {
     constructor() {
         this.games = new Map(); // key: `${guildId}:${gameType}`, value: gameInstance
+        this.activeInteractiveBets = new Map(); // key: userId, value: total_amount_pending
+    }
+
+    addActiveBet(userId, amount) {
+        const existing = this.activeInteractiveBets.get(userId) || 0;
+        this.activeInteractiveBets.set(userId, existing + amount);
+    }
+
+    removeActiveBet(userId, amount) {
+        const existing = this.activeInteractiveBets.get(userId);
+        if (existing) {
+            const remaining = existing - amount;
+            if (remaining <= 0) this.activeInteractiveBets.delete(userId);
+            else this.activeInteractiveBets.set(userId, remaining);
+        }
     }
 
     /** Đăng ký 1 game đang chạy */
@@ -55,6 +70,15 @@ class LiveGameManager {
                 tasks.push(instance.refundAll());
             }
         }
+        
+        // Hoàn tiền cho các game tương tác (Mines, TicTacToe, v.v.)
+        const { updateBalance } = require('./economyDB');
+        for (const [uid, amount] of this.activeInteractiveBets) {
+            console.log(`[INTERACTIVE_GAME] Hoàn tiền ${amount} cho user ${uid} do bot restart.`);
+            tasks.push(updateBalance(uid, amount).catch(() => {}));
+        }
+        this.activeInteractiveBets.clear();
+        
         await Promise.allSettled(tasks);
         console.log('[LIVE_GAME] Đã hoàn tất hoàn tiền!');
     }

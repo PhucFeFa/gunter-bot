@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, StringSelectMenuBuilder } = require('discord.js');
 const { getUser, updateBalance } = require('../../utils/economyDB');
 const { getConfig } = require('../../utils/configDB');
+const liveGameManager = require('../../utils/liveGameManager');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -99,9 +100,11 @@ module.exports = {
                     return i.reply({ content: '❌ Bạn không đủ tiền để chơi ván này!', ephemeral: true });
                 }
 
-                // Trừ tiền 2 bên
+                // Trừ tiền 2 bên và đưa vào ds hoàn tiền khi sập
                 await updateBalance(p1.id, -bet);
                 await updateBalance(p2.id, -bet);
+                liveGameManager.addActiveBet(p1.id, bet);
+                liveGameManager.addActiveBet(p2.id, bet);
 
                 await i.update({ content: `✅ Kèo đã được chốt! Trừ ${bet.toLocaleString()} $ của mỗi người. Bắt đầu ngay...`, components: [] });
                 collector.stop('accepted');
@@ -150,6 +153,7 @@ module.exports = {
                 return i.reply({ content: '❌ Bạn không đủ tiền! Ảo thuật à?', ephemeral: true });
             }
             await updateBalance(p1.id, -bet);
+            liveGameManager.addActiveBet(p1.id, bet);
 
             await i.update({ content: `✅ Đã chọn độ khó **${difficulty.toUpperCase()}**. Trừ ${bet.toLocaleString()} $. Bắt đầu...`, components: [] });
             collector.stop('started');
@@ -343,6 +347,9 @@ module.exports = {
                 isGameOver = true;
                 collector.stop('win');
                 let amountWon = 0;
+                
+                liveGameManager.removeActiveBet(p1.id, bet);
+                if (mode === 'pvp') liveGameManager.removeActiveBet(p2.id, bet);
 
                 if (currentTurn === 'X') {
                     // P1 thắng
@@ -394,6 +401,8 @@ module.exports = {
                 let winner = surrenderer.id === p1.id ? p2 : p1;
 
                 if (mode === 'pvp') {
+                    liveGameManager.removeActiveBet(p1.id, bet);
+                    if (mode === 'pvp') liveGameManager.removeActiveBet(p2.id, bet);
                     await updateBalance(winner.id, bet * 2); // Winner takes all
                 } // Nếu PVE, P1 đầu hàng thì mất cược (đã trừ)
 
@@ -416,7 +425,8 @@ module.exports = {
         collector.on('end', async (collected, reason) => {
             if (reason === 'time' && !isGameOver) {
                 isGameOver = true;
-                // Hoàn tiền
+                liveGameManager.removeActiveBet(p1.id, bet);
+                if (mode === 'pvp') liveGameManager.removeActiveBet(p2.id, bet);
                 await updateBalance(p1.id, bet);
                 if (mode === 'pvp') await updateBalance(p2.id, bet);
 

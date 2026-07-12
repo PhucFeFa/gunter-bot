@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const { getUser, updateBalance } = require('../../utils/economyDB');
 const { getConfig } = require('../../utils/configDB');
+const liveGameManager = require('../../utils/liveGameManager');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -48,8 +49,9 @@ module.exports = {
             return interaction.reply({ content: `❌ Bạn không có đủ tiền! Số dư của bạn: **${currentBalance.toLocaleString()} $**`, flags: 64 });
         }
 
-        // Trừ tiền cược
+        // Trừ tiền cược và ghi nhận cược đang chạy
         await updateBalance(user.id, -bet);
+        liveGameManager.addActiveBet(user.id, bet);
 
         // Khởi tạo trò chơi 20 ô (5 cột x 4 hàng ngang)
         const grid = Array(20).fill('diamond');
@@ -174,6 +176,9 @@ module.exports = {
             if (isGameOver) return;
             isGameOver = true;
             collector.stop();
+            
+            // Xóa cược đang chạy vì ván đã xong
+            liveGameManager.removeActiveBet(user.id, bet);
 
             const multiplier = calculateMultiplier(diamondsFound, minesCount);
             const winnings = Math.floor(bet * multiplier);

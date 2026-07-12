@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { updateBalance, getUser } = require('../../utils/economyDB');
+const liveGameManager = require('../../utils/liveGameManager');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -73,6 +74,7 @@ module.exports = {
 
         // Trừ tiền cược trước
         await updateBalance(interaction.user.id, -bet);
+        liveGameManager.addActiveBet(interaction.user.id, bet);
 
         const isHeads = Math.random() < 0.5;
         const result = isHeads ? 'heads' : 'tails';
@@ -83,11 +85,15 @@ module.exports = {
 
         let description = `Bạn đã chọn: **${choiceName}**\nĐồng xu tung ra: **${resultName}**\n\n`;
 
+        liveGameManager.removeActiveBet(interaction.user.id, bet);
+
         if (isWin) {
             const winAmount = bet * 2;
+            liveGameManager.removeActiveBet(interaction.user.id, bet);
             await updateBalance(interaction.user.id, winAmount); // Trả lại tiền cược + tiền thắng
             description += `🎉 **THẮNG RỒI!** Bạn húp trọn **${winAmount.toLocaleString()} 🪙**!`;
         } else {
+            liveGameManager.removeActiveBet(interaction.user.id, bet);
             description += `💀 **THUA SẠCH!** Bạn đã cống nạp **${bet.toLocaleString()} 🪙** cho nhà cái!`;
         }
 

@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const { getUser, updateBalance } = require('../../utils/economyDB');
+const liveGameManager = require('../../utils/liveGameManager');
 
 const SUITS = ['♠️', '♣️', '♥️', '♦️'];
 const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
@@ -71,6 +72,7 @@ module.exports = {
 
         // Trừ tiền cược ngay từ đầu
         await updateBalance(user.id, -amount);
+        liveGameManager.addActiveBet(user.id, amount);
 
         let currentCard = drawCard();
         let currentWinnings = amount; // Tiền đang tích lũy
@@ -169,6 +171,7 @@ module.exports = {
             if (i.customId === 'cashout') {
                 isCashedOut = true;
                 lastActionText = 'Quyết định rút lui an toàn!';
+                liveGameManager.removeActiveBet(user.id, amount);
                 await updateBalance(user.id, Math.floor(currentWinnings)); // Trả tiền về ví
 
                 currentView = generateEmbed(currentCard);
@@ -206,6 +209,7 @@ module.exports = {
             } else {
                 isGameOver = true;
                 lastActionText = `Lá bốc ra là ${nextCard.display}. Sai rồi con trai!`;
+                liveGameManager.removeActiveBet(user.id, amount);
 
                 currentView = generateEmbed(currentCard, nextCard); // Truyền nextCard vào để hiện lý do chết
                 await i.update({
@@ -219,6 +223,7 @@ module.exports = {
         collector.on('end', async (collected, reason) => {
             if (reason === 'time' && !isGameOver && !isCashedOut) {
                 isGameOver = true;
+                liveGameManager.removeActiveBet(user.id, amount);
                 lastActionText = 'Hết thời gian suy nghĩ!';
                 currentView = generateEmbed(currentCard);
                 await interaction.editReply({

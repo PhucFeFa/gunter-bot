@@ -7,6 +7,9 @@ const ssh = new NodeSSH();
         console.log('Pulling latest code...');
         const pullRes = await ssh.execCommand('git fetch --all && git reset --hard origin/main', { cwd: '/root/gunter-bot' });
         console.log(pullRes.stdout);
+        console.log('Installing dependencies...');
+        const installRes = await ssh.execCommand('npm install', { cwd: '/root/gunter-bot' });
+        console.log(installRes.stdout);
         
         console.log('Deploying slash commands...');
         const deployRes = await ssh.execCommand('npm run deploy-commands', { cwd: '/root/gunter-bot' });

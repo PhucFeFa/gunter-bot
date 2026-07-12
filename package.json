@@ -23,6 +23,7 @@
     "@google/generative-ai": "^0.24.1",
     "@xct007/frieren-scraper": "^0.0.2",
     "axios": "^1.7.2",
+    "better-sqlite3": "^12.11.1",
     "canvacord": "^6.0.4",
     "cheerio": "^1.2.0",
     "cors": "^2.8.6",

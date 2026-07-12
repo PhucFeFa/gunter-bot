@@ -1,114 +1,74 @@
 /**
  * utils/economyDB.js
  * ============================================================
- * Economy Database Helpers (Firestore)
- * ============================================================
- * All read/write operations for the economy system go here.
- * Collection: "users"
- * Document ID: userId (Discord snowflake)
- * Fields: { userId, balance, lastDaily }
+ * Economy Database Helpers (SQLite)
  * ============================================================
  */
+const db = require('./sqliteDB');
 
-const { db } = require('./firebase');
+const STARTING_BALANCE = 500000;
+const DAILY_AMOUNT = 500000;
+const DAILY_COOLDOWN = 24 * 60 * 60 * 1000;
 
-const USERS_COLLECTION = 'users';
-const STARTING_BALANCE = 500000; // Coins every new user starts with
-const DAILY_AMOUNT = 500000;  // Coins per /daily claim
-const DAILY_COOLDOWN = 24 * 60 * 60 * 1000; // 24 hours in ms
-
-/**
- * Fetch a user document, creating it with defaults if not found.
- * @param {string} userId
- * @returns {Promise<{userId:string, balance:number, lastDaily:number|null}>}
- */
-async function getUser(userId) {
-    const ref = db.collection(USERS_COLLECTION).doc(userId);
-    const snap = await ref.get();
-
-    if (!snap.exists) {
-        const defaultData = {
-            userId,
-            balance: STARTING_BALANCE,
-            lastDaily: null,
-            msg_count: 0,
-            voice_time: 0,
-            given_today: 0,
-            last_give_date: '',
-            tarot_count_today: 0,
-            last_tarot_date: '',
-            job: null,
-            lastWork: null,
-            loanAmount: 0,
-            jobSpins: 0,
-            creditScore: 0,
-            loanRefs: [],
-            seizedRod: null,
-            seizedRequire: 0
-        };
-        await ref.set(defaultData);
-        return defaultData;
+function getUser(userId) {
+    let row = db.prepare('SELECT * FROM users WHERE userId = ?').get(userId);
+    if (!row) {
+        db.prepare('INSERT INTO users (userId, balance) VALUES (?, ?)').run(userId, STARTING_BALANCE);
+        row = db.prepare('SELECT * FROM users WHERE userId = ?').get(userId);
     }
-    return snap.data();
+    // Parse JSON arrays
+    row.loanRefs = JSON.parse(row.loanRefs || '[]');
+    return row;
 }
 
-/**
- * Update the balance of a user by a delta (positive or negative).
- * @param {string} userId
- * @param {number} delta - Amount to add (negative to subtract)
- * @returns {Promise<number>} - The new balance
- */
-async function updateBalance(userId, delta) {
-    const ref = db.collection(USERS_COLLECTION).doc(userId);
-    const user = await getUser(userId);
-    const newBalance = Math.max(0, user.balance + delta); // Floor at 0
-    await ref.update({ balance: newBalance });
+function updateBalance(userId, delta) {
+    const user = getUser(userId);
+    const newBalance = Math.max(0, user.balance + delta);
+    db.prepare('UPDATE users SET balance = ? WHERE userId = ?').run(newBalance, userId);
     return newBalance;
 }
 
-/**
- * Cập nhật số tiền nợ của user
- */
-async function updateLoan(userId, delta) {
-    const ref = db.collection(USERS_COLLECTION).doc(userId);
-    const user = await getUser(userId);
+function updateLoan(userId, delta) {
+    const user = getUser(userId);
     const newLoan = Math.max(0, (user.loanAmount || 0) + delta);
-    await ref.update({ loanAmount: newLoan });
+    db.prepare('UPDATE users SET loanAmount = ? WHERE userId = ?').run(newLoan, userId);
     return newLoan;
 }
 
-/**
- * Cập nhật Điểm tín dụng
- */
-async function updateCreditScore(userId, delta) {
-    const ref = db.collection(USERS_COLLECTION).doc(userId);
-    const user = await getUser(userId);
-    // Max credit score = 100
+function updateCreditScore(userId, delta) {
+    const user = getUser(userId);
     const newScore = Math.min(100, Math.max(0, (user.creditScore || 0) + delta));
-    await ref.update({ creditScore: newScore });
+    db.prepare('UPDATE users SET creditScore = ? WHERE userId = ?').run(newScore, userId);
     return newScore;
 }
 
-/**
- * Lưu người tham chiếu và thông tin siết nợ
- */
-async function updateLoanDetails(userId, refs, seizedRod, seizedRequire) {
-    const ref = db.collection(USERS_COLLECTION).doc(userId);
-    const updateData = {};
-    if (refs !== undefined) updateData.loanRefs = refs;
-    if (seizedRod !== undefined) updateData.seizedRod = seizedRod;
-    if (seizedRequire !== undefined) updateData.seizedRequire = seizedRequire;
-    await ref.update(updateData);
+function updateLoanDetails(userId, refs, seizedRod, seizedRequire) {
+    let query = 'UPDATE users SET ';
+    const updates = [];
+    const params = [];
+
+    if (refs !== undefined) {
+        updates.push('loanRefs = ?');
+        params.push(JSON.stringify(refs));
+    }
+    if (seizedRod !== undefined) {
+        updates.push('seizedRod = ?');
+        params.push(seizedRod);
+    }
+    if (seizedRequire !== undefined) {
+        updates.push('seizedRequire = ?');
+        params.push(seizedRequire);
+    }
+
+    if (updates.length === 0) return;
+
+    query += updates.join(', ') + ' WHERE userId = ?';
+    params.push(userId);
+    db.prepare(query).run(...params);
 }
 
-/**
- * Attempt to claim the daily reward.
- * @param {string} userId
- * @returns {Promise<{success:boolean, newBalance:number, remaining:number}>}
- */
-async function claimDaily(userId) {
-    const ref = db.collection(USERS_COLLECTION).doc(userId);
-    const user = await getUser(userId);
+function claimDaily(userId) {
+    const user = getUser(userId);
     const now = Date.now();
 
     if (user.lastDaily && (now - user.lastDaily) < DAILY_COOLDOWN) {
@@ -117,64 +77,41 @@ async function claimDaily(userId) {
     }
 
     const newBalance = user.balance + DAILY_AMOUNT;
-    await ref.update({ balance: newBalance, lastDaily: now });
+    db.prepare('UPDATE users SET balance = ?, lastDaily = ? WHERE userId = ?').run(newBalance, now, userId);
     return { success: true, newBalance, remaining: 0 };
 }
 
-/**
- * Tăng số lượng tin nhắn của user
- */
-async function incrementMsgCount(userId) {
-    const ref = db.collection(USERS_COLLECTION).doc(userId);
-    const user = await getUser(userId);
-    await ref.update({ msg_count: (user.msg_count || 0) + 1 });
+function incrementMsgCount(userId) {
+    db.prepare('UPDATE users SET msg_count = COALESCE(msg_count, 0) + 1 WHERE userId = ?').run(userId);
 }
 
-/**
- * Cộng thêm thời gian Voice (tính bằng mili giây)
- */
-async function addVoiceTime(userId, ms) {
+function addVoiceTime(userId, ms) {
     if (ms <= 0) return;
-    const ref = db.collection(USERS_COLLECTION).doc(userId);
-    const user = await getUser(userId);
-    await ref.update({ voice_time: (user.voice_time || 0) + ms });
+    db.prepare('UPDATE users SET voice_time = COALESCE(voice_time, 0) + ? WHERE userId = ?').run(ms, userId);
 }
 
-/**
- * Lấy danh sách Top theo trường dữ liệu
- * @param {string} field - 'balance', 'msg_count', hoặc 'voice_time'
- */
-async function getTopUsers(field, limitCount = 10) {
-    const snapshot = await db.collection(USERS_COLLECTION)
-        .orderBy(field, 'desc')
-        .limit(limitCount)
-        .get();
-
-    const top = [];
-    snapshot.forEach(doc => top.push(doc.data()));
-    return top;
+function getTopUsers(field, limitCount = 10) {
+    const allowedFields = ['balance', 'msg_count', 'voice_time'];
+    if (!allowedFields.includes(field)) field = 'balance';
+    return db.prepare(`SELECT * FROM users ORDER BY ${field} DESC LIMIT ?`).all(limitCount);
 }
 
-/**
- * Chuyển tiền an toàn có giới hạn (Tối đa 3.000.000 mỗi ngày)
- */
-async function transferMoney(fromUserId, toUserId, amount) {
+function transferMoney(fromUserId, toUserId, amount) {
     if (amount <= 0) return { success: false, reason: 'Số tiền không hợp lệ' };
-
-    const sender = await getUser(fromUserId);
+    
+    const sender = getUser(fromUserId);
     if (sender.balance < amount) return { success: false, reason: 'Không đủ tiền' };
 
     const ownerIds = (process.env.BOT_OWNER_IDS || '').split(',');
     const isAdmin = ownerIds.includes(fromUserId);
+    const todayDate = new Date().toISOString().split('T')[0];
 
-    const todayDate = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
     let currentGiven = sender.given_today || 0;
     if (sender.last_give_date !== todayDate) {
         currentGiven = 0;
     }
 
     if (!isAdmin) {
-        // Chặn chuyển tiền vay nợ đối với user thường
         const currentLoan = sender.loanAmount || 0;
         const ownMoney = Math.max(0, sender.balance - currentLoan);
         if (amount > ownMoney) {
@@ -187,90 +124,78 @@ async function transferMoney(fromUserId, toUserId, amount) {
         }
     }
 
-    // Thực hiện trừ tiền người gửi và cộng cho người nhận
-    await db.collection(USERS_COLLECTION).doc(fromUserId).update({
-        balance: sender.balance - amount,
-        given_today: currentGiven + amount,
-        last_give_date: todayDate
+    const transaction = db.transaction(() => {
+        db.prepare('UPDATE users SET balance = balance - ?, given_today = ?, last_give_date = ? WHERE userId = ?')
+          .run(amount, currentGiven + amount, todayDate, fromUserId);
+        
+        getUser(toUserId); // Ensure receiver exists
+        db.prepare('UPDATE users SET balance = balance + ? WHERE userId = ?')
+          .run(amount, toUserId);
     });
 
-    const receiver = await getUser(toUserId);
-    await db.collection(USERS_COLLECTION).doc(toUserId).update({
-        balance: receiver.balance + amount
-    });
-
+    transaction();
     return { success: true };
 }
 
-/**
- * Kiểm tra và tăng lượt chơi tarot hôm nay (Tối đa 5 lần/ngày)
- */
-async function recordTarotPlay(userId) {
-    const ref = db.collection(USERS_COLLECTION).doc(userId);
-    const user = await getUser(userId);
-    const todayDate = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
+function recordTarotPlay(userId) {
+    const user = getUser(userId);
+    const todayDate = new Date().toISOString().split('T')[0];
 
     let currentTarotCount = user.tarot_count_today || 0;
     if (user.last_tarot_date !== todayDate) {
         currentTarotCount = 0;
     }
 
-    if (currentTarotCount >= 5) {
-        return { success: false };
-    }
+    if (currentTarotCount >= 5) return { success: false };
 
-    await ref.update({
-        tarot_count_today: currentTarotCount + 1,
-        last_tarot_date: todayDate
-    });
+    db.prepare('UPDATE users SET tarot_count_today = ?, last_tarot_date = ? WHERE userId = ?')
+      .run(currentTarotCount + 1, todayDate, userId);
 
     return { success: true, remaining: 5 - (currentTarotCount + 1) };
 }
 
-/**
- * Lấy thông tin công việc và thời gian làm việc cuối
- */
-async function getJobData(userId) {
-    const user = await getUser(userId);
+function getJobData(userId) {
+    const user = getUser(userId);
     return { job: user.job || null, lastWork: user.lastWork || null, jobSpins: user.jobSpins || 0 };
 }
 
-/**
- * Cập nhật công việc mới cho user
- */
-async function setJob(userId, jobId) {
-    const ref = db.collection(USERS_COLLECTION).doc(userId);
-    // Reset điểm tín dụng về 0 khi đổi nghề
-    await ref.update({ job: jobId, creditScore: 0 });
+function setJob(userId, jobId) {
+    db.prepare('UPDATE users SET job = ?, creditScore = 0 WHERE userId = ?').run(jobId, userId);
 }
 
-/**
- * Cập nhật số lần quay job (pity system)
- */
-async function updateJobSpins(userId, spins) {
-    const ref = db.collection(USERS_COLLECTION).doc(userId);
-    await ref.update({ jobSpins: spins });
+function updateJobSpins(userId, spins) {
+    db.prepare('UPDATE users SET jobSpins = ? WHERE userId = ?').run(spins, userId);
 }
 
-/**
- * Cập nhật thời gian làm việc cuối
- */
-async function updateLastWork(userId) {
-    const ref = db.collection(USERS_COLLECTION).doc(userId);
-    await ref.update({ lastWork: Date.now() });
+function updateLastWork(userId) {
+    db.prepare('UPDATE users SET lastWork = ? WHERE userId = ?').run(Date.now(), userId);
 }
 
-/**
- * Lấy danh sách những người đang có nợ
- */
-async function getAllDebtors() {
-    const snapshot = await db.collection(USERS_COLLECTION)
-        .where('loanAmount', '>', 0)
-        .get();
-
-    const debtors = [];
-    snapshot.forEach(doc => debtors.push(doc.data()));
-    return debtors;
+function getAllDebtors() {
+    return db.prepare('SELECT * FROM users WHERE loanAmount > 0').all().map(u => {
+        u.loanRefs = JSON.parse(u.loanRefs || '[]');
+        return u;
+    });
 }
 
-module.exports = { getUser, updateBalance, claimDaily, incrementMsgCount, addVoiceTime, getTopUsers, transferMoney, recordTarotPlay, DAILY_AMOUNT, STARTING_BALANCE, getJobData, setJob, updateJobSpins, updateLastWork, updateLoan, updateCreditScore, updateLoanDetails, getAllDebtors };
+// Chuyển toàn bộ async functions thành sync hoặc trả về Promise.resolve để tương thích ngược với code bot cũ đang dùng `await`
+module.exports = {
+    getUser: async (id) => getUser(id),
+    updateBalance: async (id, d) => updateBalance(id, d),
+    claimDaily: async (id) => claimDaily(id),
+    incrementMsgCount: async (id) => incrementMsgCount(id),
+    addVoiceTime: async (id, ms) => addVoiceTime(id, ms),
+    getTopUsers: async (f, l) => getTopUsers(f, l),
+    transferMoney: async (f, t, a) => transferMoney(f, t, a),
+    recordTarotPlay: async (id) => recordTarotPlay(id),
+    DAILY_AMOUNT,
+    STARTING_BALANCE,
+    getJobData: async (id) => getJobData(id),
+    setJob: async (id, jId) => setJob(id, jId),
+    updateJobSpins: async (id, s) => updateJobSpins(id, s),
+    updateLastWork: async (id) => updateLastWork(id),
+    updateLoan: async (id, d) => updateLoan(id, d),
+    updateCreditScore: async (id, d) => updateCreditScore(id, d),
+    updateLoanDetails: async (id, refs, r, req) => updateLoanDetails(id, refs, r, req),
+    getAllDebtors: async () => getAllDebtors()
+};

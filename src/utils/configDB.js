@@ -1,11 +1,8 @@
 /**
  * utils/configDB.js
- * Lấy và cập nhật cấu hình bật/tắt tính năng của server
+ * Lấy và cập nhật cấu hình bật/tắt tính năng của server (SQLite Version)
  */
-
-const { db } = require('./firebase');
-
-const CONFIG_COLLECTION = 'server_configs';
+const db = require('./sqliteDB');
 
 const DEFAULT_CONFIG = {
     prefix: 'g!',
@@ -35,24 +32,26 @@ const DEFAULT_CONFIG = {
     }
 };
 
-async function getConfig(guildId) {
+function getConfigSync(guildId) {
     if (!guildId) return DEFAULT_CONFIG;
     
-    const ref = db.collection(CONFIG_COLLECTION).doc(guildId);
-    const snap = await ref.get();
-
-    if (!snap.exists) {
-        await ref.set(DEFAULT_CONFIG);
+    let row = db.prepare('SELECT data FROM configs WHERE guildId = ?').get(guildId);
+    if (!row) {
+        db.prepare('INSERT INTO configs (guildId, data) VALUES (?, ?)').run(guildId, JSON.stringify(DEFAULT_CONFIG));
         return DEFAULT_CONFIG;
     }
-    return { ...DEFAULT_CONFIG, ...snap.data() };
+    try {
+        const storedConfig = JSON.parse(row.data);
+        return { ...DEFAULT_CONFIG, ...storedConfig };
+    } catch (e) {
+        return DEFAULT_CONFIG;
+    }
 }
 
-async function updateConfig(guildId, keyOrData, value) {
+function updateConfigSync(guildId, keyOrData, value) {
     if (!guildId) return;
     
-    const ref = db.collection(CONFIG_COLLECTION).doc(guildId);
-    const snap = await ref.get();
+    const currentConfig = getConfigSync(guildId);
     
     let updateData = {};
     if (typeof keyOrData === 'string') {
@@ -61,50 +60,42 @@ async function updateConfig(guildId, keyOrData, value) {
         updateData = keyOrData;
     }
 
-    if (!snap.exists) {
-        await ref.set({ ...DEFAULT_CONFIG, ...updateData });
-    } else {
-        await ref.update(updateData);
-    }
+    const newConfig = { ...currentConfig, ...updateData };
+    db.prepare('UPDATE configs SET data = ? WHERE guildId = ?').run(JSON.stringify(newConfig), guildId);
 }
 
-async function incrementCaseCount(guildId) {
+function incrementCaseCountSync(guildId) {
     if (!guildId) return 1;
-    
-    const ref = db.collection(CONFIG_COLLECTION).doc(guildId);
-    const snap = await ref.get();
-    
-    if (!snap.exists) {
-        await ref.set({ ...DEFAULT_CONFIG, mod_case_count: 1 });
-        return 1;
-    }
-    
-    const currentCount = snap.data().mod_case_count || 0;
-    const newCount = currentCount + 1;
-    await ref.update({ mod_case_count: newCount });
-    
+    const config = getConfigSync(guildId);
+    const newCount = (config.mod_case_count || 0) + 1;
+    updateConfigSync(guildId, { mod_case_count: newCount });
     return newCount;
 }
 
-async function incrementTicketCount(guildId) {
-    const config = await getConfig(guildId);
+function incrementTicketCountSync(guildId) {
+    if (!guildId) return 1;
+    const config = getConfigSync(guildId);
     const newCount = (config.ticket_count || 0) + 1;
-    await updateConfig(guildId, { ticket_count: newCount });
+    updateConfigSync(guildId, { ticket_count: newCount });
     return newCount;
 }
 
-/**
- * Thêm một ID game vào danh sách đã thông báo
- */
-async function addNotifiedGame(guildId, gameId) {
-    const config = await getConfig(guildId);
+function addNotifiedGameSync(guildId, gameId) {
+    const config = getConfigSync(guildId);
     const notified = config.notified_games || [];
     if (!notified.includes(gameId)) {
         notified.push(gameId);
-        // Giữ tối đa 50 game gần nhất để tránh data quá to
         if (notified.length > 50) notified.shift();
-        await updateConfig(guildId, { notified_games: notified });
+        updateConfigSync(guildId, { notified_games: notified });
     }
 }
 
-module.exports = { getConfig, updateConfig, incrementCaseCount, incrementTicketCount, addNotifiedGame, DEFAULT_CONFIG };
+// Bọc Promise để duy trì tính tương thích với hệ thống cũ sử dụng async/await
+module.exports = { 
+    getConfig: async (id) => getConfigSync(id), 
+    updateConfig: async (id, k, v) => updateConfigSync(id, k, v), 
+    incrementCaseCount: async (id) => incrementCaseCountSync(id), 
+    incrementTicketCount: async (id) => incrementTicketCountSync(id), 
+    addNotifiedGame: async (id, gId) => addNotifiedGameSync(id, gId), 
+    DEFAULT_CONFIG 
+};

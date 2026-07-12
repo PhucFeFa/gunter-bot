@@ -6,8 +6,9 @@
  */
 
 const { EmbedBuilder } = require('discord.js');
-const { db } = require('./firebase');
+const db = require('./sqliteDB');
 const { getZoneSetup, getShopNotifyMsg, setShopNotifyMsg } = require('./fishDB');
+const { getConfig, updateConfig } = require('./configDB');
 const { RODS } = require('../data/fishData');
 
 const RESET_INTERVAL_MS = 12 * 60 * 60 * 1000; // 12 tiếng
@@ -100,8 +101,7 @@ async function sendShopNotify(client, guildId) {
         }
 
         // Lấy reset count
-        const configDoc = await db.collection('guildConfig').doc(guildId).get();
-        const configData = configDoc.exists ? configDoc.data() : {};
+        const configData = await getConfig(guildId);
         const resetCount = (configData.fishShopResetCount || 0) + 1;
 
         // Ping role (nếu có zone1Role)
@@ -117,10 +117,7 @@ async function sendShopNotify(client, guildId) {
 
         // Lưu ID tin nhắn mới và tăng reset count
         await setShopNotifyMsg(guildId, { messageId: newMsg.id, channelId: channel.id });
-        await db.collection('guildConfig').doc(guildId).set(
-            { fishShopResetCount: resetCount },
-            { merge: true }
-        );
+        await updateConfig(guildId, { fishShopResetCount: resetCount });
 
         console.log(`[FishShop] Reset shop guild ${guildId} — lần #${resetCount}`);
     } catch (err) {
@@ -130,14 +127,16 @@ async function sendShopNotify(client, guildId) {
 
 // ─── Hàm lấy danh sách tất cả guild đã setup shopChannel ─────
 async function getAllShopGuilds() {
-    const snap = await db.collection('guildConfig').get();
+    const rows = db.prepare('SELECT guildId, data FROM configs').all();
     const guilds = [];
-    snap.forEach(doc => {
-        const data = doc.data();
-        if (data.fishZones?.shopChannel) {
-            guilds.push(doc.id);
-        }
-    });
+    for (const row of rows) {
+        try {
+            const data = JSON.parse(row.data);
+            if (data.fishZones && data.fishZones.shopChannel) {
+                guilds.push(row.guildId);
+            }
+        } catch(e) {}
+    }
     return guilds;
 }
 

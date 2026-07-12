@@ -126,7 +126,7 @@ module.exports = {
             .setCustomId('caro_difficulty')
             .setPlaceholder('Chọn độ khó')
             .addOptions([
-                { label: 'Dễ (Easy)', description: 'Bot đánh ngẫu nhiên. Thưởng: 1.1x cược', value: 'easy' },
+                { label: 'Dễ (Easy)', description: 'Bot đánh ngẫu nhiên. KHÔNG có thưởng khi thắng!', value: 'easy' },
                 { label: 'Trung Bình (Medium)', description: 'Bot biết chặn đường. Thưởng: 1.5x cược', value: 'medium' },
                 { label: 'Khó (Hard)', description: 'Bot biết tính toán. Thưởng: 2.5x cược', value: 'hard' }
             ]);
@@ -154,7 +154,7 @@ module.exports = {
             await i.update({ content: `✅ Đã chọn độ khó **${difficulty.toUpperCase()}**. Trừ ${bet.toLocaleString()} $. Bắt đầu...`, components: [] });
             collector.stop('started');
 
-            let rewardMultiplier = 1.1;
+            let rewardMultiplier = 0; // Easy: không thưởng khi thắng (coi như chơi miễn phí)
             if (difficulty === 'medium') rewardMultiplier = 1.5;
             if (difficulty === 'hard') rewardMultiplier = 2.5;
 
@@ -240,7 +240,11 @@ module.exports = {
 
             if (status === 'playing') {
                 embed.setColor(0x3498DB);
-                embed.setDescription(`**Chế độ:** ${mode.toUpperCase()}\n**Mức cược:** ${bet.toLocaleString()} $\n\nLượt của: <@${currentPlayer.id}> (${nextMark})`);
+                const modeStr = mode === 'pve' ? `PvE vs Máy (${difficulty?.toUpperCase()})` : 'PvP';
+                const rewardStr = mode === 'pve' && difficulty === 'easy' ? '⚠️ Chế độ Dễ không có thưởng!' :
+                                  mode === 'pve' && difficulty === 'medium' ? 'Thắng nhận 1.5x' :
+                                  mode === 'pve' && difficulty === 'hard' ? 'Thắng nhận 2.5x' : 'Thắng nhận 2x';
+                embed.setDescription(`**Chế độ:** ${modeStr} | ${rewardStr}\n**Mức cược:** ${bet.toLocaleString()} $\n\nLượt của: <@${currentPlayer.id}> (${nextMark})`);
                 embed.setFooter({ text: 'Luật: Mỗi người tối đa 3 quân. Đánh quân thứ 4 thì quân đầu tiên sẽ biến mất!' });
             } else if (status === 'win') {
                 embed.setColor(0x00FF00);

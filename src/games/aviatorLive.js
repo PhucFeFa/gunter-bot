@@ -139,6 +139,8 @@ class AviatorLiveGame {
                 }
             }
             this.betMsgs = [];
+            // Xóa tất cả tin nhắn user trong kênh (bulk purge)
+            await this._purgeUserMessages();
 
             // Phase 2: Flight
             this.phase = 'flying';
@@ -265,6 +267,19 @@ class AviatorLiveGame {
                 this.mainMsg = await this.channel.send(payload).catch(() => null);
             }
         });
+    }
+
+    // ─── Purge user messages in channel ─────────────────────
+    async _purgeUserMessages() {
+        try {
+            const msgs = await this.channel.messages.fetch({ limit: 50 });
+            const toDelete = msgs.filter(m => !m.author.bot && Date.now() - m.createdTimestamp < 1296000000);
+            if (toDelete.size > 0) {
+                await this.channel.bulkDelete(toDelete, true).catch(() => {});
+            }
+        } catch (err) {
+            // Ignore permission errors
+        }
     }
 
     async _reply(message, content) {

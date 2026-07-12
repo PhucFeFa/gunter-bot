@@ -211,11 +211,11 @@ const RODS = [
     { id: 9, name: 'Cần Thủy Thần', emoji: '⚓', price: 50000000, limited: false, tier: 5, bonusLuck: 36, bonusSize: 0.6, bonusTime: 8, bonusShiny: 5, maxDurability: 1000, desc: 'Truyền thuyết ngư dân. (1000 độ bền)' },
     { id: 10, name: 'Cần Huyền Thoại', emoji: '✨', price: 100000000, limited: false, tier: 5, bonusLuck: 45, bonusSize: 0.8, bonusTime: 10, bonusShiny: 8, maxDurability: 1500, desc: 'Đỉnh cao câu cá thông thường. (1500 độ bền)' },
     // Limited shop (id 11-15)
-    { id: 11, name: 'Cần Băng Giá', emoji: '❄️', price: 20000000, limited: true, tier: 3, bonusLuck: 20, bonusSize: 0.3, bonusTime: 5, bonusShiny: 3, maxDurability: 400, desc: '[GIỚI HẠN] Tăng tỉ lệ rương báu. (400 độ bền)' },
-    { id: 12, name: 'Cần Lửa Địa Ngục', emoji: '🔥', price: 50000000, limited: true, tier: 4, bonusLuck: 30, bonusSize: 0.5, bonusTime: 7, bonusShiny: 5, maxDurability: 800, desc: '[GIỚI HẠN] Tăng tỉ lệ cá tier cao. (800 độ bền)' },
-    { id: 13, name: 'Cần Sét', emoji: '⚡', price: 100000000, limited: true, tier: 4, bonusLuck: 38, bonusSize: 0.65, bonusTime: 9, bonusShiny: 8, maxDurability: 1000, desc: '[GIỚI HẠN] Cá lên cực nhanh. (1000 độ bền)' },
-    { id: 14, name: 'Cần Bóng Tối', emoji: '🌑', price: 150000000, limited: true, tier: 5, bonusLuck: 50, bonusSize: 0.9, bonusTime: 12, bonusShiny: 12, maxDurability: 2000, desc: '[GIỚI HẠN] Khá bền bỉ. (2000 độ bền)' },
-    { id: 15, name: 'Cần Thần Thánh', emoji: '🌟', price: 250000000, limited: true, tier: 5, bonusLuck: 60, bonusSize: 1.0, bonusTime: 15, bonusShiny: 15, maxDurability: 5000, desc: '[GIỚI HẠN] Cần tốt nhất. (5000 độ bền)' },
+    { id: 11, name: 'Cần Băng Giá', emoji: '❄️', price: 20000000, limited: true, tier: 3, bonusLuck: 20, bonusSize: 0.3, bonusTime: 5, bonusShiny: 8, maxDurability: 400, desc: '[GIỚI HẠN] Tăng tỉ lệ rương báu. (400 độ bền)' },
+    { id: 12, name: 'Cần Lửa Địa Ngục', emoji: '🔥', price: 50000000, limited: true, tier: 4, bonusLuck: 35, bonusSize: 0.6, bonusTime: 9, bonusShiny: 12, maxDurability: 800, desc: '[GIỚI HẠN] Tăng tỉ lệ cá tier cao. (800 độ bền)' },
+    { id: 13, name: 'Cần Sét', emoji: '⚡', price: 100000000, limited: true, tier: 4, bonusLuck: 48, bonusSize: 0.75, bonusTime: 12, bonusShiny: 16, maxDurability: 1500, desc: '[GIỚI HẠN] Cá lên cực nhanh, rất may mắn. (1500 độ bền)' },
+    { id: 14, name: 'Cần Bóng Tối', emoji: '🌑', price: 150000000, limited: true, tier: 5, bonusLuck: 62, bonusSize: 0.9, bonusTime: 14, bonusShiny: 20, maxDurability: 3000, desc: '[GIỚI HẠN] Quyền năng bóng tối, sức mạnh khủng khiếp. (3000 độ bền)' },
+    { id: 15, name: 'Cần Thần Thánh', emoji: '🌟', price: 250000000, limited: true, tier: 5, bonusLuck: 80, bonusSize: 1.2, bonusTime: 18, bonusShiny: 30, maxDurability: 8000, desc: '[GIỚI HẠN] Tốt nhất tuyệt đối. (8000 độ bền)' },
     // Thêm 10 cần mới (id 16-25)
     { id: 16, name: 'Cần Mây', emoji: '☁️', price: 150000, limited: false, tier: 2, bonusLuck: 4, bonusSize: 0.08, bonusTime: 1, bonusShiny: 1, maxDurability: 120, desc: 'Nhẹ như mây. (120 độ bền)' },
     { id: 17, name: 'Cần Đồng', emoji: '🎣', price: 350000, limited: false, tier: 2, bonusLuck: 6, bonusSize: 0.12, bonusTime: 2, bonusShiny: 0, maxDurability: 160, desc: 'Bền chắc. (160 độ bền)' },
@@ -224,9 +224,9 @@ const RODS = [
     { id: 20, name: 'Cần Pha Lê', emoji: '🔮', price: 12000000, limited: false, tier: 4, bonusLuck: 24, bonusSize: 0.38, bonusTime: 5, bonusShiny: 6, maxDurability: 450, desc: 'Pha lê, may mắn. (450 độ bền)' },
     { id: 21, name: 'Cần Mặt Trăng', emoji: '🌙', price: 30000000, limited: false, tier: 4, bonusLuck: 32, bonusSize: 0.5, bonusTime: 7, bonusShiny: 7, maxDurability: 550, desc: 'Hiệu quả. (550 độ bền)' },
     { id: 22, name: 'Cần Thiên Thạch', emoji: '☄️', price: 75000000, limited: false, tier: 5, bonusLuck: 40, bonusSize: 0.7, bonusTime: 9, bonusShiny: 9, maxDurability: 1200, desc: 'Cực hiếm. (1200 độ bền)' },
-    { id: 23, name: 'Cần Cầu Vồng', emoji: '🌈', price: 35000000, limited: true, tier: 4, bonusLuck: 34, bonusSize: 0.55, bonusTime: 7, bonusShiny: 10, maxDurability: 700, desc: '[GIỚI HẠN] Tỉ lệ shiny cao. (700 độ bền)' },
-    { id: 24, name: 'Cần Địa Ngục', emoji: '😈', price: 80000000, limited: true, tier: 5, bonusLuck: 42, bonusSize: 0.72, bonusTime: 10, bonusShiny: 11, maxDurability: 1500, desc: '[GIỚI HẠN] Kéo cá từ vực. (1500 độ bền)' },
-    { id: 25, name: 'Cần Thiên Đàng', emoji: '😇', price: 200000000, limited: true, tier: 5, bonusLuck: 55, bonusSize: 0.95, bonusTime: 13, bonusShiny: 14, maxDurability: 4000, desc: '[GIỚI HẠN] Gần Thần Thánh. (4000 độ bền)' },
+    { id: 23, name: 'Cần Cầu Vồng', emoji: '🌈', price: 35000000, limited: true, tier: 4, bonusLuck: 34, bonusSize: 0.55, bonusTime: 7, bonusShiny: 14, maxDurability: 700, desc: '[GIỚI HẠN] Tỉ lệ shiny cao nhất trong nhóm giới hạn. (700 độ bền)' },
+    { id: 24, name: 'Cần Địa Ngục', emoji: '😈', price: 80000000, limited: true, tier: 5, bonusLuck: 44, bonusSize: 0.72, bonusTime: 10, bonusShiny: 13, maxDurability: 1200, desc: '[GIỚI HẠN] Kéo cá từ vực. (1200 độ bền)' },
+    { id: 25, name: 'Cần Thiên Đàng', emoji: '😇', price: 200000000, limited: true, tier: 5, bonusLuck: 70, bonusSize: 1.1, bonusTime: 16, bonusShiny: 25, maxDurability: 6000, desc: '[GIỚI HẠN] Chỉ kém Cần Thần Thánh. (6000 độ bền)' },
 ];
 
 // Role names for 3 zones

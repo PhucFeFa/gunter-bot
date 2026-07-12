@@ -10,7 +10,7 @@ const { RODS, getWeightedFish, rollFishSize, calcFishPrice, rollChest, rollShiny
 
 // Cooldown per user (ms)
 const COOLDOWN = new Map();
-const COOLDOWN_MS = 30000; // 30 giây
+const COOLDOWN_MS = 15000; // 15 giây
 
 // Fishing phase animations
 const BAIT_FRAMES = ['🎣 Đang thả mồi...', '🎣 Mồi đang chìm xuống...', '🎣 Đang chờ cá cắn...'];

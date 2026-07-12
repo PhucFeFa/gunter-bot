@@ -515,13 +515,221 @@ module.exports = {
                 "Chỉ với vài dòng lệnh, bạn đánh cắp toàn bộ mã nguồn của một trò chơi chưa phát hành để tống tiền."
             ]
         },
+        trum_vu_khi: {
+            id: 'trum_vu_khi',
+            name: 'Ông Trùm Vũ Khí',
+            rarity: 'Mythic',
+            color: 0x8b0000,
+            minSalary: 700000,
+            maxSalary: 999999,
+            weight: 2,
+            hidden: true,
+            dialogues: [
+                "Bán một chục máy bay chiến đấu cho một quốc gia đang có chiến tranh, lợi nhuận kếch xù.",
+                "Cung cấp vũ khí hạng nặng cho các băng đảng lớn, thu về những va li chứa đầy tiền mặt.",
+                "Phát triển thành công một loại tên lửa mới, chính phủ mua lại bản quyền với giá không tưởng.",
+                "Buôn lậu vũ khí qua biên giới thành công mỹ mãn, tiền hoa hồng đủ để bạn mua một hòn đảo.",
+                "Bị Interpol truy nã toàn cầu nhưng bạn vẫn ngồi nhâm nhi xì gà trên du thuyền sang trọng.",
+                "Kích động hai phe phái đánh nhau để bán vũ khí cho cả hai bên, lợi nhuận nhân đôi."
+            ]
+        },
+        ngoc_hoang: {
+            id: 'ngoc_hoang',
+            name: 'Ngọc Hoàng Đại Đế',
+            rarity: 'Divine',
+            color: 0xffd700,
+            minSalary: 1500000,
+            maxSalary: 2500000,
+            weight: 1,
+            hidden: true,
+            dialogues: [
+                "Ngồi trên Thiên Đình cai quản tam giới, chư tiên cúng dường vô số kỳ trân dị bảo.",
+                "Ban mưa thuận gió hòa cho nhân gian, nhận lại hàng tỷ lượt cúng bái và tiền công đức.",
+                "Tổ chức hội bàn đào, thu vé vào cổng cắt cổ bọn thần tiên, tiền chảy vào kho thiên đình như nước.",
+                "Phạt một vị thần phạm lỗi giáng xuống trần gian, tịch thu toàn bộ gia sản sung công quỹ.",
+                "Mở sòng bạc trên thiên đình cho chư tiên giải trí, Ngọc Hoàng làm cái ăn trọn gói.",
+                "Ngự giá thân chinh đi vi hành, dân chúng xun xoe tặng vàng bạc châu báu chất cao như núi."
+            ]
+        },
+        diem_vuong: {
+            id: 'diem_vuong',
+            name: 'Diêm Vương',
+            rarity: 'Divine',
+            color: 0x4a235a,
+            minSalary: 1500000,
+            maxSalary: 2500000,
+            weight: 1,
+            hidden: true,
+            dialogues: [
+                "Xét xử các linh hồn giàu có, nhận vô số 'phong bì' vàng mã giá trị quy đổi cực cao.",
+                "Phát hành tiền âm phủ phiên bản giới hạn, lạm phát dưới cõi âm giúp bạn trở thành tỷ phú.",
+                "Mở dịch vụ đầu thai VIP, thu phí cắt cổ đối với những linh hồn muốn làm con nhà đại gia.",
+                "Cho thuê nồi dầu sôi và cột đồng để các ác quỷ giải trí, doanh thu từ dịch vụ tra tấn tăng vọt.",
+                "Tịch thu tài sản vơ vét được từ lúc còn sống của các quan tham lọt xuống địa ngục.",
+                "Nhận hối lộ của Tôn Ngộ Không để xóa tên khỏi sổ sinh tử, thu về vô số kỳ trân dị thảo."
+            ]
+        },
+        than_sang_tao: {
+            id: 'than_sang_tao',
+            name: 'Thần Sáng Tạo',
+            rarity: 'Divine',
+            color: 0x00ffff,
+            minSalary: 2000000,
+            maxSalary: 3000000,
+            weight: 1,
+            hidden: true,
+            dialogues: [
+                "Tạo ra một vũ trụ mới với định luật vật lý riêng, bán bản quyền cho các thần khác để thu tiền.",
+                "Nặn ra một giống loài mới có khả năng sản xuất vàng, lợi nhuận thụ động chảy vào túi bạn.",
+                "Thiết kế lại hệ mặt trời, thu phí 'năng lượng mặt trời' từ tất cả các hành tinh bên trong.",
+                "Sáng tạo ra một khái niệm mới về 'tiền', khiến bạn luôn là người giàu nhất trong mọi thực tại.",
+                "Bạn chỉ cần nghĩ về tiền, tiền tự động được sinh ra từ hư không rơi đầy xung quanh.",
+                "Thay đổi luật nhân quả, khiến mọi việc làm của bạn đều tự động sinh ra vàng bạc."
+            ]
+        },
+        ban_banh_mi: {
+            id: 'ban_banh_mi',
+            name: 'Bán Bánh Mì',
+            rarity: 'Common',
+            color: 0xcd853f,
+            minSalary: 4000,
+            maxSalary: 15000,
+            weight: 200,
+            dialogues: [
+                "Bán ổ bánh mì thịt chả đầy ắp, khách khen ngon mua ủng hộ thêm vài ổ.",
+                "Sáng sớm đông khách, tay cắt bánh mì thoăn thoắt không kịp thở nhưng tiền đầy túi.",
+                "Bị khách bom hàng bánh mì xíu mại, đành ăn luôn cho bữa sáng nhưng coi như lỗ vốn.",
+                "Có anh xe ôm đói bụng ghé mua, bạn bán rẻ chút nhưng anh ấy boa thêm.",
+                "Bánh mì ế chiều nay, đành đi rao quanh xóm cũng gỡ lại được chút ít.",
+                "Xe bánh mì bị trật bánh rớt hết pate, khóc ròng dọn dẹp và mất trắng ngày hôm nay."
+            ]
+        },
+        tho_son: {
+            id: 'tho_son',
+            name: 'Thợ Sơn',
+            rarity: 'Uncommon',
+            color: 0x87ceeb,
+            minSalary: 30000,
+            maxSalary: 65000,
+            weight: 70,
+            dialogues: [
+                "Sơn lại mặt tiền căn biệt thự sang trọng, chủ nhà hài lòng thưởng thêm một số tiền khá.",
+                "Bị dính sơn dính đầy quần áo, mệt nhọc nhưng cuối ngày cầm tiền công cười tươi.",
+                "Lăn sơn nguyên ngày mỏi nhừ cánh tay, may mà sếp ứng lương ngay tại chỗ.",
+                "Trộn nhầm màu sơn, bị chủ la một trận nhưng hên là vẫn được tha và sửa lại.",
+                "Pha được màu sơn cực chuẩn cho phòng khách, chủ nhà típ luôn tờ xanh.",
+                "Ngồi cạo lớp sơn cũ mệt lả người, hít bụi mịt mù nhưng thu nhập xứng đáng."
+            ]
+        },
+        grab_car: {
+            id: 'grab_car',
+            name: 'Tài Xế Grab Car',
+            rarity: 'Uncommon',
+            color: 0x2ecc71,
+            minSalary: 55000,
+            maxSalary: 110000,
+            weight: 65,
+            dialogues: [
+                "Nhận cuốc khách đi tỉnh xa lúc rạng sáng, đường vắng chạy nhanh, thu về một mớ tiền.",
+                "Bị khách hối chạy nhanh, bạn lỡ vượt đèn đỏ ăn biên bản, coi như đi đứt ngày công.",
+                "Chở trúng một đoàn khách nước ngoài hào phóng, họ boa luôn tiền thừa làm bạn ấm lòng.",
+                "Khách ói ra xe do say rượu, bạn giận tím mặt nhưng ép đền được tiền vệ sinh xe.",
+                "Mưa to gió lớn, cuốc xe giá nhân cao, bạn cày cuốc không ngừng nghỉ thu nhập khá.",
+                "Lạc đường vô hẻm cụt phải de xe chật vật, khách thông cảm và vẫn gửi đủ cước."
+            ]
+        },
+        designer: {
+            id: 'designer',
+            name: 'Graphic Designer',
+            rarity: 'Rare',
+            color: 0xe84393,
+            minSalary: 110000,
+            maxSalary: 210000,
+            weight: 30,
+            dialogues: [
+                "Hoàn thành logo cho công ty khởi nghiệp, khách chốt ngay từ bản nháp đầu tiên, tiền về nhẹ tênh.",
+                "Khách đòi sửa đi sửa lại 7749 lần, cuối cùng chọn lại bản đầu, bạn uất ức nhưng vẫn lấy được tiền.",
+                "Thiết kế bộ nhận diện thương hiệu cho tập đoàn lớn, số tiền nhận được đủ sống cả tháng.",
+                "Máy tính bị màn hình xanh lúc chưa lưu file, bạn thức trắng đêm làm lại nhưng bù lại lương ngon.",
+                "Được một agency nước ngoài thuê freelance dự án ngắn hạn, thu nhập tính bằng USD.",
+                "Vẽ một bức digital art đăng lên Twitter, bỗng nhiên viral và có người mua bản quyền ngay lập tức."
+            ]
+        },
+        makeup: {
+            id: 'makeup',
+            name: 'Chuyên Viên Trang Điểm',
+            rarity: 'Rare',
+            color: 0xff69b4,
+            minSalary: 100000,
+            maxSalary: 190000,
+            weight: 30,
+            dialogues: [
+                "Trang điểm cô dâu cho một đám cưới xa hoa, gia đình nhà gái boa thêm phong bì dày cộp.",
+                "Makeup cho một nghệ sĩ nổi tiếng dự sự kiện, danh tiếng lên cao kèm thù lao khủng.",
+                "Lỡ tay làm gãy thỏi son đắt tiền của chính mình, đau lòng nhưng thù lao từ khách dư sức mua lại 10 thỏi.",
+                "Chạy show trang điểm kỷ yếu cho nguyên một lớp học sinh, đứng mỏi chân nhưng tiền cầm trĩu tay.",
+                "Hóa trang Halloween cho một đoàn làm phim, khách ưng ý cực kỳ và hứa sẽ book lại.",
+                "Gặp khách hàng khó tính chê bai đủ đường, bạn phải dằn lòng chiều ý và cuối cùng cũng lấy được tiền công."
+            ]
+        },
+        dao_dien: {
+            id: 'dao_dien',
+            name: 'Đạo Diễn Phim',
+            rarity: 'Epic',
+            color: 0x9b59b6,
+            minSalary: 200000,
+            maxSalary: 350000,
+            weight: 12,
+            dialogues: [
+                "Bộ phim mới của bạn phá kỷ lục phòng vé cuối tuần, tiền phần trăm lợi nhuận đổ về ào ạt.",
+                "Phim bị giới phê bình chê bai tơi tả nhưng khán giả lại tò mò đi xem đông đúc, bạn vẫn lời to.",
+                "Quay cảnh cháy nổ tiêu tốn ngân sách khủng, nhưng nhà tài trợ hài lòng và rót thêm vốn.",
+                "Chỉ đạo một diễn viên ngôi sao có thái độ chảnh chọe, bạn bực mình nhưng phim vẫn hoàn thành tốt.",
+                "Thắng giải đạo diễn xuất sắc tại liên hoan phim, giá trị thương hiệu của bạn vươn tầm quốc tế.",
+                "Ký hợp đồng sản xuất một series dài tập cho Netflix, tiền thù lao đủ để bạn mua một biệt thự mới."
+            ]
+        },
+        ceo: {
+            id: 'ceo',
+            name: 'CEO Startup',
+            rarity: 'Epic',
+            color: 0x2c3e50,
+            minSalary: 250000,
+            maxSalary: 450000,
+            weight: 10,
+            dialogues: [
+                "Kêu gọi vốn vòng Series A thành công mỹ mãn từ các Shark, định giá công ty tăng gấp 10 lần.",
+                "Sản phẩm mới ra mắt bị lỗi sập server, bạn xử lý khủng hoảng truyền thông tốt và được đánh giá cao.",
+                "Đội ngũ nhân sự nòng cốt xin nghỉ việc, bạn phải tự thân vận động cứu công ty khỏi bờ vực phá sản.",
+                "Ứng dụng của công ty lọt top 1 trending trên App Store, doanh thu bùng nổ chỉ trong một đêm.",
+                "Tham dự hội thảo công nghệ quốc tế, chốt được một đối tác chiến lược mang lại lợi nhuận kếch xù.",
+                "Thức trắng 3 ngày để chuẩn bị bài pitch deck, cuối cùng thuyết phục được quỹ đầu tư khổng lồ rót vốn."
+            ]
+        },
+        chu_tich_tap_doan: {
+            id: 'chu_tich_tap_doan',
+            name: 'Chủ Tịch Tập Đoàn',
+            rarity: 'Legendary',
+            color: 0xd35400,
+            minSalary: 450000,
+            maxSalary: 650000,
+            weight: 4,
+            dialogues: [
+                "Giả vờ làm lao công để thử lòng nhân viên, bạn đuổi việc quản lý hách dịch và kiếm về một đống tiền.",
+                "Ký xong một hợp đồng sáp nhập công ty tỷ đô, bạn ăn mừng bằng cách mua một hòn đảo riêng.",
+                "Cổ phiếu tập đoàn chạm đỉnh lịch sử, tài sản ròng của bạn tăng vọt sau một đêm.",
+                "Bị đối thủ chơi xấu tung tin đồn, bạn lập tức tung bằng chứng phản pháo và kiện họ ra tòa lấy tiền bồi thường.",
+                "Ngồi họp hội đồng quản trị nhàm chán, bạn tiện tay lướt điện thoại chốt một thương vụ bất động sản sinh lời khủng.",
+                "Chỉ bằng một câu nói 'Mua lại công ty đó cho tôi', bạn đã thâu tóm toàn bộ thị trường ngách."
+            ]
+        },
         kho_ga_mixi: {
             id: 'kho_ga_mixi',
             name: 'Khô Gà Mixi Seller',
             rarity: 'Secret',
             color: 0xffa500,
-            minSalary: 1000000,
-            maxSalary: 2500000,
+            minSalary: 4000000,
+            maxSalary: 8000000,
             weight: 0, // Không dùng hệ thống weight thông thường
             hidden: true,
             dialogues: [
@@ -537,23 +745,31 @@ module.exports = {
 
     /**
      * Quay ngẫu nhiên một công việc dựa trên tỷ lệ (weight)
+     * @param {boolean} isPity - Có phải đang dùng bảo hiểm (90 roll) không?
      */
-    spinJob: function () {
+    spinJob: function (isPity = false) {
         // Tỷ lệ bí mật 0.01% ra Khô Gà Mixi
         if (Math.random() < 0.0001) {
             return module.exports.jobs['kho_ga_mixi'];
         }
 
         const jobList = Object.values(module.exports.jobs).filter(j => j.weight > 0);
-        const totalWeight = jobList.reduce((sum, job) => sum + job.weight, 0);
+        
+        let validJobs = jobList;
+        // Pity: Guarantee Legendary, Mythic or Divine
+        if (isPity) {
+            validJobs = jobList.filter(j => ['Legendary', 'Mythic', 'Divine'].includes(j.rarity));
+        }
+
+        const totalWeight = validJobs.reduce((sum, job) => sum + job.weight, 0);
         let random = Math.floor(Math.random() * totalWeight);
 
-        for (const job of jobList) {
+        for (const job of validJobs) {
             if (random < job.weight) {
                 return job;
             }
             random -= job.weight;
         }
-        return jobList[0];
+        return validJobs[0];
     }
 };

@@ -39,7 +39,12 @@ async function getUser(userId) {
             last_tarot_date: '',
             job: null,
             lastWork: null,
-            loanAmount: 0
+            loanAmount: 0,
+            jobSpins: 0,
+            creditScore: 0,
+            loanRefs: [],
+            seizedRod: null,
+            seizedRequire: 0
         };
         await ref.set(defaultData);
         return defaultData;
@@ -70,6 +75,30 @@ async function updateLoan(userId, delta) {
     const newLoan = Math.max(0, (user.loanAmount || 0) + delta);
     await ref.update({ loanAmount: newLoan });
     return newLoan;
+}
+
+/**
+ * Cập nhật Điểm tín dụng
+ */
+async function updateCreditScore(userId, delta) {
+    const ref = db.collection(USERS_COLLECTION).doc(userId);
+    const user = await getUser(userId);
+    // Max credit score = 100
+    const newScore = Math.min(100, Math.max(0, (user.creditScore || 0) + delta));
+    await ref.update({ creditScore: newScore });
+    return newScore;
+}
+
+/**
+ * Lưu người tham chiếu và thông tin siết nợ
+ */
+async function updateLoanDetails(userId, refs, seizedRod, seizedRequire) {
+    const ref = db.collection(USERS_COLLECTION).doc(userId);
+    const updateData = {};
+    if (refs !== undefined) updateData.loanRefs = refs;
+    if (seizedRod !== undefined) updateData.seizedRod = seizedRod;
+    if (seizedRequire !== undefined) updateData.seizedRequire = seizedRequire;
+    await ref.update(updateData);
 }
 
 /**
@@ -200,7 +229,7 @@ async function recordTarotPlay(userId) {
  */
 async function getJobData(userId) {
     const user = await getUser(userId);
-    return { job: user.job || null, lastWork: user.lastWork || null };
+    return { job: user.job || null, lastWork: user.lastWork || null, jobSpins: user.jobSpins || 0 };
 }
 
 /**
@@ -209,6 +238,14 @@ async function getJobData(userId) {
 async function setJob(userId, jobId) {
     const ref = db.collection(USERS_COLLECTION).doc(userId);
     await ref.update({ job: jobId });
+}
+
+/**
+ * Cập nhật số lần quay job (pity system)
+ */
+async function updateJobSpins(userId, spins) {
+    const ref = db.collection(USERS_COLLECTION).doc(userId);
+    await ref.update({ jobSpins: spins });
 }
 
 /**
@@ -232,4 +269,4 @@ async function getAllDebtors() {
     return debtors;
 }
 
-module.exports = { getUser, updateBalance, claimDaily, incrementMsgCount, addVoiceTime, getTopUsers, transferMoney, recordTarotPlay, DAILY_AMOUNT, STARTING_BALANCE, getJobData, setJob, updateLastWork, updateLoan, getAllDebtors };
+module.exports = { getUser, updateBalance, claimDaily, incrementMsgCount, addVoiceTime, getTopUsers, transferMoney, recordTarotPlay, DAILY_AMOUNT, STARTING_BALANCE, getJobData, setJob, updateJobSpins, updateLastWork, updateLoan, updateCreditScore, updateLoanDetails, getAllDebtors };

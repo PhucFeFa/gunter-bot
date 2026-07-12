@@ -1,6 +1,8 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { getUser, updateBalance, updateLoan } = require('../../utils/economyDB');
+const { getUser, updateBalance, updateLoan, updateCreditScore, updateLoanDetails } = require('../../utils/economyDB');
+const { setUserRod } = require('../../utils/fishDB');
 const { jobs } = require('../../data/jobs');
+const { RODS } = require('../../data/fishData');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -15,6 +17,14 @@ module.exports = {
             .addStringOption(opt => opt
                 .setName('amount')
                 .setDescription('Số tiền muốn vay (hoặc "max")')
+                .setRequired(true))
+            .addUserOption(opt => opt
+                .setName('ref1')
+                .setDescription('Người tham chiếu 1 (sẽ bị đòi nợ chung)')
+                .setRequired(true))
+            .addUserOption(opt => opt
+                .setName('ref2')
+                .setDescription('Người tham chiếu 2 (sẽ bị đòi nợ chung)')
                 .setRequired(true)))
         .addSubcommand(sub => sub
             .setName('repay')
@@ -36,8 +46,12 @@ module.exports = {
         
         let maxLoanLimit = 0;
         let jobName = "Thất nghiệp";
+        const creditScore = user.creditScore || 0;
+        
         if (user.job && jobs[user.job]) {
-            maxLoanLimit = jobs[user.job].maxSalary * 50;
+            // Cơ bản = maxSalary * 20. Mỗi điểm tín dụng tăng maxSalary * 1. Tối đa 100 điểm.
+            // Vậy vay tối đa = maxSalary * (20 + creditScore).
+            maxLoanLimit = jobs[user.job].maxSalary * (20 + creditScore);
             jobName = jobs[user.job].name;
         }
 
@@ -48,6 +62,7 @@ module.exports = {
                 .setThumbnail('https://cdn-icons-png.flaticon.com/512/2830/2830284.png')
                 .addFields(
                     { name: 'Nghề bá dơ hiện tại', value: `**${jobName}**`, inline: true },
+                    { name: 'Điểm tín dụng', value: `**${creditScore}/100**`, inline: true },
                     { name: 'Tao cho mày mượn tối đa', value: `**${maxLoanLimit.toLocaleString()} 🪙**`, inline: true },
                     { name: 'Đang thiếu nợ tao', value: `**${currentLoan.toLocaleString()} 🪙**`, inline: false }
                 )
@@ -86,11 +101,19 @@ module.exports = {
                 return interaction.editReply(`❌ Mày tính lừa ngân hàng hả? Tao chỉ cho mày mượn tối đa **${availableToBorrow.toLocaleString()} 🪙** thôi con chó!`);
             }
 
+            const ref1 = interaction.options.getUser('ref1');
+            const ref2 = interaction.options.getUser('ref2');
+            
+            if (ref1.id === userId || ref2.id === userId || ref1.id === ref2.id || ref1.bot || ref2.bot) {
+                return interaction.editReply('❌ Tag người tham chiếu đàng hoàng! Không tag chính mình, không tag 1 người 2 lần, đéo tag bot!');
+            }
+
             // Tiền gốc + 35% lãi suất cố định
             const totalDebt = Math.floor(borrowAmount * 1.35);
 
             await updateBalance(userId, borrowAmount); // Nhận tiền mặt
             await updateLoan(userId, totalDebt); // Ghi nợ + lãi
+            await updateLoanDetails(userId, [ref1.id, ref2.id], null, 0); // Lưu references
 
             const embed = new EmbedBuilder()
                 .setColor(0x00FF00)
@@ -166,14 +189,38 @@ module.exports = {
 
             await updateBalance(userId, -repayAmount); // Trừ tiền mặt
             await updateLoan(userId, -repayAmount);    // Trừ nợ
+            
+            // Tăng điểm tín dụng nếu trả nợ
+            let creditBonus = 0;
+            if (repayAmount > 0) {
+                const bonus = Math.max(1, Math.floor((repayAmount / maxLoanLimit) * 10)); 
+                await updateCreditScore(userId, bonus);
+                creditBonus = bonus;
+            }
 
             const newLoan = currentLoan - repayAmount;
+            
+            // Xử lý trả lại cần câu bị siết (nếu có)
+            let returnText = '';
+            if (user.seizedRod && repayAmount >= (user.seizedRequire || 0)) {
+                // Trả lại cần
+                const rodId = user.seizedRod;
+                const rodData = RODS.find(r => r.id === rodId);
+                if (rodData) {
+                    await setUserRod(userId, rodId, rodData.maxDurability); // Trả lại cần với độ bền full
+                    await updateLoanDetails(userId, undefined, null, 0); // Xóa trạng thái siết
+                    returnText = `\n\n🎣 **ĐÃ TRẢ LẠI CẦN CÂU**: Giang hồ đã trả lại **${rodData.name}** cho mày. Liệu hồn mà cày cuốc!`;
+                }
+            } else if (user.seizedRod) {
+                returnText = `\n\n⚠️ **CHƯA ĐỦ TRẢ CẦN**: Mày phải trả tối thiểu **${(user.seizedRequire || 0).toLocaleString()} 🪙** để chuộc lại cần câu!`;
+            }
 
             const embed = new EmbedBuilder()
                 .setColor(0x00FF00)
                 .setTitle('💵 TRẢ TIỀN RỒI ĐẤY Ạ')
                 .setDescription(`Giỏi lắm con trai, tao đã thu **${repayAmount.toLocaleString()} 🪙**.\n\n` +
-                                `📉 Dư nợ còn lại: **${newLoan.toLocaleString()} 🪙**. Chưa xong đâu!`);
+                                `📈 Điểm tín dụng tăng: **+${creditBonus}**\n` +
+                                `📉 Dư nợ còn lại: **${newLoan.toLocaleString()} 🪙**. Chưa xong đâu!` + returnText);
             return interaction.editReply({ embeds: [embed] });
         }
     },
@@ -189,15 +236,32 @@ module.exports = {
         if ((subcommand === 'borrow' || subcommand === 'repay') && !amountStr) {
             return message.reply(`❌ Đéo nhập số tiền thì tao biết mượn hay trả bao nhiêu? (VD: \`g!loan ${subcommand} 100000\`)`);
         }
+        
+        let ref1User = null;
+        let ref2User = null;
+        if (subcommand === 'borrow') {
+            const mentions = Array.from(message.mentions.users.values());
+            if (mentions.length < 2) {
+                return message.reply('❌ Khi mượn tiền mày phải tag 2 người để làm tham chiếu (người bảo lãnh). VD: `g!loan borrow 1000 @user1 @user2`');
+            }
+            ref1User = mentions[0];
+            ref2User = mentions[1];
+        }
 
         const replyMsg = await message.reply('🏦 Đang gọi đàn em ra đòi nợ...');
 
         const fakeInteraction = {
             user: message.author,
+            client: client,
             options: {
                 getSubcommand: () => subcommand,
                 getString: (name) => {
                     if (name === 'amount') return amountStr;
+                    return null;
+                },
+                getUser: (name) => {
+                    if (name === 'ref1') return ref1User;
+                    if (name === 'ref2') return ref2User;
                     return null;
                 }
             },

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { getJobData, getUser, updateBalance, setJob } = require('../../utils/economyDB');
+const { getJobData, getUser, updateBalance, setJob, updateJobSpins } = require('../../utils/economyDB');
 const { jobs, spinJob } = require('../../data/jobs');
 
 const SPIN_COST = 100000;
@@ -151,8 +151,32 @@ module.exports = {
             // Trừ tiền
             await updateBalance(userId, -SPIN_COST);
             
+            // Xử lý pity
+            let currentSpins = user.jobSpins || 0;
+            currentSpins += 1;
+            
+            let isPity = false;
+            let pityText = '';
+            
+            if (currentSpins >= 90) {
+                isPity = true;
+                currentSpins = 0; // Reset sau khi nổ hũ pity
+                pityText = '\n✨ **BẢO HIỂM (90 lần)**: Bạn chắc chắn nhận được nghề Legendary hoặc cao hơn!';
+            }
+            
+            // Cập nhật lại số lượt spin
+            await updateJobSpins(userId, currentSpins);
+            
             // Quay nghề
-            const newJob = spinJob();
+            const newJob = spinJob(isPity);
+            
+            // Nếu người chơi may mắn quay ra nghề hiếm tự nhiên (Legendary trở lên) trước 90 lượt, ta cũng reset pity?
+            // "khi người dùng quay đủ 90 lượt thì sẽ đảm bảo cho họ 1 nghề legendary" -> Cứ để tích luỹ, hoặc reset nếu trúng đồ ngon. 
+            // Ở đây tôi chọn reset nếu ra nghề xịn để tránh lạm phát.
+            if (!isPity && ['Legendary', 'Mythic', 'Divine', 'Secret'].includes(newJob.rarity)) {
+                await updateJobSpins(userId, 0);
+            }
+
             await setJob(userId, newJob.id);
 
             const embed = new EmbedBuilder()
@@ -161,8 +185,8 @@ module.exports = {
                 .setDescription(`Bạn đã quay trúng nghề: **${newJob.name}**\n\n` +
                                 `🌟 Độ hiếm: **${newJob.rarity}**\n` +
                                 `💸 Mức lương: **${newJob.minSalary.toLocaleString()} - ${newJob.maxSalary.toLocaleString()} 🪙**\n\n` +
-                                `Hãy dùng lệnh \`/work\` để bắt đầu kiếm tiền nhé!`)
-                .setFooter({ text: `Đã trừ ${SPIN_COST.toLocaleString()} 🪙 phí xin việc` });
+                                `Hãy dùng lệnh \`/work\` để bắt đầu kiếm tiền nhé!` + pityText)
+                .setFooter({ text: `Đã trừ ${SPIN_COST.toLocaleString()} 🪙 phí xin việc | Lượt quay: ${currentSpins}/90` });
 
             return interaction.editReply({ embeds: [embed] });
         }

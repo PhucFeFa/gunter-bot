@@ -164,24 +164,27 @@ async function transferMoney(fromUserId, toUserId, amount) {
     const sender = await getUser(fromUserId);
     if (sender.balance < amount) return { success: false, reason: 'Không đủ tiền' };
 
-    // Chặn chuyển tiền vay nợ
-    const currentLoan = sender.loanAmount || 0;
-    const ownMoney = Math.max(0, sender.balance - currentLoan);
-    if (amount > ownMoney) {
-        return { success: false, reason: `Bạn đang nợ giang hồ ${currentLoan.toLocaleString()} 🪙 nên phần tiền này bị phong tỏa! Số dư hợp pháp có thể chuyển: ${ownMoney.toLocaleString()} 🪙.` };
-    }
+    const ownerIds = (process.env.BOT_OWNER_IDS || '').split(',');
+    const isAdmin = ownerIds.includes(fromUserId);
 
     const todayDate = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
-
-    // Reset limit nếu qua ngày mới
     let currentGiven = sender.given_today || 0;
     if (sender.last_give_date !== todayDate) {
         currentGiven = 0;
     }
 
-    const MAX_GIVE = 100000000;
-    if (currentGiven + amount > MAX_GIVE) {
-        return { success: false, reason: `Bạn đã đạt giới hạn chuyển tiền hôm nay! (Tối đa 100.000.000 🪙/ngày). Còn lại có thể chuyển: ${MAX_GIVE - currentGiven} 🪙.` };
+    if (!isAdmin) {
+        // Chặn chuyển tiền vay nợ đối với user thường
+        const currentLoan = sender.loanAmount || 0;
+        const ownMoney = Math.max(0, sender.balance - currentLoan);
+        if (amount > ownMoney) {
+            return { success: false, reason: `Bạn đang nợ giang hồ ${currentLoan.toLocaleString()} 🪙 nên phần tiền này bị phong tỏa! Số dư hợp pháp có thể chuyển: ${ownMoney.toLocaleString()} 🪙.` };
+        }
+
+        const MAX_GIVE = 100000000;
+        if (currentGiven + amount > MAX_GIVE) {
+            return { success: false, reason: `Bạn đã đạt giới hạn chuyển tiền hôm nay! (Tối đa 100.000.000 🪙/ngày). Còn lại có thể chuyển: ${MAX_GIVE - currentGiven} 🪙.` };
+        }
     }
 
     // Thực hiện trừ tiền người gửi và cộng cho người nhận
@@ -237,7 +240,8 @@ async function getJobData(userId) {
  */
 async function setJob(userId, jobId) {
     const ref = db.collection(USERS_COLLECTION).doc(userId);
-    await ref.update({ job: jobId });
+    // Reset điểm tín dụng về 0 khi đổi nghề
+    await ref.update({ job: jobId, creditScore: 0 });
 }
 
 /**

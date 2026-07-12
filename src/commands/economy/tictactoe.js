@@ -161,9 +161,9 @@ module.exports = {
             await i.update({ content: `✅ Đã chọn độ khó **${difficulty.toUpperCase()}**. Trừ ${bet.toLocaleString()} $. Bắt đầu...`, components: [] });
             collector.stop('started');
 
-            let rewardMultiplier = 0; // Easy: không thưởng khi thắng (coi như chơi miễn phí)
-            if (difficulty === 'medium') rewardMultiplier = 1.2;
-            if (difficulty === 'hard') rewardMultiplier = 2;
+            let rewardMultiplier = 1; // Easy: Thắng hoàn cược (x1)
+            if (difficulty === 'medium') rewardMultiplier = 1.5;
+            if (difficulty === 'hard') rewardMultiplier = 3;
 
             this.runGame(interaction, p1, { id: 'bot', username: 'Gunter Bot' }, bet, 'pve', rewardMultiplier, difficulty);
         });
@@ -248,9 +248,9 @@ module.exports = {
             if (status === 'playing') {
                 embed.setColor(0x3498DB);
                 const modeStr = mode === 'pve' ? `PvE vs Máy (${difficulty?.toUpperCase()})` : 'PvP';
-                const rewardStr = mode === 'pve' && difficulty === 'easy' ? '⚠️ Chế độ Dễ không có thưởng!' :
-                    mode === 'pve' && difficulty === 'medium' ? 'Thắng nhận 1.2x' :
-                        mode === 'pve' && difficulty === 'hard' ? 'Thắng nhận 2x' : 'Thắng nhận 2x';
+                const rewardStr = mode === 'pve' && difficulty === 'easy' ? 'Thắng hoàn cược (x1)' :
+                    mode === 'pve' && difficulty === 'medium' ? 'Thắng nhận 1.5x' :
+                        mode === 'pve' && difficulty === 'hard' ? 'Thắng nhận 3x' : 'Thắng nhận 2x';
                 embed.setDescription(`**Chế độ:** ${modeStr} | ${rewardStr}\n**Mức cược:** ${bet.toLocaleString()} $\n\nLượt của: <@${currentPlayer.id}> (${nextMark})`);
                 embed.setFooter({ text: 'Luật: Mỗi người tối đa 3 quân. Đánh quân thứ 4 thì quân đầu tiên sẽ biến mất!' });
             } else if (status === 'win') {

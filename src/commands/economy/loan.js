@@ -72,6 +72,7 @@ module.exports = {
             }
 
             let borrowAmount = 0;
+            if (!amountStr) return interaction.editReply('❌ Chưa nhập số tiền!');
             if (amountStr.toLowerCase() === 'max') {
                 borrowAmount = availableToBorrow;
             } else {
@@ -145,6 +146,7 @@ module.exports = {
             const amountStr = interaction.options.getString('amount');
             let repayAmount = 0;
 
+            if (!amountStr) return interaction.editReply('❌ Chưa nhập số tiền trả!');
             if (amountStr.toLowerCase() === 'all') {
                 repayAmount = currentLoan;
             } else {

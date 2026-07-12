@@ -76,6 +76,7 @@ module.exports = {
         const currentBalance = userData.balance;
 
         let bet = 0;
+        if (!amountRaw) return interaction.editReply('❌ Chưa nhập số tiền! VD: `g!slots 1000` hoặc `g!slots all`');
         if (amountRaw.toLowerCase() === 'all') {
             bet = currentBalance;
             if (bet <= 0) return interaction.editReply('❌ Bạn không có tiền để cược!');

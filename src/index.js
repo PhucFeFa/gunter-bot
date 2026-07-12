@@ -188,15 +188,15 @@ async function gracefulShutdown(signal) {
     process.exit(0);
 }
 
+// Chỉ shutdown khi nhận tín hiệu tắt hệ thống thật sự (Ctrl+C hoặc pm2 stop)
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('uncaughtException', async (err) => {
-    console.error('[FATAL] Uncaught Exception:', err);
-    // Khởi động lại nếu lỗi thực sự nghiêm trọng, còn DiscordAPIError thì kệ
-    if (err.name !== 'DiscordAPIError') {
-        await gracefulShutdown('uncaughtException');
-    }
+
+// KHÔNG BAO GIỜ gọi process.exit() trong đây - chỉ log lỗi rồi tiếp tục
+process.on('uncaughtException', (err) => {
+    console.error('[ERROR] Uncaught Exception (bot tiếp tục chạy):', err?.message || err);
 });
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('[FATAL] Unhandled Rejection at:', promise, 'reason:', reason);
+process.on('unhandledRejection', (reason) => {
+    console.error('[ERROR] Unhandled Rejection (bot tiếp tục chạy):', reason?.message || reason);
 });
+

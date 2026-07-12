@@ -28,6 +28,8 @@ module.exports = {
         const currentBalance = userData.balance;
         
         let amount = 0;
+        if (!amountRaw) return interaction.editReply('❌ Chưa nhập số tiền! VD: `g!diceroll tai 1000`');
+        if (!choice) return interaction.editReply('❌ Chưa chọn Tài/Xỉu! VD: `g!diceroll tai 1000`');
         if (amountRaw.toLowerCase() === 'all') {
             amount = currentBalance;
             if (amount <= 0) return interaction.editReply('Mày làm đéo gì có tiền mà all in =)))');

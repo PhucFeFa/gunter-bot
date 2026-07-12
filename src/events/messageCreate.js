@@ -76,6 +76,22 @@ module.exports = {
                         await command.executePrefix(message, args, client);
                     } else {
                         // Fake Interaction cho các lệnh Slash gốc
+                        // Gửi placeholder trước để có message object dùng cho editReply
+                        let sentMsg = null;
+
+                        // Build options mapping dựa trên slash command data (nếu có)
+                        // Mỗi slash option được map theo thứ tự khai báo trong command.data
+                        const optionNames = [];
+                        if (command.data && command.data.options) {
+                            for (const opt of command.data.options) {
+                                optionNames.push(opt.toJSON ? opt.toJSON().name : opt.name);
+                            }
+                        }
+
+                        // Xây dựng map: tên option → giá trị từ args
+                        // Mentions được ưu tiên cho user/member options
+                        const argsWithoutMention = args.filter(a => !a.startsWith('<@') && !a.startsWith('<#'));
+
                         const fakeInteraction = {
                             isCommand: true,
                             isChatInputCommand: () => true,
@@ -89,21 +105,40 @@ module.exports = {
                             client: client,
                             deferred: false,
                             replied: false,
-                            deferReply: async function() { this.deferred = true; await message.channel.sendTyping(); },
-                            reply: async function(options) { 
+                            deferReply: async function() {
+                                this.deferred = true;
+                                // Gửi placeholder để lấy sentMsg cho editReply
+                                sentMsg = await message.reply('⏳ Đang xử lý...');
+                            },
+                            reply: async function(options) {
                                 this.replied = true;
-                                if (typeof options === 'string') return await message.reply(options);
+                                if (typeof options === 'string') {
+                                    sentMsg = await message.reply(options);
+                                    return sentMsg;
+                                }
                                 const opts = { ...options };
                                 delete opts.ephemeral;
                                 delete opts.flags;
-                                return await message.reply(opts);
+                                sentMsg = await message.reply(opts);
+                                return sentMsg;
                             },
                             editReply: async function(options) {
-                                if (typeof options === 'string') return await message.reply(options);
-                                const opts = { ...options };
-                                delete opts.ephemeral;
-                                delete opts.flags;
-                                return await message.reply(opts);
+                                const payload = typeof options === 'string' ? { content: options } : { ...options };
+                                delete payload.ephemeral;
+                                delete payload.flags;
+                                // Nếu đã có sentMsg thì edit, không thì reply mới
+                                if (sentMsg && typeof sentMsg.edit === 'function') {
+                                    try {
+                                        sentMsg = await sentMsg.edit(payload);
+                                        return sentMsg;
+                                    } catch (e) {
+                                        // Message bị xóa → reply mới
+                                        sentMsg = await message.reply(payload);
+                                        return sentMsg;
+                                    }
+                                }
+                                sentMsg = await message.reply(payload);
+                                return sentMsg;
                             },
                             followUp: async function(options) {
                                 if (typeof options === 'string') return await message.reply(options);
@@ -113,14 +148,40 @@ module.exports = {
                                 return await message.reply(opts);
                             },
                             options: {
-                                getMember: (name) => message.mentions.members.first(),
-                                getUser: (name) => message.mentions.users.first(),
-                                getString: (name) => args.join(' ') || null,
-                                getInteger: (name) => parseInt(args[0]) || null,
-                                getNumber: (name) => parseFloat(args[0]) || null,
+                                _rawArgs: args,
+                                _optionNames: optionNames,
+                                getMember: (name) => message.mentions.members.first() || null,
+                                getUser: (name) => message.mentions.users.first() || null,
+                                getRole: (name) => message.mentions.roles.first() || null,
+                                getChannel: (name) => message.mentions.channels.first() || null,
                                 getBoolean: (name) => null,
-                                getRole: (name) => message.mentions.roles.first(),
-                                getChannel: (name) => message.mentions.channels.first()
+                                getString: (name) => {
+                                    // Nếu có option names mapping, trả đúng arg theo index
+                                    const idx = optionNames.indexOf(name);
+                                    if (idx >= 0) {
+                                        // Arg cuối cùng (hoặc sau mentions) gom hết phần còn lại
+                                        const cleanArgs = argsWithoutMention;
+                                        if (idx === optionNames.length - 1) {
+                                            // Option cuối → gom hết args còn lại
+                                            return cleanArgs.slice(idx).join(' ') || null;
+                                        }
+                                        return cleanArgs[idx] || null;
+                                    }
+                                    // Fallback: trả toàn bộ args
+                                    return argsWithoutMention.join(' ') || null;
+                                },
+                                getInteger: (name) => {
+                                    const idx = optionNames.indexOf(name);
+                                    const cleanArgs = argsWithoutMention;
+                                    const val = idx >= 0 ? parseInt(cleanArgs[idx]) : parseInt(cleanArgs[0]);
+                                    return isNaN(val) ? null : val;
+                                },
+                                getNumber: (name) => {
+                                    const idx = optionNames.indexOf(name);
+                                    const cleanArgs = argsWithoutMention;
+                                    const val = idx >= 0 ? parseFloat(cleanArgs[idx]) : parseFloat(cleanArgs[0]);
+                                    return isNaN(val) ? null : val;
+                                }
                             }
                         };
                         await command.execute(fakeInteraction);

@@ -131,7 +131,7 @@ module.exports = {
             try {
                 const alertChannel = interaction.client.channels.cache.get('1525454150803128371');
                 if (alertChannel) {
-                    await alertChannel.send(`⚠️ **CẢNH BÁO NỢ XẤU**\nThằng bá dơ <@${userId}> vừa bốc bát họ số tiền **${borrowAmount.toLocaleString()} 🪙**.\nTổng nợ phải trả: **${totalDebt.toLocaleString()} 🪙**.\nGiang hồ đã đưa mày vào tầm ngắm, liệu hồn mà cày cuốc trả nợ đi con trai!`);
+                    await alertChannel.send(`⚠️ **CẢNH BÁO NỢ XẤU**\nThằng bá dơ <@${userId}> vừa bốc bát họ số tiền **${borrowAmount.toLocaleString()} 🪙**.\nTổng nợ phải trả: **${totalDebt.toLocaleString()} 🪙**.\nGiang hồ đã đưa mày vào tầm ngắm, liệu hồn mà cày cuốc trả nợ đi con trai!\nNgười tham chiếu: <@${ref1.id}> <@${ref2.id}>`);
                 }
             } catch (err) {
                 console.log("Không thể gửi thông báo vay nợ", err);
@@ -161,6 +161,28 @@ module.exports = {
             } catch (err) {
                 console.log("Không thể gửi DM đòi nợ cho user", err);
             }
+            
+            // Gửi tin nhắn mỉa mai người tham chiếu ngay lập tức
+            try {
+                const initialRefMsgs = [
+                    "Ê bồ, nãy thằng {user} đi vay tiền ngân hàng Gunter {borrowed} 🪙 mà nó dám ghi tên mày làm người bảo lãnh kìa! Ráng mà giữ liên lạc với nó, nó mà trốn nợ {debt} 🪙 thì mày cũng đéo yên đâu nhé!",
+                    "Chúc mừng! Bạn vừa được bổ nhiệm làm 'Người Bảo Lãnh Bất Đắc Dĩ' cho khoản nợ {debt} 🪙 của thằng {user}. Khuyên nó lo cày `/work` trả nợ đi trước khi giang hồ tìm đến bạn!",
+                    "Thằng {user} vừa bốc bát họ {borrowed} 🪙 và lấy bạn ra làm bia đỡ đạn. Nếu nó không trả nợ {debt} 🪙, bạn chuẩn bị tinh thần bị spam tin nhắn mỗi ngày đi nhé!",
+                    "Alo bạn ơi, có thằng bá dơ tên {user} vừa ghi bạn vào danh sách liên đới nợ nần rồi. Nó đang nợ {debt} 🪙. Đi hối nó trả nợ ngay đi kẻo mang họa vào thân!"
+                ];
+                
+                for (const r of [ref1, ref2]) {
+                    if (r) {
+                        try {
+                            const rMsg = initialRefMsgs[Math.floor(Math.random() * initialRefMsgs.length)]
+                                .replace(/{user}/g, interaction.user.username)
+                                .replace(/{borrowed}/g, borrowAmount.toLocaleString())
+                                .replace(/{debt}/g, totalDebt.toLocaleString());
+                            await r.send(`🔪 **THÔNG BÁO LIÊN ĐỚI:**\n\n${rMsg}`);
+                        } catch(e) {}
+                    }
+                }
+            } catch (err) {}
 
             return interaction.editReply({ embeds: [embed] });
         }

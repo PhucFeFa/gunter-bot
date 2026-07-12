@@ -4,6 +4,14 @@ const ssh = new NodeSSH();
     try {
         await ssh.connect({ host: '103.179.188.63', username: 'root', password: '4OEHxDCt2zk32q0x' });
         console.log('Connected');
+        console.log('Pulling latest code...');
+        const pullRes = await ssh.execCommand('git fetch --all && git reset --hard origin/main', { cwd: '/root/gunter-bot' });
+        console.log(pullRes.stdout);
+        
+        console.log('Deploying slash commands...');
+        const deployRes = await ssh.execCommand('npm run deploy-commands', { cwd: '/root/gunter-bot' });
+        console.log(deployRes.stdout);
+        
         await ssh.execCommand('pm2 delete gunter-bot || true', { cwd: '/root/gunter-bot' });
         const startCmd = 'pm2 start src/index.js --name "gunter-bot" --node-args="--max-old-space-size=1536"';
         const res = await ssh.execCommand(startCmd, { cwd: '/root/gunter-bot' });

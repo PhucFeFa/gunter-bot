@@ -104,6 +104,10 @@ module.exports = {
             const ref1 = interaction.options.getUser('ref1');
             const ref2 = interaction.options.getUser('ref2');
             
+            if (!ref1 || !ref2) {
+                return interaction.editReply('❌ Lệnh bị lỗi hoặc bạn chưa tag đủ 2 người tham chiếu (bảo lãnh)! Thử dùng lệnh `g!loan borrow` thay vì dấu `/` nếu Discord bị lag.');
+            }
+            
             if (ref1.id === userId || ref2.id === userId || ref1.id === ref2.id || ref1.bot || ref2.bot) {
                 return interaction.editReply('❌ Tag người tham chiếu đàng hoàng! Không tag chính mình, không tag 1 người 2 lần, đéo tag bot!');
             }

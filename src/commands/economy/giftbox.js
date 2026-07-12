@@ -62,14 +62,18 @@ module.exports = {
         const creatorData = await getUser(creator.id);
         const currentBalance = creatorData.balance;
 
+        const ownerIds = (process.env.BOT_OWNER_IDS || '').split(',');
+        const isAdmin = ownerIds.includes(creator.id);
+        const MAX_GIFT = isAdmin ? Infinity : 100000000;
+
         let tongTien = 0;
         if (tongTienRaw.toLowerCase() === 'all') {
-            tongTien = currentBalance > 100000000 ? 100000000 : currentBalance;
+            tongTien = currentBalance > MAX_GIFT ? MAX_GIFT : currentBalance;
             if (tongTien < 100) return interaction.editReply('❌ Bạn không đủ 100 $ tối thiểu để tạo hộp quà!');
         } else {
             tongTien = parseInt(tongTienRaw.replace(/,/g, ''));
             if (isNaN(tongTien) || tongTien < 100) return interaction.editReply('❌ Số tiền không hợp lệ! (Tối thiểu 100 $)');
-            if (tongTien > 100000000) return interaction.editReply('❌ Hộp quà chỉ giới hạn tối đa **100,000,000 $** (100 triệu) thôi đại gia ơi!');
+            if (!isAdmin && tongTien > MAX_GIFT) return interaction.editReply('❌ Hộp quà chỉ giới hạn tối đa **100,000,000 $** (100 triệu) thôi đại gia ơi!');
         }
 
         if (currentBalance < tongTien) {

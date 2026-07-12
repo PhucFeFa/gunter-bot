@@ -12,17 +12,38 @@ const { RODS } = require('../data/fishData');
 
 const RESET_INTERVAL_MS = 12 * 60 * 60 * 1000; // 12 tiếng
 
+// ─── Weighted daily rotation (giống fishshop.js) ──────────────
+function getDailyLimitedRods() {
+    const allLimited = RODS.filter(r => r.limited);
+    const today = new Date();
+    const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+    function seededRand(s) { let x = Math.sin(s) * 10000; return x - Math.floor(x); }
+    const pool = [];
+    for (const rod of allLimited) {
+        const w = rod.shopWeight ?? 10;
+        for (let i = 0; i < w; i++) pool.push(rod.id);
+    }
+    const picked = [];
+    const used = new Set();
+    for (let i = 0; i < pool.length && picked.length < 5; i++) {
+        const idx = Math.floor(seededRand(seed + i * 37) * pool.length);
+        const rodId = pool[idx];
+        if (!used.has(rodId)) { used.add(rodId); picked.push(RODS.find(r => r.id === rodId)); }
+    }
+    return picked.length >= 1 ? picked : allLimited.slice(0, 5);
+}
+
 // ─── Tạo embed thông báo shop ─────────────────────────────────
 function buildShopAnnounce(resetCount) {
     const normalRods = RODS.filter(r => !r.limited).slice(0, 8);
-    const limitedRods = RODS.filter(r => r.limited).slice(0, 5);
+    const limitedRods = getDailyLimitedRods();
 
     const normalList = normalRods.map(r =>
         `${r.emoji} **${r.name}** — ${r.price === 0 ? 'Miễn phí' : r.price.toLocaleString() + ' 🪙'}`
     ).join('\n');
 
     const limitedList = limitedRods.map(r =>
-        `${r.emoji} **${r.name}** — ${r.price.toLocaleString() + ' 🪙'}`
+        `${r.emoji} **${r.name}** — ${r.price.toLocaleString()} 🪙 | 🍀+${r.bonusLuck}% | 📏+${Math.round(r.bonusSize * 100)}%`
     ).join('\n');
 
     return new EmbedBuilder()
@@ -40,7 +61,7 @@ function buildShopAnnounce(resetCount) {
                 inline: false
             },
             {
-                name: '⭐ Cần Giới Hạn',
+                name: '🌟 Cần Giới Hạn Hôm Nay (5 cần random theo tỉ lệ)',
                 value: limitedList || '*Không có*',
                 inline: false
             },
@@ -54,7 +75,7 @@ function buildShopAnnounce(resetCount) {
                 inline: false
             }
         )
-        .setFooter({ text: 'Gunter Fish Shop | Câu cá để kiếm xu!' })
+        .setFooter({ text: 'Gunter Fish Shop | Cần xịn càng hiếm xuất hiện hơn!' })
         .setTimestamp();
 }
 

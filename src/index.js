@@ -75,6 +75,10 @@ for (const folder of commandFolders) {
         if ('data' in command && 'execute' in command) {
             client.commands.set(command.data.name, command);
             console.log(`[CMD] Loaded: /${command.data.name}`);
+        } else if ('name' in command && 'executePrefix' in command) {
+            // Prefix-only command (no slash)
+            client.commands.set(command.name, command);
+            console.log(`[CMD] Loaded prefix: ${command.name}`);
         } else {
             console.warn(`[WARN] Command at ${file} is missing "data" or "execute".`);
         }

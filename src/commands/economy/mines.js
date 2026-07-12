@@ -35,6 +35,9 @@ module.exports = {
         const currentBalance = userData.balance;
 
         let bet = 0;
+        if (!betRaw) {
+            return interaction.reply({ content: '❌ Bạn chưa nhập số tiền cược! (VD: `g!mines 100` hoặc `g!mines all`)', flags: 64 });
+        }
         if (betRaw.toLowerCase() === 'all') {
             bet = currentBalance;
             if (bet <= 0) return interaction.reply({ content: '❌ Bạn không có tiền để all in!', flags: 64 });

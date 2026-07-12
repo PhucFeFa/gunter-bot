@@ -192,10 +192,11 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('uncaughtException', async (err) => {
     console.error('[FATAL] Uncaught Exception:', err);
-    await gracefulShutdown('uncaughtException');
+    // Khởi động lại nếu lỗi thực sự nghiêm trọng, còn DiscordAPIError thì kệ
+    if (err.name !== 'DiscordAPIError') {
+        await gracefulShutdown('uncaughtException');
+    }
 });
 process.on('unhandledRejection', (reason, promise) => {
     console.error('[FATAL] Unhandled Rejection at:', promise, 'reason:', reason);
-    // Có thể không cần shutdown ngay nếu là lỗi vặt, nhưng an toàn thì gọi:
-    // await gracefulShutdown('unhandledRejection');
 });

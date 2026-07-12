@@ -36,6 +36,9 @@ module.exports = {
         const currentBalance = p1Data.balance;
 
         let bet = 0;
+        if (!betRaw) {
+            return interaction.editReply('❌ Bạn chưa nhập số tiền cược! (VD: `g!tictactoe 100`)');
+        }
         if (betRaw.toLowerCase() === 'all') {
             bet = currentBalance;
             if (bet > 250000000) bet = 250000000;

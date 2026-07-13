@@ -329,8 +329,9 @@ async function handleGeminiChat(message, client) {
             const actionNickname = match[4] ? match[4].trim().substring(0, 20) : 'Khứa Lấc Cấc 🐧';
             const actionReason = match[5] ? match[5].trim() : 'Bố mày ngứa mắt thì phạt 🐧';
 
+            const actionRegexGlobal = new RegExp(actionRegex.source, 'gi');
             // Xóa mã lệnh khỏi response
-            response = response.replace(actionRegex, '').trim();
+            response = response.replace(actionRegexGlobal, '').trim();
 
             if (action === 'LEARN') {
                 console.log(`[GEMINI] Gunter vừa học được: ${targetData}`);
@@ -369,6 +370,7 @@ async function handleGeminiChat(message, client) {
                         const clampedDebt = Math.min(actionAmount, MAX_DEBT);
                         const totalDebt = Math.floor(clampedDebt * 1.35);
                         await setBotDebt(targetUserId, totalDebt);
+                        if (targetMember) require('./economyDB').updateUsername(targetUserId, targetMember.user.username);
                         const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
                         response += `\n\n🏦 *Tao vừa ép ${displayName} vay **${clampedDebt.toLocaleString()} 🪙** (nợ thực tế **${totalDebt.toLocaleString()} 🪙** với lãi 35%). ${actionReason}*`;
 

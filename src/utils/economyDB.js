@@ -14,6 +14,7 @@ const DAILY_COOLDOWN = 24 * 60 * 60 * 1000;
 try { db.prepare('ALTER TABLE users ADD COLUMN botDebt INTEGER DEFAULT 0').run(); } catch (e) { /* Cột đã tồn tại */ }
 try { db.prepare('ALTER TABLE users ADD COLUMN weaponId INTEGER DEFAULT 1').run(); } catch (e) { /* Cột đã tồn tại */ }
 try { db.prepare('ALTER TABLE users ADD COLUMN armorId INTEGER DEFAULT 1').run(); } catch (e) { /* Cột đã tồn tại */ }
+try { db.prepare('ALTER TABLE users ADD COLUMN username TEXT').run(); } catch (e) { /* Cột đã tồn tại */ }
 
 function getUser(userId) {
     let row = db.prepare('SELECT * FROM users WHERE userId = ?').get(userId);
@@ -58,6 +59,12 @@ function updateCreditScore(userId, delta) {
     const newScore = Math.min(100, Math.max(0, (user.creditScore || 0) + delta));
     db.prepare('UPDATE users SET creditScore = ? WHERE userId = ?').run(newScore, userId);
     return newScore;
+}
+
+function updateUsername(userId, username) {
+    if (!username) return;
+    getUser(userId); // Ensure user exists
+    db.prepare('UPDATE users SET username = ? WHERE userId = ?').run(username, userId);
 }
 
 function updateLoanDetails(userId, refs, seizedRod, seizedRequire) {
@@ -231,5 +238,6 @@ module.exports = {
     updateLoanDetails: async (id, refs, r, req) => updateLoanDetails(id, refs, r, req),
     getAllDebtors: async () => getAllDebtors(),
     getUserEquipment: async (id) => getUserEquipment(id),
-    setUserEquipment: async (id, type, itemId) => setUserEquipment(id, type, itemId)
+    setUserEquipment: async (id, type, itemId) => setUserEquipment(id, type, itemId),
+    updateUsername: async (id, name) => updateUsername(id, name)
 };

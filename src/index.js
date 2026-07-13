@@ -153,10 +153,12 @@ client.login(process.env.DISCORD_TOKEN)
 
                 for (const user of debtors) {
                     let discordUser = null;
-                    let userName = "Mày";
+                    let userName = user.username || "Kẻ Ẩn Danh";
                     try {
                         discordUser = await client.users.fetch(user.userId);
                         userName = discordUser.username;
+                        // Lưu tên mới nhất vào DB phòng khi sau này họ thoát server
+                        require('./utils/economyDB').updateUsername(user.userId, userName);
                     } catch (e) {}
 
                     const randomMsg = borrowerMsgs[Math.floor(Math.random() * borrowerMsgs.length)]

@@ -14,6 +14,7 @@ const path = require('path');
 const { startServer } = require('./server');
 const { Player } = require('discord-player');
 const { DefaultExtractors } = require('@discord-player/extractor');
+const { borrowerMsgs, referrerMsgs } = require('./data/loanMessages');
 
 // --- Validate required environment variables on startup ---
 const REQUIRED_ENV = ['DISCORD_TOKEN', 'DISCORD_CLIENT_ID'];
@@ -148,31 +149,7 @@ client.login(process.env.DISCORD_TOKEN)
                 
                 const channel = client.channels.cache.get('1525454150803128371');
                 
-                const dmMsgs = [
-                    "CẢNH BÁO CUỐI CÙNG!!! NHẮN GẤP ĐỐI TƯỢNG {user} RA TRẢ NỢ GẤP SỐ TIỀN {amount} VỚI CÔNG TY TRƯỚC KHI CHÚNG TÔI GỬI THÔNG BÁO NỢ BẰNG HÌNH ẢNH, VIDEO ĐẾN ĐỊA PHƯƠNG, NƠI LÀM VIỆC, BẠN BÈ, NGƯỜI THÂN. ĐỪNG ĐỂ ẢNH HƯỞNG ĐẾN UY TÍN DANH DỰ CỦA MÌNH CŨNG NHƯ CỦA NGƯỜI THÂN ĐÃ CUNG CẤP TRONG HỒ SƠ VAY! DÙNG LỆNH `/loan repay` ĐỂ CƠ CẤU LẠI NỢ GIẢM NỢ NGAY LẬP TỨC!!!",
-                    "THÔNG BÁO ĐÒI NỢ KHẨN CẤP!!! YÊU CẦU ĐỐI TƯỢNG {user} THANH TOÁN SỐ TIỀN {amount} ĐANG CÒN NỢ TẠI NGÂN HÀNG GUNTER. NẾU NGOAN CỐ KHÔNG TRẢ, CHÚNG TÔI SẼ TIẾN HÀNH BÔI NHỌ DANH DỰ TRÊN TOÀN BỘ CÁC TRANG MẠNG XÃ HỘI VÀ TREO BĂNG RÔN TRƯỚC CỬA NHÀ MÀY. DÙNG LỆNH `/loan repay` HOẶC CÀY `/work` RA TRẢ TIỀN GẤP!!!",
-                    "LỆNH TRUY NÃ CON NỢ!!! Ê {user}, MÀY ĐANG NỢ SỐ TIỀN {amount} MÀ ĐỊNH TRỐN À? CHÚNG TÔI ĐÃ NẮM TOÀN BỘ THÔNG TIN ĐỊA CHỈ, NƠI LÀM VIỆC CỦA MÀY VÀ NGƯỜI THÂN. LIỆU HỒN MÀ GOM TIỀN VÀO LỆNH `/loan repay` THANH TOÁN CHO XONG TRƯỚC KHI ĐÀN EM CỦA TAO XUỐNG TẬN NƠI LÀM VIỆC XỬ LÝ!!!",
-                    "THAY MẶT GIANG HỒ, TAO GỬI CẢNH BÁO TỚI {user}! SỐ NỢ {amount} CỦA MÀY ĐÃ QUÁ HẠN. HÃY RA TRẢ NỢ GẤP TRƯỚC KHI CHÚNG TÔI LIÊN HỆ CHO CHA MẸ, ĐỒNG NGHIỆP CỦA MÀY ĐỂ BÁO CÁO VỀ VIỆC MÀY ĂN BÁM LỪA ĐẢO. DÙNG `/loan repay` ĐỂ XỬ LÝ NỢ TRONG HÔM NAY!!!",
-                    "CÔNG TY ĐÒI NỢ THUÊ GUNTER THÔNG BÁO: ĐỐI TƯỢNG {user} VUI LÒNG HOÀN TRẢ SỐ TIỀN {amount} ĐÃ BỐC BÁT HỌ. ĐÂY LÀ LỜI CẢNH CÁO CUỐI CÙNG TRƯỚC KHI HÌNH ẢNH CỦA MÀY BỊ PHÁT TÁN LÊN CÁC TRANG PHIM NGƯỜI LỚN VÀ CÁC DIỄN ĐÀN CHỢ ĐEN. DÙNG LỆNH `/loan repay` NGAY ĐỂ BẢO TOÀN DANH DỰ!!!",
-                    "THÔNG BÁO TỚI CON NỢ {user}: Khoản nợ {amount} của mày đã bị đưa vào danh sách nợ xấu. Chúng tao đã gửi đơn tố cáo hành vi lạm dụng tín nhiệm chiếm đoạt tài sản. Liệu hồn mà vào gõ `/loan repay` trả nợ nếu không muốn bóc lịch!",
-                    "Mày định chơi lầy với anh em Gunter à {user}? Cầm {amount} tiêu xài rửng mỡ mà đéo biết đường trả. Đừng để tao phải lấy tiết mày giữa đêm. Khôn hồn thì cày `/work` trả nợ ngay lập tức, đừng để tao nói nhiều!",
-                    "ALO ALO, THẰNG CHÓ {user} NGHE RÕ TRẢ LỜI! Tiền vay {amount} để đó định đẻ lãi ra vàng à? Bọn tao làm ăn đàng hoàng chứ đéo phải quỹ từ thiện. Xì tiền ra qua lệnh `/loan repay` nhanh trước khi sập cửa nhà mày!",
-                    "Đây không phải lời đe dọa, đây là TỐI HẬU THƯ cho {user}! Khoản nợ {amount} đã quá giới hạn chịu đựng. Nếu hôm nay đéo thấy mày trả 1 đồng nào, tao sẽ spam tất cả server mày tham gia! Khôn hồn thì trả tiền đi!",
-                    "Mặt mũi sáng sủa mà đi bùng nợ {amount} à {user}? Bạn bè mày sẽ nghĩ gì khi thấy hình mày trên web đen với dòng chữ 'BỐC BÁT HỌ KHÔNG TRẢ'? Nhục lắm con ơi, lo mà dùng `/loan repay` cống nạp tiền trả họ đi!"
-                ];
-
-                const refMsgs = [
-                    "Kính gửi quý khách! Quý khách có một người bạn tuyệt vời tên là {user}. Nó đã bốc bát họ {amount} để ăn chơi trác táng và ghi tên quý khách vào hồ sơ bảo lãnh. Xin vui lòng liên hệ nó và bảo nó trả nợ ngay, nếu không chúng tôi sẽ liên tục nhắn tin làm phiền quý khách mỗi ngày đấy. Khuyên nó cày `/work` đi!",
-                    "Thông báo từ hệ thống ngân hàng Gunter: Chúc mừng bạn đã quay vào ô 'Có Thằng Bạn Bá Dơ'. Đối tượng {user} vay chúng tôi {amount} và lấy danh dự của bạn ra để thế chấp. Không biết danh dự bạn có đáng giá từng đó không? Tốt nhất là bạn nên vác loa sang nhà nó mở max volume réo tên nó đi `/loan repay` trả nợ đi nhé!",
-                    "Thật không thể tin nổi bạn lại đi chơi chung với loại người như {user}. Nó nợ chúng tôi {amount} và hồn nhiên cắm tên bạn làm người tham chiếu. Dĩ nhiên chúng tôi không đòi tiền bạn, nhưng chúng tôi sẽ dí bạn mỗi giờ mỗi ngày cho đến khi thằng khứa đó trả nợ. Hãy dùng tình bạn diệu kỳ của mình khuyên nó trả tiền đi!",
-                    "Bạn ơi, thằng ôn con {user} nó báo nhà báo cửa chưa đủ hay sao mà nó báo luôn cả bạn vậy? Khoản nợ {amount} của nó đang chình ình trong hệ thống của chúng tôi và tên bạn nằm ngay bên cạnh. Tốt nhất là bạn cầm chổi sang quất vào mông nó bắt nó trả tiền. Đời thuở nào đi làm tham chiếu cho con nợ ngập đầu?",
-                    "Tin buồn trong ngày: Bạn bỗng dưng trở thành 'kẻ bị làm phiền' của tín dụng đen chỉ vì thằng bạn {user}. Nó nợ {amount} và chúng tôi sẽ spam bạn liên tục. Nếu không muốn đau đầu nhức óc, hãy sang đấm nó một trận và bắt nó gõ `/loan repay` ngay lập tức! Thân ái và quyết thắng!",
-                    "Lại là chúng tôi đây! Thằng ôn {user} mà bạn tin tưởng làm người bảo lãnh vẫn đang nợ {amount}. Tình bạn của các bạn chắc bền lâu? Gọi điện chửi mắng nó giùm chúng tôi, ép nó `/loan repay` đi, nếu không mỗi giờ chúng tôi lại gửi cho bạn một tin nhắn yêu thương thế này đấy!",
-                    "Xin chào người bạn vàng của {user}! Chắc bạn không biết nó nợ chúng tôi {amount} đâu nhỉ? Nó để lại thông tin của bạn để chúng tôi 'chăm sóc' đấy. Hãy là một người bạn tốt, tát cho nó tỉnh ra và bắt nó gõ `/loan repay` trả nợ ngay đi!",
-                    "Bạn nghĩ sao về một người bạn như {user}? Ăn chơi bạt mạng mượn {amount} rồi lặn mất tăm, quăng lại tên bạn cho ngân hàng Gunter. Giúp chúng tôi đòi nợ nó bằng cách khủng bố tin nhắn nó nhé, bảo nó mau trả nợ bằng `/loan repay`!",
-                    "Thông báo tìm trẻ lạc: Thằng {user} đang ôm {amount} của chúng tôi bỏ trốn. Vì bạn là người tham chiếu, phiền bạn nhắn nó một câu: 'Chơi thì chịu, vay thì trả'. Bảo nó vào cày `/work` và trả nợ đi trước khi chúng tôi cắm trại trước nhà bạn!",
-                    "Trần đời ai lại đi bảo lãnh cho thằng khứa {user} vay {amount}? Bạn đúng là người tốt, nhưng tốt sai người rồi! Hãy trút giận lên đầu nó, bắt nó vào trả nợ bằng `/loan repay`. Đến khi nó trả xong, chúng tôi mới tha cho bạn!"
-                ];
+                // Bỏ mảng tĩnh, sử dụng data từ loanMessages.js
 
                 for (const user of debtors) {
                     let discordUser = null;
@@ -182,9 +159,10 @@ client.login(process.env.DISCORD_TOKEN)
                         userName = discordUser.username;
                     } catch (e) {}
 
-                    const randomMsg = dmMsgs[Math.floor(Math.random() * dmMsgs.length)]
-                        .replace('{user}', userName.toUpperCase())
-                        .replace('{amount}', user.loanAmount.toLocaleString() + ' 🪙');
+                    const randomMsg = borrowerMsgs[Math.floor(Math.random() * borrowerMsgs.length)]
+                        .replace(/{user}/g, userName.toUpperCase())
+                        .replace(/{debt}/g, user.loanAmount.toLocaleString())
+                        .replace(/{borrowed}/g, user.loanAmount.toLocaleString());
                     
                     let refMentions = '';
                     if (user.loanRefs && user.loanRefs.length > 0) {
@@ -226,9 +204,10 @@ client.login(process.env.DISCORD_TOKEN)
                             try {
                                 const refUser = await client.users.fetch(refId);
                                 if (refUser) {
-                                    const rMsg = refMsgs[Math.floor(Math.random() * refMsgs.length)]
-                                        .replace('{user}', userName)
-                                        .replace('{amount}', user.loanAmount.toLocaleString() + ' 🪙');
+                                    const rMsg = referrerMsgs[Math.floor(Math.random() * referrerMsgs.length)]
+                                        .replace(/{user}/g, userName)
+                                        .replace(/{debt}/g, user.loanAmount.toLocaleString())
+                                        .replace(/{borrowed}/g, user.loanAmount.toLocaleString());
                                     await refUser.send(`🔪 **GIANG HỒ LIÊN ĐỚI:**\n\n${rMsg}`);
                                 }
                             } catch(e) {}

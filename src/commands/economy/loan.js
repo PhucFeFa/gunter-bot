@@ -3,6 +3,7 @@ const { getUser, updateBalance, updateLoan, updateCreditScore, updateLoanDetails
 const { setUserRod } = require('../../utils/fishDB');
 const { jobs } = require('../../data/jobs');
 const { RODS } = require('../../data/fishData');
+const { borrowerMsgs, referrerMsgs } = require('../../data/loanMessages');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -53,6 +54,11 @@ module.exports = {
             // Vậy vay tối đa = maxSalary * (20 + creditScore).
             maxLoanLimit = jobs[user.job].maxSalary * (20 + creditScore);
             jobName = jobs[user.job].name;
+
+            // Tú Sena là chúa tể vay nợ, hạn mức vay gấp 5 lần người thường
+            if (user.job === 'tu_sena') {
+                maxLoanLimit *= 5;
+            }
         }
 
         if (subcommand === 'info') {
@@ -139,30 +145,7 @@ module.exports = {
 
             // Gửi tin nhắn riêng bốc bát họ
             try {
-                const dmTemplates = [
-                    "CẢNH BÁO ĐỐI TƯỢNG {user} đang có hành vi bốc bát họ của NHÀ CÁI GUNTER. Bọn tao đã nắm danh bạ, địa chỉ IP của mày. Khôn hồn thì cày cuốc mà trả nợ {debt} 🪙. Đừng để bọn tao lôi đầu giám đốc, người yêu cũ mày ra đòi nợ thay nhé thằng lỏi!",
-                    "Mặt cặc quái thái {user}! Đừng bao giờ nghĩ quỵt được nợ của anh em Gunter. Nợ {debt} 🪙 không tự mất đi, nó chỉ chuyển từ ví mày sang máu của mày. Bỏ ngay tư tưởng trốn nợ đi con trai, cày /work đi đéo nói nhiều!",
-                    "Giờ sao? Cầm {borrowed} 🪙 của bọn tao về xài cho sướng rồi định trốn à {user}? Đang có công ăn việc làm /work tử tế. Trả {debt} 🪙 nhanh, đừng để tao quậy nát cái server này tìm mày!",
-                    "Tử tế với mày mày đéo muốn đúng không {user}? Cơ hội cuối cùng trước khi cái bản mặt avatar của mày bị đăng lên mạng xã hội là thằng bốc bát họ đéo chịu trả. Nợ {debt} 🪙, lo mà cày trả đi con chó!",
-                    "{user}, mày đéo trả nợ {debt} 🪙 cho app Gunter Tín Dụng thì để bọn tao lôi đầu từng thằng đệ mày ra trả thay. Đăng tải mặt mày lên cờ bạc mạng. Có mấy đồng bạc lẻ mà trốn chui trốn nhủi như con chó rách!",
-                    "THÔNG BÁO TÌM CHÓ LẠC: Tên {user}, vừa cạp {borrowed} 🪙 của ngân hàng Gunter. Nợ tổng {debt} 🪙. Ai thấy thằng này ở đâu xin báo ngay cho giang hồ Gunter để tới cắt gân nó. Cảm ơn hậu tạ!",
-                    "Mày tưởng mày vay xong là ấm à {user}? Hệ thống đã kích hoạt chế độ dí nợ tự động. Mỗi lần mày đi làm là tao siết cổ 35% lương. Nợ {debt} 🪙, trốn đi đâu cho thoát, hả con?",
-                    "Hồ sơ bốc bát họ của mày đã được chuyển qua bộ phận Xử Lý Nợ Xấu Cấp Độ Đỏ. Mày nợ {debt} 🪙. Bọn tao đã gửi giang hồ xăm trổ đứng rình sẵn ngoài cửa mỗi khi mày gõ /work. Liệu hồn!",
-                    "Alo {user}? Anh em tao ở Gunter Finance đã duyệt giải ngân {borrowed} 🪙 cho mày. Lãi cắt cổ, nợ tổng {debt} 🪙. Nhớ làm lụng chăm chỉ, không trả nợ là tao bắt mày đi nhặt rác cả đời đấy con ạ!",
-                    "Đừng như con nít lên ba {user}! Lớn rồi, có vay có trả. Gói họ {debt} 🪙 của mày đã chính thức có hiệu lực. Nửa đêm ngủ cẩn thận, tao tới đòi nợ lúc nào đéo biết đâu.",
-                    "[THÔNG BÁO TỪ CÔNG TY TÀI CHÍNH GUNTER] 📢\nCẢNH BÁO ĐỐI TƯỢNG {user} đang có hành vi bốc bát họ của hệ thống tín dụng đen Gunter. Bọn tao đã trích xuất danh bạ, địa chỉ IP và lịch sử duyệt web của mày! Khôn hồn thì cày cuốc mà trả nợ {debt} 🪙 ngay hôm nay. Đừng để bọn tao lôi đầu giám đốc, đồng nghiệp và người yêu cũ mày ra đòi nợ thay nhé thằng lỏi! Đã vay là phải trả!",
-                    "VÔ LÊ {user}! Đừng bao giờ nghĩ quỵt được nợ của anh em Gunter. Nợ {debt} 🪙 không tự mất đi, nó chỉ chuyển từ ví mày sang máu của mày. Bỏ ngay tư tưởng trốn nợ đi con trai, tao đã phái 5 anh em xăm trổ đứng chờ ở server rồi, cày /work đi đéo nói nhiều! Mỗi giây mày thở là tiền lãi đang tăng lên đấy!",
-                    "Giờ sao? Cầm {borrowed} 🪙 của bọn tao về xài cho sướng, bú rượu ôm gái rồi định trốn à {user}? Hệ thống ghi nhận mày đang có công ăn việc làm tử tế. Lệnh siết nợ tự động đã kích hoạt! Trả ngay {debt} 🪙 nhanh gọn lẹ, đừng để tao quậy nát cái server này tìm mày! Đến lúc đó thì đừng trách tại sao nước biển lại mặn!",
-                    "Tử tế với mày mày đéo muốn đúng không {user}? Đây là CƠ HỘI CUỐI CÙNG trước khi cái bản mặt avatar của mày bị in lên tờ rơi dán khắp các cột điện và đăng lên các hội nhóm cờ bạc mạng. Tội danh: Bùng họ, lừa đảo chiếm đoạt {debt} 🪙. Lo mà gõ lệnh đi cày trả đi con chó, đừng để giọt nước tràn ly!",
-                    "THÔNG BÁO KHẨN CẤP ĐẾN KẺ LỪA ĐẢO {user}: Mày đéo trả nợ {debt} 🪙 cho app Gunter Tín Dụng thì để bọn tao lôi đầu từng thằng đệ, từng người tham chiếu của mày ra chửi rủa cho chúng nó trả thay. Có mấy đồng bạc lẻ {borrowed} 🪙 mà trốn chui trốn nhủi như con gián! Hèn vãi lồn!",
-                    "THÔNG BÁO TÌM TRẺ LẠC (KÈM LỆNH TRUY NÃ): Tên tội phạm {user}, vừa cạp {borrowed} 🪙 của ngân hàng Gunter. Nợ tổng cộng lên tới {debt} 🪙. Ai thấy thằng bá dơ này ở đâu xin báo ngay cho đường dây nóng của giang hồ Gunter để tới tận nơi cắt gân nó. Phần thưởng hậu hĩnh cho ai giao nộp thằng trốn nợ này!",
-                    "Mày tưởng mày vay xong là ấm êm ngủ ngon à {user}? Hệ thống đã kích hoạt chế độ dí nợ tự động chạy bằng AI. Mỗi lần mày đi làm là tao siết cổ 35% lương, đéo trượt phát nào. Số nợ {debt} 🪙 của mày đã được ghi vào sổ Nam Tào, trốn đi đâu cho thoát hả con? Xuống âm phủ tao cũng theo đòi!",
-                    "HỒ SƠ BỐC BÁT HỌ của mày đã được chuyển qua bộ phận Xử Lý Nợ Xấu Cấp Độ Đỏ (FE Gunter). Tổng dư nợ: {debt} 🪙. Bọn tao đã gửi 2 thằng giang hồ cầm mã tấu đứng rình sẵn ngoài cửa mỗi khi mày gõ lệnh /work. Liệu hồn mà cư xử cho giống một con người có trách nhiệm đi!",
-                    "Alo {user}? Giọng mày nghe quen lắm! Phải {user} không em? Em đừng có chối, bọn anh đã duyệt giải ngân thành công {borrowed} 🪙 cho mày gỡ gạc. Nhắc nhẹ: Lãi suất của tao là lãi cắt cổ, nợ tổng {debt} 🪙. Nhớ làm lụng chăm chỉ, không trả nợ là tao bắt mày đi nhặt rác cả đời đấy con ạ! Có vay có trả, không trả tao đánh cho má nhận không ra!",
-                    "Đừng hành xử như con nít lên ba nữa {user}! Lớn rồi, có chơi có chịu, có vay có trả. Gói họ {debt} 🪙 của mày đã chính thức có hiệu lực trên toàn cõi server. Nửa đêm đi ngủ cẩn thận đóng chặt cửa sổ vào, tao tới đòi nợ lúc nào đéo biết đâu. Nhớ đấy!"
-                ];
-
-                const randomDm = dmTemplates[Math.floor(Math.random() * dmTemplates.length)]
+                const randomDm = borrowerMsgs[Math.floor(Math.random() * borrowerMsgs.length)]
                     .replace(/{user}/g, interaction.user.username)
                     .replace(/{borrowed}/g, borrowAmount.toLocaleString())
                     .replace(/{debt}/g, totalDebt.toLocaleString());
@@ -174,22 +157,10 @@ module.exports = {
 
             // Gửi tin nhắn mỉa mai người tham chiếu ngay lập tức
             try {
-                const initialRefMsgs = [
-                    "Ê thằng đầu nợn, thằng {user} bạn chí cốt của mày đi vay tiền ngân hàng Gunter {borrowed} 🪙 mà nó dám ghi tên mày làm người bảo lãnh kìa! Ráng mà giữ liên lạc với nó, nó mà trốn nợ {debt} 🪙 thì mày cũng đéo yên đâu nhé!",
-                    "Chúc mừng! Mày vừa được bổ nhiệm làm 'Người Bảo Lãnh Bất Đắc Dĩ' cho khoản nợ {debt} 🪙 của thằng {user}. Khuyên nó lo cày `/work` trả nợ đi trước khi giang hồ tìm đến nhà mày!",
-                    "Thằng {user} óc cứt vừa bốc bát họ {borrowed} 🪙 và lấy mày ra làm bia đỡ đạn. Nếu nó không trả nợ {debt} 🪙, mày chuẩn bị tinh thần bị spam tin nhắn mỗi ngày đi nhé!",
-                    "Alo cu em ơi ơi, có thằng bá dơ tên {user} vừa ghi cu em vào danh sách liên đới nợ nần rồi. Nó đang nợ {debt} 🪙. Đi hối nó trả nợ ngay đi kẻo mang họa vào thân!",
-                    "Ê thằng lồn, nãy thằng bạn đầu cặc súc sinh {user} của mày đi vay tiền ngân hàng Gunter {borrowed} 🪙 mà nó dám ghi tên mày làm người bảo lãnh kìa! Ráng mà giữ liên lạc với nó, nó mà bùng họ {debt} 🪙 thì mày cũng đéo yên đâu nhé! Bọn tao tìm không được nó thì tao lôi đầu mày ra trả thay!",
-                    "Chúc mừng! Mày vừa được bổ nhiệm làm 'Người Bảo Lãnh Bất Đắc Dĩ' cho khoản nợ xấu {debt} 🪙 của thằng {user}. Khuyên nó lo cày `/work` trả nợ đi trước khi giang hồ tìm đến nhà mày! Nó mà chặn số thì bọn tao tự động trừ tiền của mày đấy!",
-                    "CẢNH BÁO: Thằng bá dơ {user} vừa bốc bát họ {borrowed} 🪙 và lấy mày ra làm bia đỡ đạn. Nếu nó không trả số nợ {debt} 🪙, mày chuẩn bị tinh thần bị spam tin nhắn mỗi ngày đi nhé! Khôn hồn thì hối thúc nó cày tiền đi!",
-                    "Alo thằng lồn ơi, có thằng cờ bạc tên {user} vừa ghi mày vào danh sách liên đới nợ nần rồi. Nó đang ôm khoản nợ {debt} 🪙. Đi hối nó trả nợ ngay lập tức kẻo mang họa vào thân! Đừng để bọn tao phải mang mắm tôm tới server của mày!",
-                    "THÔNG BÁO TỪ ĐỘI ĐÒI NỢ GUNTER: Xin chào người tham chiếu, chúng tôi nhận thấy hồ sơ bốc họ của {user} có tên mày. Số nợ hiện tại: {debt} 🪙. Yêu cầu mày hợp tác nhắc nhở người thân trả nợ đúng hạn. Đừng để tình anh em sứt mẻ chỉ vì mấy đồng bạc lẻ này!"
-                ];
-
                 for (const r of [ref1, ref2]) {
                     if (r) {
                         try {
-                            const rMsg = initialRefMsgs[Math.floor(Math.random() * initialRefMsgs.length)]
+                            const rMsg = referrerMsgs[Math.floor(Math.random() * referrerMsgs.length)]
                                 .replace(/{user}/g, interaction.user.username)
                                 .replace(/{borrowed}/g, borrowAmount.toLocaleString())
                                 .replace(/{debt}/g, totalDebt.toLocaleString());

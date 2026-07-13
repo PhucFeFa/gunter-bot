@@ -52,7 +52,16 @@ module.exports = {
         let debtPaid = 0;
         let loanInfo = '';
 
-        if (user.loanAmount && user.loanAmount > 0) {
+        let isEvadingDebt = false;
+        if (job === 'tu_sena' && user.loanAmount && user.loanAmount > 0) {
+            // Tú Sena có 40% cơ hội né nợ khi đi làm
+            if (Math.random() < 0.4) {
+                isEvadingDebt = true;
+                loanInfo = `\n\n🏃‍♂️ **NÉ NỢ THÀNH CÔNG:** Chủ nợ đến tìm nhưng bạn lủi nhanh như chớp! Lương hôm nay còn nguyên! Còn nợ: ${user.loanAmount.toLocaleString()} 🪙.`;
+            }
+        }
+
+        if (user.loanAmount && user.loanAmount > 0 && !isEvadingDebt) {
             // Trừ 35% lương để trả nợ
             const maxDeduct = Math.floor(originalSalary * 0.35);
             debtPaid = Math.min(maxDeduct, user.loanAmount);
@@ -92,10 +101,16 @@ module.exports = {
                 specialInfo = `\n\n🚨 **CẢNH SÁT ẬP VÀO!**\nBị bế lên đồn vì tội tổ chức đánh bạc, nộp phạt **${penaltyAmount.toLocaleString()} 🪙**!`;
             }
         } else if (currentJob.id === 'jack') {
-            // 25% bị thu tiền nuôi con (cố định 5 củ)
-            if (Math.random() < 0.25) {
+            const randJack = Math.random();
+            if (randJack < 0.25) {
+                // 25% bị thu tiền nuôi con (cố định 5 củ)
                 penaltyAmount = 5000000;
                 specialInfo = `\n\n🍼 **TING TING!**\nĐến tháng chu cấp cho Thiên Ân, tự động trừ **5,000,000 🪙** tiền nuôi con! Trách nhiệm của 1 người cha!`;
+            } else if (randJack < 0.55) {
+                // 30% bị anti-fan dí, view tăng đột biến
+                rewardAmount = Math.floor(Math.random() * 5000000) + 3000000; // Nhận thêm 3-8 triệu
+                salary += rewardAmount;
+                specialInfo = `\n\n🏃‍♂️ **BỊ ANTI-FAN DÍ!**\nBạn bị Đóm con và anti-fan bủa vây, view MV tăng đột biến! Nhận thêm **${rewardAmount.toLocaleString()} 🪙**! Âm nhạc của tôi là không thể cản bước!`;
             }
         } else if (currentJob.id === 'o_i_i') {
             const randOii = Math.random();
@@ -113,6 +128,61 @@ module.exports = {
                     addedDebt = thieu;
                     specialInfo += `\nTiền trong người đéo đủ? Ngân hàng đã tự động ép bạn vay **${addedDebt.toLocaleString()} 🪙** để làm từ thiện! Uy tín làm đầu!`;
                 }
+            }
+        } else if (currentJob.id === 'ba_phuong_hang') {
+            if (Math.random() < 0.3) { // 30% dính án
+                penaltyAmount = Math.floor(Math.random() * 5000000) + 5000000; // 5-10 triệu
+                if (user.balance < penaltyAmount) penaltyAmount = user.balance;
+                salary = 0; // Mất cả lương
+                specialInfo = `\n\n🚔 **LỆNH BẮT TẠM GIAM!**\nLivestream chửi bới quá lố, bạn bị bế đi vì tội lợi dụng quyền tự do dân chủ! Nộp phạt **${penaltyAmount.toLocaleString()} 🪙** và đi tù!`;
+            }
+        } else if (currentJob.id === 'thay_ong_noi') {
+            const randThay = Math.random();
+            if (randThay < 0.25) { // 25% thử ADN
+                penaltyAmount = Math.floor(Math.random() * 3000000) + 2000000; // 2-5 triệu
+                if (user.balance < penaltyAmount) penaltyAmount = user.balance;
+                salary = 0;
+                specialInfo = `\n\n🧬 **ĐOÀN KIỂM TRA ĐỘT XUẤT!**\nChính quyền ập vào lấy mẫu ADN, tịnh thất bị niêm phong, bạn bị phạt **${penaltyAmount.toLocaleString()} 🪙**!`;
+            } else if (randThay < 0.55) { // 30% mạnh thường quân bơm tiền
+                rewardAmount = Math.floor(Math.random() * 10000000) + 10000000; // 10-20 triệu
+                salary += rewardAmount;
+                specialInfo = `\n\n💸 **MẠNH THƯỜNG QUÂN HẢO TÂM!**\nCộng đồng mạng hải ngoại gửi tiền "cứu trợ" tận **${rewardAmount.toLocaleString()} 🪙**! Nam mô a di đà phật!`;
+            }
+        } else if (currentJob.id === 'bac_vuong') {
+            const randVuong = Math.random();
+            if (randVuong < 0.2) { // 20% lỗ xe điện
+                penaltyAmount = Math.floor(Math.random() * 20000000) + 10000000; // Phạt 10-30m
+                if (user.balance < penaltyAmount) penaltyAmount = user.balance;
+                salary = 0;
+                specialInfo = `\n\n📉 **BÁO CÁO TÀI CHÍNH!**\nMảng xe điện Vin... à nhầm GunterFast báo lỗ quý này, bốc hơi **${penaltyAmount.toLocaleString()} 🪙**! Hãy vững tin vào công nghệ lõi!`;
+            } else if (randVuong < 0.5) { // 30% chốt đơn Ocean Park
+                rewardAmount = Math.floor(Math.random() * 30000000) + 20000000; // Thưởng 20-50m
+                salary += rewardAmount;
+                specialInfo = `\n\n🏙️ **PHÂN KHU CHÁY HÀNG!**\nChốt thành công 10 căn biệt thự Gunter Park, tiền hoa hồng chảy về **${rewardAmount.toLocaleString()} 🪙**! Đẳng cấp tinh hoa!`;
+            }
+        } else if (currentJob.id === 'elon_musk') {
+            const randElon = Math.random();
+            if (randElon < 0.2) { // 20% tên lửa nổ
+                penaltyAmount = Math.floor(Math.random() * 30000000) + 20000000; // Phạt 20-50m
+                if (user.balance < penaltyAmount) penaltyAmount = user.balance;
+                salary = 0;
+                specialInfo = `\n\n🚀💥 **BÙM!**\nTên lửa Starship nổ tung khi vừa rời bệ phóng, cổ phiếu cắm đầu, bạn mất trắng **${penaltyAmount.toLocaleString()} 🪙**! Đó là một "bước tiến học hỏi"!`;
+            } else if (randElon < 0.5) { // 30% Doge pump
+                rewardAmount = Math.floor(Math.random() * 50000000) + 30000000; // Thưởng 30-80m
+                salary += rewardAmount;
+                specialInfo = `\n\n🐕 **DOGE TO THE MOON!**\nChỉ với một chiếc Tweet nhảm nhí, Dogecoin dựng cột, bạn chốt lời **${rewardAmount.toLocaleString()} 🪙**! Easy money!`;
+            }
+        } else if (currentJob.id === 'mark_zuckerberg') {
+            const randMark = Math.random();
+            if (randMark < 0.2) { // 20% EU phạt
+                penaltyAmount = Math.floor(Math.random() * 25000000) + 15000000; // Phạt 15-40m
+                if (user.balance < penaltyAmount) penaltyAmount = user.balance;
+                salary = 0;
+                specialInfo = `\n\n⚖️ **LIÊN MINH CHÂU ÂU SỜ GÁY!**\nBị phạt vì bán dữ liệu người dùng trái phép, bay mất **${penaltyAmount.toLocaleString()} 🪙**! Hãy cẩn thận với người thằn lằn!`;
+            } else if (randMark < 0.5) { // 30% Metaverse hype
+                rewardAmount = Math.floor(Math.random() * 40000000) + 20000000; // Thưởng 20-60m
+                salary += rewardAmount;
+                specialInfo = `\n\n🥽 **METAVERSE BÙNG NỔ!**\nBán thành công lô đất ảo và skin VR, thu về **${rewardAmount.toLocaleString()} 🪙**! Thực tại là dối trá, ảo mới là chân lý!`;
             }
         }
 

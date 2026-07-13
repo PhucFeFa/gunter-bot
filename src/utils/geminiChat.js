@@ -70,12 +70,23 @@ const MODELS = [
 ];
 let currentModelIndex = 0;
 
-// Lưu trữ lịch sử chat (Mảng thô) của từng người dùng để giữ ngữ cảnh
+// Lưu trữ lịch sử chat của từng người dùng để giữ ngữ cảnh
+// ANTI MEMORY LEAK: Giới hạn tối đa 50 user, mỗi user tối đa 20 lượt hội thoại
 const chatHistory = new Map();
+const MAX_HISTORY_USERS = 50;    // Tối đa bao nhiêu người được lưu cùng lúc
+const MAX_HISTORY_TURNS = 20;    // Tối đa bao nhiêu cặp Q&A mỗi người
 
 // Chống spam: Lưu trạng thái đang xử lý và thời gian cooldown
 const userLocks = new Set();
 const userCooldowns = new Map();
+
+// Tự động dọn dẹp userCooldowns mỗi 10 phút để giải phóng RAM
+setInterval(() => {
+    const now = Date.now();
+    for (const [uid, ts] of userCooldowns.entries()) {
+        if (now - ts > 10 * 60 * 1000) userCooldowns.delete(uid);
+    }
+}, 10 * 60 * 1000);
 
 async function handleGeminiChat(message, client) {
     const userId = message.author.id;
@@ -171,7 +182,18 @@ async function handleGeminiChat(message, client) {
 
                     // Lưu lại lịch sử mới nhất
                     userHistory = await chatSession.getHistory();
+
+                    // ANTI MEMORY LEAK: Chỉ giữ tối đa MAX_HISTORY_TURNS cặp gần nhất
+                    if (userHistory.length > MAX_HISTORY_TURNS * 2) {
+                        userHistory = userHistory.slice(-MAX_HISTORY_TURNS * 2);
+                    }
                     chatHistory.set(userId, userHistory);
+
+                    // ANTI MEMORY LEAK: Nếu cache quá nhiều user, xóa user cũ nhất
+                    if (chatHistory.size > MAX_HISTORY_USERS) {
+                        const firstKey = chatHistory.keys().next().value;
+                        chatHistory.delete(firstKey);
+                    }
 
                     if (currentModelIndex !== i) {
                         currentModelIndex = i;

@@ -48,8 +48,8 @@ module.exports = {
                     const guild = client.guilds.cache.get(guildId);
                     if (!guild) return;
 
-                    // Tải lại bộ đếm member của Discord
-                    await guild.members.fetch();
+                    // Lấy số member từ guild.memberCount trực tiếp (KHÔNG fetch toàn bộ vào RAM)
+                    // guild.members.fetch() đã bị XÓA vì nó gây RAM leak nghiêm trọng
 
                     // Cập nhật tổng thành viên (Cả người và bot)
                     if (stats.all_members_id) {

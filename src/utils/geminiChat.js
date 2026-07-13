@@ -272,13 +272,15 @@ async function handleGeminiChat(message, client) {
         // ────────────────────────────────────────────────────────
         // XỬ LÝ QUYỀN LỰC - HỆ THỐNG KINH TẾ (ACTION PARSING)
         // ────────────────────────────────────────────────────────
-        const actionRegex = /\[ACTION:\s*(STEAL|DEBT|STEAL_FISH|RENAME|REWARD|FORGIVE|LEARN),\s*(?:ID|DATA):\s*([0-9]+|.+?)(?:,\s*AMOUNT:\s*(\d+))?(?:,\s*NICKNAME:\s*(.+?))?(?:,\s*REASON:\s*(.+?))?\]/i;
+        const actionRegex = /\[ACTION:\s*(STEAL|DEBT|STEAL_FISH|RENAME|REWARD|FORGIVE|LEARN),\s*(?:ID|DATA):\s*([0-9]+|.+?)(?:,\s*AMOUNT:\s*([^,\]]+))?(?:,\s*NICKNAME:\s*([^,\]]+))?(?:,\s*REASON:\s*(.+?))?\]/i;
         const match = response.match(actionRegex);
 
         if (match) {
             const action = match[1].toUpperCase();
             const targetData = match[2].trim();
-            const actionAmount = match[3] ? Math.abs(parseInt(match[3], 10)) : 0;
+            let actionAmount = match[3] ? Math.abs(parseInt(match[3].trim().replace(/\D/g, ''), 10)) : 0;
+            if (isNaN(actionAmount) || actionAmount === 0) actionAmount = 5000; // Mặc định 5000 nếu Gemini trả về linh tinh (như NaN)
+            
             const actionNickname = match[4] ? match[4].trim().substring(0, 20) : 'Khứa Lấc Cấc 🐧';
             const actionReason = match[5] ? match[5].trim() : 'Bố mày ngứa mắt thì phạt 🐧';
 

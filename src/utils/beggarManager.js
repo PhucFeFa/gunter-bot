@@ -63,7 +63,7 @@ async function startBegging(channel, excludeUserId = null) {
     // Start Begging
     channelCooldowns.set(channelId, now);
 
-    const begAmount = Math.floor(Math.random() * 1500000) + 500000; // 500k to 2tr
+    const begAmount = Math.floor(Math.random() * 22000000) + 3000000; // 3tr đến 25tr
 
     const embed = new EmbedBuilder()
         .setColor(0x000000)

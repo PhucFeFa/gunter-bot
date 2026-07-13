@@ -1,17 +1,9 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { updateBalance, setJob, getUser } = require('../../utils/economyDB');
 const { setUserRod } = require('../../utils/fishDB');
+const { RODS } = require('../../data/fishData');
 
 const ADMIN_ID = '586904255860965386';
-
-// Ánh xạ độ bền cần câu mặc định theo Rod ID
-const ROD_DURABILITY = {
-    1: 15, // Tre
-    2: 20, // Sắt
-    3: 30, // Carbon
-    4: 50, // Vàng
-    5: 100 // Kim cương
-};
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -133,10 +125,11 @@ module.exports = {
             }
             else if (type === 'rod' || type === 'cancau') {
                 const rodId = parseInt(value);
-                if (isNaN(rodId) || rodId < 1 || rodId > 5) return loadingMsg.edit('❌ ID Cần câu phải từ 1 đến 5!');
-                const durability = ROD_DURABILITY[rodId] || 15;
+                const rodData = RODS.find(r => r.id === rodId);
+                if (isNaN(rodId) || !rodData) return loadingMsg.edit('❌ ID Cần câu không tồn tại!');
+                const durability = rodData.maxDurability || 15;
                 await setUserRod(targetUser.id, rodId, durability);
-                desc += `🎣 **Cần câu mới:** Cấp \`${rodId}\` (Độ bền: ${durability})\n`;
+                desc += `🎣 **Cần câu mới:** ${rodData.name} ${rodData.emoji} (Độ bền: ${durability})\n`;
             } 
             else {
                 return loadingMsg.edit('❌ Loại tài sản không hợp lệ! Hãy dùng: `money`, `job`, `rod`.');

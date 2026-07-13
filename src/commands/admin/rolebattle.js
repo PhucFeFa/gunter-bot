@@ -207,7 +207,7 @@ module.exports = {
 
                 } else if (i.customId === 'defend') {
                     attacker.isDefending = true;
-                    const heal = Math.floor(attacker.maxHp * 0.05); // Heal 5%
+                    const heal = Math.floor(attacker.maxHp * 0.02); // Heal 2%
                     attacker.hp = Math.min(attacker.maxHp, attacker.hp + heal);
                     battleLog = `🛡️ **${attacker.user.username}** chọn phòng thủ!\n💚 Hồi phục **${heal.toLocaleString()}** HP và giảm sát thương lượt tới!\n`;
                 }

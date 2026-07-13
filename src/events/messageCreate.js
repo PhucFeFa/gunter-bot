@@ -16,6 +16,7 @@ const { handleGeminiChat } = require('../utils/geminiChat');
 const { getResponses } = require('../utils/autoResponderDB');
 const liveGameManager = require('../utils/liveGameManager');
 const beggarManager = require('../utils/beggarManager');
+const antiSpamManager = require('../utils/antiSpamManager');
 
 const autoResponderCooldowns = new Map();
 
@@ -39,6 +40,10 @@ module.exports = {
 
         // BẢO MẬT: Chỉ hoạt động trên 1 server duy nhất
         if (message.guild.id !== process.env.DISCORD_GUILD_ID) return;
+
+        // --- ANTI SPAM ---
+        const isSpam = await antiSpamManager.handleMessage(message);
+        if (isSpam) return; // Dừng nếu đã bắt quả tang spam
 
         // --- THEO DÕI THỐNG KÊ NHẮN TIN ---
         const { checkCooldown } = require('../utils/cooldown');

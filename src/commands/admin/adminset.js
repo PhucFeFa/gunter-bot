@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { updateBalance, setJob } = require('../../utils/economyDB');
+const { updateBalance, setJob, getUser } = require('../../utils/economyDB');
 const { setUserRod } = require('../../utils/fishDB');
 
 const ADMIN_ID = '586904255860965386';
@@ -38,7 +38,10 @@ module.exports = {
             return interaction.editReply('❌ Đấng phải nhập ít nhất 1 thứ để ban phát (money, job, rod)!');
         }
 
-        let desc = `👑 **Đấng <@${ADMIN_ID}>** vừa ban phát hồng ân cho **${target.username}**:\n\n`;
+        // Đảm bảo user có trong DB trước khi UPDATE
+        await getUser(target.id);
+
+        let desc = `👑 **Đấng Tạo Hóa** vừa ban phát hồng ân cho **${target.username}**:\n\n`;
 
         try {
             if (addMoney) {
@@ -46,8 +49,14 @@ module.exports = {
                 desc += `💰 **Tiền bạc:** +${addMoney.toLocaleString()} 🪙\n`;
             }
             if (setJobId) {
-                await setJob(target.id, setJobId);
-                desc += `💼 **Nghề nghiệp mới:** \`${setJobId}\`\n`;
+                let actualJobId = setJobId;
+                if (['none', 'null', 'thatnghiep', 'thất nghiệp'].includes(setJobId.toLowerCase())) {
+                    actualJobId = null;
+                    desc += `💼 **Nghề nghiệp mới:** \`Thất nghiệp\`\n`;
+                } else {
+                    desc += `💼 **Nghề nghiệp mới:** \`${setJobId}\`\n`;
+                }
+                await setJob(target.id, actualJobId);
             }
             if (setRodId) {
                 const rodId = Math.max(1, Math.min(5, setRodId)); // Đảm bảo rod từ 1 đến 5
@@ -93,8 +102,11 @@ module.exports = {
 
         const loadingMsg = await message.reply('⏳ Đang truyền tống tài sản...');
 
+        // Đảm bảo user có trong DB
+        await getUser(targetUser.id);
+
         try {
-            let desc = `👑 **Đấng <@${ADMIN_ID}>** vừa ban phát hồng ân cho **${targetUser.username}**:\n\n`;
+            let desc = `👑 **Đấng Tạo Hóa** vừa ban phát hồng ân cho **${targetUser.username}**:\n\n`;
 
             if (type === 'money' || type === 'tien') {
                 const addMoney = parseInt(value);
@@ -103,8 +115,14 @@ module.exports = {
                 desc += `💰 **Tiền bạc:** +${addMoney.toLocaleString()} 🪙\n`;
             } 
             else if (type === 'job' || type === 'nghe') {
-                await setJob(targetUser.id, value);
-                desc += `💼 **Nghề nghiệp mới:** \`${value}\`\n`;
+                let actualJobId = value;
+                if (['none', 'null', 'thatnghiep', 'thất nghiệp'].includes(value.toLowerCase())) {
+                    actualJobId = null;
+                    desc += `💼 **Nghề nghiệp mới:** \`Thất nghiệp\`\n`;
+                } else {
+                    desc += `💼 **Nghề nghiệp mới:** \`${value}\`\n`;
+                }
+                await setJob(targetUser.id, actualJobId);
             }
             else if (type === 'rod' || type === 'cancau') {
                 const rodId = parseInt(value);

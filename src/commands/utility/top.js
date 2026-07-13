@@ -5,7 +5,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('top')
         .setDescription('🏆 Bảng xếp hạng Server')
-        .addStringOption(option => 
+        .addStringOption(option =>
             option.setName('category')
                 .setDescription('Chọn bảng xếp hạng muốn xem')
                 .setRequired(true)
@@ -17,14 +17,14 @@ module.exports = {
                     { name: '📉 Top Chúa Chổm (Nợ)', value: 'loanAmount' }
                 )
         ),
-        
+
     async execute(interaction) {
         await interaction.deferReply();
-        
+
         const category = interaction.options.getString('category');
         await this.handleTop(interaction, category);
     },
-    
+
     // Hỗ trợ dùng g!top
     async executePrefix(message, args) {
         const catMap = {
@@ -34,7 +34,7 @@ module.exports = {
             'role': 'role_wealth', 'giatoc': 'role_wealth', 'bang': 'role_wealth',
             'no': 'loanAmount', 'debt': 'loanAmount', 'chuachom': 'loanAmount'
         };
-        
+
         const input = args[0] ? args[0].toLowerCase() : null;
         const category = catMap[input] || 'balance'; // Mặc định là đại gia
 
@@ -43,7 +43,7 @@ module.exports = {
             guild: message.guild,
             deferReply: async () => await message.channel.sendTyping(),
             editReply: async (options) => await message.reply(options),
-            fetchReply: async () => {} // Will be overridden
+            fetchReply: async () => { } // Will be overridden
         };
 
         const msg = await message.reply('⏳ Đang lấy dữ liệu bảng xếp hạng...');
@@ -55,12 +55,12 @@ module.exports = {
 
     async handleTop(interaction, category) {
         let topUsers = [];
-        
+
         if (category === 'role_wealth') {
             // Lấy tất cả user có tiền (tối đa 5000 người để tránh lag)
             const allUsers = await getTopUsers('balance', 5000);
             const roleWealth = new Map();
-            
+
             // Fetch tất cả thành viên trong server
             try {
                 await interaction.guild.members.fetch();
@@ -75,7 +75,7 @@ module.exports = {
                 member.roles.cache.forEach(role => {
                     // Bỏ qua vai trò @everyone và các vai trò của bot (managed)
                     if (role.name === '@everyone' || role.managed) return;
-                    
+
                     const current = roleWealth.get(role.id) || 0;
                     roleWealth.set(role.id, current + (user.balance || 0));
                 });
@@ -90,7 +90,7 @@ module.exports = {
             // Lấy tối đa 50 người để phân trang (Mỗi trang 10 người)
             topUsers = await getTopUsers(category, 50);
         }
-        
+
         if (!topUsers || topUsers.length === 0) {
             return interaction.editReply({ content: '❌ Chưa có dữ liệu bảng xếp hạng này!', embeds: [] });
         }
@@ -119,7 +119,7 @@ module.exports = {
                     const rankStr = globalRank < 10 ? medals[globalRank] : `**#${globalRank + 1}**`;
                     description += `${rankStr} <@${u.userId}>: **${(u.msg_count || 0).toLocaleString()}** tin nhắn\n`;
                 });
-            } 
+            }
             else if (category === 'voice_time') {
                 embed.setTitle('🏆 Bảng Xếp Hạng: Chúa Tể Phòng Kín (Top Voice)');
                 pageUsers.forEach((u, i) => {
@@ -130,12 +130,12 @@ module.exports = {
                     if (hours > 0) timeStr += `${hours} giờ `;
                     timeStr += `${mins} phút`;
                     if (totalMinutes === 0) timeStr = 'Chưa đầy 1 phút';
-                    
+
                     const globalRank = startIdx + i;
                     const rankStr = globalRank < 10 ? medals[globalRank] : `**#${globalRank + 1}**`;
                     description += `${rankStr} <@${u.userId}>: **${timeStr}**\n`;
                 });
-            } 
+            }
             else if (category === 'balance') {
                 embed.setTitle('🏆 Bảng Xếp Hạng: Giới Tinh Hoa (Top Đại Gia)');
                 pageUsers.forEach((u, i) => {
@@ -197,9 +197,9 @@ module.exports = {
         const messageObj = interaction.fetchReply ? await interaction.fetchReply() : replyMessage;
         if (!messageObj) return;
 
-        const collector = messageObj.createMessageComponentCollector({ 
-            componentType: ComponentType.Button, 
-            time: 5 * 60 * 1000 
+        const collector = messageObj.createMessageComponentCollector({
+            componentType: ComponentType.Button,
+            time: 5 * 60 * 1000
         });
 
         collector.on('collect', async (i) => {
@@ -217,7 +217,7 @@ module.exports = {
         });
 
         collector.on('end', async () => {
-            try { await messageObj.edit({ components: [] }); } catch (e) {}
+            try { await messageObj.edit({ components: [] }); } catch (e) { }
         });
     }
 };

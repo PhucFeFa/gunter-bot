@@ -88,9 +88,16 @@ module.exports = {
             return message.reply('❌ Cú pháp sai! Cách dùng chuẩn:\n`g!adminset @user money 1000`\n`g!adminset @user job <tên_nghề>`\n`g!adminset @user rod <1-5>`');
         }
 
-        const targetUser = message.mentions.users.first();
+        let targetUser = message.mentions.users.first();
         if (!targetUser) {
-            return message.reply('❌ Đấng quên tag người nhận rồi!');
+            const targetId = args[0].replace(/\D/g, '');
+            if (targetId) {
+                targetUser = await client.users.fetch(targetId).catch(() => null);
+            }
+        }
+
+        if (!targetUser) {
+            return message.reply('❌ Đấng quên tag người nhận hoặc ID không hợp lệ rồi!');
         }
 
         const type = args[1]?.toLowerCase();

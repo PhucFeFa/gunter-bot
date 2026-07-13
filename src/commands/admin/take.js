@@ -22,7 +22,7 @@ module.exports = {
             return interaction.reply({ content: '❌ Bố mày mới được xài lệnh này, mày tuổi tôm!', flags: 64 });
         }
 
-        await interaction.deferReply({ flags: 64 }); // Ẩn tin nhắn với người khác
+        await interaction.deferReply(); // Công khai tin nhắn cho cả server thấy
 
         const targetUser = interaction.options.getUser('target');
         const amountToTake = interaction.options.getInteger('amount');

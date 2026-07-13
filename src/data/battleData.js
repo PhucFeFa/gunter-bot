@@ -17,21 +17,21 @@ const WEAPONS = [
 ];
 
 const ARMORS = [
-    { id: 1, name: 'Áo Vải', emoji: '👕', price: 0, defense: 0, hpBonus: 0, desc: 'Mặc cho có.' },
-    { id: 2, name: 'Giáp Da', emoji: '🦺', price: 50000, defense: 5, hpBonus: 100, desc: 'Chống trầy xước.' },
-    { id: 3, name: 'Giáp Sắt', emoji: '🛡️', price: 200000, defense: 15, hpBonus: 300, desc: 'Nặng nề nhưng an toàn.' },
-    { id: 4, name: 'Giáp Bạc', emoji: '🥋', price: 800000, defense: 25, hpBonus: 800, desc: 'Sáng bóng, chống tà ma.' },
-    { id: 5, name: 'Giáp Hiệp Sĩ', emoji: '🪖', price: 3000000, defense: 40, hpBonus: 2000, desc: 'Trang bị hoàng gia.' },
-    { id: 6, name: 'Giáp Titan', emoji: '🦾', price: 10000000, defense: 60, hpBonus: 5000, desc: 'Công nghệ tiên tiến.' },
-    { id: 7, name: 'Áo Choàng Bóng Tối', emoji: '🥷', price: 35000000, defense: 75, hpBonus: 10000, desc: 'Khó bị đòn trúng.' },
-    { id: 8, name: 'Giáp Thiên Thần', emoji: '👼', price: 100000000, defense: 85, hpBonus: 25000, desc: 'Ánh sáng bảo hộ.' },
-    { id: 9, name: 'Giáp Vảy Rồng', emoji: '🐉', price: 300000000, defense: 92, hpBonus: 60000, desc: 'Không thể xuyên thủng.' },
-    { id: 10, name: 'Hào Quang Đấng', emoji: '✨', price: 1000000000, defense: 98, hpBonus: 150000, desc: 'Tuyệt đối bất tử (Gần như).' },
-    { id: 11, name: 'Giáp Ác Quỷ', emoji: '👿', price: 3000000000, defense: 99, hpBonus: 300000, desc: 'Lấy sức mạnh từ địa ngục.' },
-    { id: 12, name: 'Chiến Bào Tiên Nhân', emoji: '🥻', price: 10000000000, defense: 99.2, hpBonus: 800000, desc: 'Bay lượn như tiên, khó trúng đòn.' },
-    { id: 13, name: 'Giáp Hư Không', emoji: '🕳️', price: 30000000000, defense: 99.5, hpBonus: 2000000, desc: 'Hút mọi đòn đánh vào lỗ đen.' },
-    { id: 14, name: 'Vòng Sáng Thiên Hà', emoji: '💫', price: 100000000000, defense: 99.8, hpBonus: 5000000, desc: 'Phản chiếu sát thương.' },
-    { id: 15, name: 'Áo Choàng Đấng Tối Cao', emoji: '👑', price: 500000000000, defense: 99.9, hpBonus: 20000000, desc: 'Không thể bị chạm tới.' }
+    { id: 1, name: 'Áo Vải', emoji: '👕', price: 0, defense: 0, hpBonus: 50, desc: 'Mặc cho có.' },
+    { id: 2, name: 'Giáp Da', emoji: '🦺', price: 50000, defense: 5, hpBonus: 150, desc: 'Chống trầy xước.' },
+    { id: 3, name: 'Giáp Sắt', emoji: '🛡️', price: 200000, defense: 10, hpBonus: 300, desc: 'Nặng nề nhưng an toàn.' },
+    { id: 4, name: 'Giáp Bạc', emoji: '🥋', price: 800000, defense: 15, hpBonus: 600, desc: 'Sáng bóng, chống tà ma.' },
+    { id: 5, name: 'Giáp Hiệp Sĩ', emoji: '🪖', price: 3000000, defense: 20, hpBonus: 1200, desc: 'Trang bị hoàng gia.' },
+    { id: 6, name: 'Giáp Titan', emoji: '🦾', price: 10000000, defense: 25, hpBonus: 2500, desc: 'Công nghệ tiên tiến.' },
+    { id: 7, name: 'Áo Choàng Bóng Tối', emoji: '🥷', price: 35000000, defense: 30, hpBonus: 4500, desc: 'Khó bị đòn trúng.' },
+    { id: 8, name: 'Giáp Thiên Thần', emoji: '👼', price: 100000000, defense: 35, hpBonus: 9000, desc: 'Ánh sáng bảo hộ.' },
+    { id: 9, name: 'Giáp Vảy Rồng', emoji: '🐉', price: 300000000, defense: 40, hpBonus: 18000, desc: 'Không thể xuyên thủng.' },
+    { id: 10, name: 'Hào Quang Đấng', emoji: '✨', price: 1000000000, defense: 45, hpBonus: 35000, desc: 'Bảo hộ thần thánh.' },
+    { id: 11, name: 'Giáp Ác Quỷ', emoji: '👿', price: 3000000000, defense: 50, hpBonus: 70000, desc: 'Lấy sức mạnh từ địa ngục.' },
+    { id: 12, name: 'Chiến Bào Tiên Nhân', emoji: '🥻', price: 10000000000, defense: 55, hpBonus: 150000, desc: 'Bay lượn như tiên, khó trúng đòn.' },
+    { id: 13, name: 'Giáp Hư Không', emoji: '🕳️', price: 30000000000, defense: 60, hpBonus: 300000, desc: 'Hút mọi đòn đánh vào lỗ đen.' },
+    { id: 14, name: 'Vòng Sáng Thiên Hà', emoji: '💫', price: 100000000000, defense: 65, hpBonus: 700000, desc: 'Phản chiếu sát thương.' },
+    { id: 15, name: 'Áo Choàng Đấng Tối Cao', emoji: '👑', price: 500000000000, defense: 70, hpBonus: 1500000, desc: 'Phòng ngự tuyệt đối.' }
 ];
 
 module.exports = { WEAPONS, ARMORS };

@@ -189,8 +189,8 @@ module.exports = {
                     // Defense reduction
                     let defReduction = defender.armor.defense / 100;
                     if (defender.isDefending) {
-                        if (defReduction < 0.95) {
-                            defReduction = Math.min(0.95, defReduction + 0.4); // Add up to 40% defense, capped at 95% unless base is higher
+                        if (defReduction < 0.85) {
+                            defReduction = Math.min(0.85, defReduction + 0.2); // Add up to 20% defense, capped at 85% unless base is higher
                         }
                     }
                     
@@ -203,13 +203,13 @@ module.exports = {
                     battleLog = `💥 **${attacker.user.username}** tấn công bằng ${attacker.weapon.emoji} ${attacker.weapon.name}!\n`;
                     if (isCrit) battleLog += `✨ **BẠO KÍCH!**\n`;
                     if (defender.isDefending) battleLog += `🛡️ **${defender.user.username}** đã đỡ đòn, giảm phần lớn sát thương!\n`;
-                    battleLog += `🩸 Gây ra **${finalDmg}** sát thương!\n`;
+                    battleLog += `🩸 Gây ra **${finalDmg.toLocaleString()}** sát thương!\n`;
 
                 } else if (i.customId === 'defend') {
                     attacker.isDefending = true;
-                    const heal = Math.floor(attacker.maxHp * 0.15); // Heal 15%
+                    const heal = Math.floor(attacker.maxHp * 0.05); // Heal 5%
                     attacker.hp = Math.min(attacker.maxHp, attacker.hp + heal);
-                    battleLog = `🛡️ **${attacker.user.username}** chọn phòng thủ!\n💚 Hồi phục **${heal}** HP và giảm sát thương gánh chịu lượt tới!\n`;
+                    battleLog = `🛡️ **${attacker.user.username}** chọn phòng thủ!\n💚 Hồi phục **${heal.toLocaleString()}** HP và giảm sát thương lượt tới!\n`;
                 }
 
                 if (player1.hp <= 0 || player2.hp <= 0) {

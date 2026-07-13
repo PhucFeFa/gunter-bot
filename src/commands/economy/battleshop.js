@@ -46,7 +46,10 @@ module.exports = {
 
         const fakeInteraction = {
             user: interaction.user,
-            editReply: async (options) => await interaction.editReply(options)
+            editReply: async (options) => {
+                await interaction.editReply(options);
+                return await interaction.fetchReply();
+            }
         };
 
         if (subcommand === 'view') {

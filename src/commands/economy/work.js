@@ -90,15 +90,25 @@ module.exports = {
         let rewardAmount = 0;
         let addedDebt = 0;
 
+        let isPrisoned = false;
+        let prisonDuration = 0;
+
         if (currentJob.id === 'tu_sena') {
             // 30% bị công an bắt
             if (Math.random() < 0.3) {
                 penaltyAmount = Math.floor(Math.random() * 3000000) + 2000000; // Phạt 2-5 triệu
+                salary = 0; // Mất cả chì lẫn chài
+                
                 if (user.balance < penaltyAmount) {
                     penaltyAmount = user.balance; // Trừ về 0
+                    isPrisoned = true;
+                    prisonDuration = 10; // Không đủ tiền nộp phạt -> Đi tù 10 phút
                 }
-                salary = 0; // Bị bắt thì mất cả chì lẫn chài (mất lương hôm đó)
+                
                 specialInfo = `\n\n🚨 **CẢNH SÁT ẬP VÀO!**\nBị bế lên đồn vì tội tổ chức đánh bạc, nộp phạt **${penaltyAmount.toLocaleString()} 🪙**!`;
+                if (isPrisoned) {
+                    specialInfo += `\n⛓️ **TRUY TỐ:** Mày đéo đủ tiền nộp phạt, đi tù **${prisonDuration} phút**!`;
+                }
             }
         } else if (currentJob.id === 'jack') {
             const randJack = Math.random();
@@ -132,9 +142,18 @@ module.exports = {
         } else if (currentJob.id === 'ba_phuong_hang') {
             if (Math.random() < 0.3) { // 30% dính án
                 penaltyAmount = Math.floor(Math.random() * 5000000) + 5000000; // 5-10 triệu
-                if (user.balance < penaltyAmount) penaltyAmount = user.balance;
                 salary = 0; // Mất cả lương
-                specialInfo = `\n\n🚔 **LỆNH BẮT TẠM GIAM!**\nLivestream chửi bới quá lố, bạn bị bế đi vì tội lợi dụng quyền tự do dân chủ! Nộp phạt **${penaltyAmount.toLocaleString()} 🪙** và đi tù!`;
+                
+                if (user.balance < penaltyAmount) {
+                    penaltyAmount = user.balance; // Trừ về 0
+                    isPrisoned = true;
+                    prisonDuration = 30; // 30 phút
+                }
+                
+                specialInfo = `\n\n🚔 **LỆNH BẮT TẠM GIAM!**\nLivestream chửi bới quá lố, bạn bị bế đi vì tội lợi dụng quyền tự do dân chủ! Nộp phạt **${penaltyAmount.toLocaleString()} 🪙**!`;
+                if (isPrisoned) {
+                    specialInfo += `\n⛓️ **TRUY TỐ:** Tiền đéo đủ đóng phạt, đi tù **${prisonDuration} phút**!`;
+                }
             }
         } else if (currentJob.id === 'thay_ong_noi') {
             const randThay = Math.random();
@@ -193,6 +212,23 @@ module.exports = {
             await updateLoan(userId, addedDebt);
         }
 
+        if (isPrisoned) {
+            try {
+                const member = await interaction.guild.members.fetch(userId);
+                if (member) {
+                    const roleId = '1524641571990142986'; // Role Tù
+                    await member.roles.add(roleId);
+                    setTimeout(async () => {
+                        try {
+                            await member.roles.remove(roleId);
+                        } catch (e) {}
+                    }, prisonDuration * 60 * 1000);
+                }
+            } catch (e) {
+                console.error('[WORK PRISON] Lỗi:', e);
+            }
+        }
+
         await updateLastWork(userId);
 
         const embed = new EmbedBuilder()
@@ -212,6 +248,7 @@ module.exports = {
     async executePrefix(message, args, client) {
         const fakeInteraction = {
             user: message.author,
+            guild: message.guild,
             deferred: true,
             replied: true,
             deferReply: async function () { },

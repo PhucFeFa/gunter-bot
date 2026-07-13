@@ -246,10 +246,10 @@ module.exports = {
         }
 
         // ─── Feature 3: Chabot AI (Gemini) ─────────────────────
-        const AI_CHANNEL_ID = process.env.AI_CHANNEL_ID;
+        const AI_CHANNEL_ID = config.ai_channel_id || process.env.AI_CHANNEL_ID;
 
         // Nếu tin nhắn nằm trong kênh AI, bot sẽ tự động trả lời mọi tin nhắn (không cần tag)
-        if (message.channel.id === AI_CHANNEL_ID) {
+        if (AI_CHANNEL_ID && message.channel.id === AI_CHANNEL_ID) {
             await handleGeminiChat(message, client);
         }
 

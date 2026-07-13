@@ -1,8 +1,9 @@
 const { EmbedBuilder } = require('discord.js');
+const { ALLOWED_CHANNELS } = require('./beggarManager');
 
 let currentRateUp = null; // 'fish', 'job', or null
 let rateUpEndTime = 0;
-const messageChannelIds = process.env.BEGGAR_CHANNELS ? process.env.BEGGAR_CHANNELS.split(',') : []; // Các kênh thông báo
+const messageChannelIds = ALLOWED_CHANNELS; // Các kênh thông báo
 
 module.exports = {
     getCurrentRateUp: () => {

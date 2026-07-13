@@ -50,9 +50,119 @@ function getRandomTier3To7Fish() {
     return result;
 }
 
+const ALLOWED_CHANNELS = [
+    '1494709251187150860', 
+    '1524753504017580162', 
+    '1524753555817500864'
+];
+
+async function startBegging(channel, excludeUserId = null) {
+    const channelId = channel.id;
+    const now = Date.now();
+    
+    // Start Begging
+    channelCooldowns.set(channelId, now);
+
+    const begAmount = Math.floor(Math.random() * 1500000) + 500000; // 500k to 2tr
+
+    const embed = new EmbedBuilder()
+        .setColor(0x000000)
+        .setTitle('🚨 CÚT RA CHO BỐ MÀY XIN TIỀN!')
+        .setDescription(`Bố mày đang kẹt tiền vãi lồn, thằng nào trong kênh này giàu nôn ra cho bố **${begAmount.toLocaleString()} 🪙** nhanh lên!\n\n⏳ Cho chúng mày **5 phút**, đéo ai cho tao tự động rút tiền của 1 thằng bất kỳ trong kênh!`)
+        .setImage('https://i.pinimg.com/736x/87/4f/b5/874fb5ba4927cb0449da6ab54ff5f4bb.jpg');
+
+    const btn = new ButtonBuilder()
+        .setCustomId('beggar_give')
+        .setLabel('Cho tiền 💸')
+        .setStyle(ButtonStyle.Danger);
+
+    const row = new ActionRowBuilder().addComponents(btn);
+
+    const replyMsg = await channel.send({ embeds: [embed], components: [row] });
+
+    const filter = i => i.customId === 'beggar_give';
+    const collector = replyMsg.createMessageComponentCollector({ filter, time: WAIT_TIME });
+
+    collector.on('collect', async (i) => {
+        const giverId = i.user.id;
+        const giverData = await require('./economyDB').getUser(giverId);
+
+        if (giverData.balance < begAmount) {
+            return i.reply({ content: `Nghèo vãi lồn mà đòi làm từ thiện à? Mày chỉ có ${giverData.balance.toLocaleString()} 🪙 thôi, cút!`, flags: 64 });
+        }
+
+        // Giver has enough money
+        await updateBalance(giverId, -begAmount);
+
+        // Give reward
+        const fishReward = getRandomTier3To7Fish();
+        await require('./fishDB').addFishToInventory(giverId, fishReward);
+
+        const thanksMsg = THANKS[Math.floor(Math.random() * THANKS.length)].replace('{userId}', giverId);
+
+        const successEmbed = new EmbedBuilder()
+            .setColor(0x2ecc71)
+            .setTitle('💖 ĐẠI GIA ĐÃ LÊN TIẾNG!')
+            .setDescription(thanksMsg + `\n\n🎁 **Phần thưởng:** ${fishReward.emoji} **${fishReward.name}** (Size: ${fishReward.size}cm - Trị giá: ${fishReward.price.toLocaleString()} 🪙)`);
+
+        await i.update({ embeds: [successEmbed], components: [] });
+        collector.stop('given');
+    });
+
+    collector.on('end', async (collected, reason) => {
+        if (reason === 'given') return; // Đã có người cho
+
+        // Hết 5 phút đéo ai cho
+        const channelChatters = recentChatters.get(channelId);
+        if (!channelChatters || channelChatters.size === 0) {
+            return channel.send("Địt mẹ kênh vắng như chùa bà đanh, bố mày đi chỗ khác!");
+        }
+
+        // Chọn ngẫu nhiên 1 nạn nhân (loại trừ sếp nếu sếp gọi bằng lệnh wake)
+        let arr = Array.from(channelChatters);
+        if (excludeUserId) {
+            arr = arr.filter(id => id !== excludeUserId);
+        }
+
+        if (arr.length === 0) {
+            return channel.send("Địt mẹ nhát cáy trốn hết rồi à, tha cho chúng mày lần này!");
+        }
+
+        const victimId = arr[Math.floor(Math.random() * arr.length)];
+
+        const victimData = await require('./economyDB').getUser(victimId);
+        let deducted = 0;
+        let debtAdded = 0;
+
+        if (victimData.balance >= begAmount) {
+            await updateBalance(victimId, -begAmount);
+            deducted = begAmount;
+        } else {
+            deducted = victimData.balance;
+            debtAdded = begAmount - victimData.balance;
+            await updateBalance(victimId, -deducted);
+            await updateLoan(victimId, debtAdded);
+        }
+
+        const insultMsg = INSULTS[Math.floor(Math.random() * INSULTS.length)].replace('{userId}', victimId);
+
+        const failEmbed = new EmbedBuilder()
+            .setColor(0xe74c3c)
+            .setTitle('🔥 HẾT GIỜ! BỐ MÀY ĐI CƯỚP ĐÂY!')
+            .setDescription(`${insultMsg}\n\n💸 Đã tự động lột sạch **${deducted.toLocaleString()} 🪙** của <@${victimId}>!` + (debtAdded > 0 ? `\n📉 Địt mẹ tài khoản đéo đủ, ngân hàng tự ép mày vay thêm **${debtAdded.toLocaleString()} 🪙** trả cho tao!` : ''));
+
+        await channel.send({ embeds: [failEmbed] });
+
+        // Xóa nút bấm của tin nhắn cũ
+        await replyMsg.edit({ components: [] }).catch(() => { });
+    });
+}
+
 module.exports = {
+    ALLOWED_CHANNELS,
+    startBegging,
     handleMessage: async (message) => {
-        if (!BEGGAR_CHANNELS.includes(message.channel.id)) return;
+        if (!ALLOWED_CHANNELS.includes(message.channel.id)) return;
 
         const channelId = message.channel.id;
         const userId = message.author.id;
@@ -75,93 +185,6 @@ module.exports = {
         // Random chance
         if (Math.random() > CHANCE_TO_BEG) return;
 
-        // Start Begging
-        channelCooldowns.set(channelId, now);
-
-        const begAmount = Math.floor(Math.random() * 1500000) + 500000; // 500k to 2tr
-
-        const embed = new EmbedBuilder()
-            .setColor(0x000000)
-            .setTitle('🚨 CÚT RA CHO BỐ MÀY XIN TIỀN!')
-            .setDescription(`Bố mày đang kẹt tiền vãi lồn, thằng nào trong kênh này giàu nôn ra cho bố **${begAmount.toLocaleString()} 🪙** nhanh lên!\n\n⏳ Cho chúng mày **5 phút**, đéo ai cho tao tự động rút tiền của 1 thằng bất kỳ trong kênh!`)
-            .setImage('https://i.pinimg.com/736x/87/4f/b5/874fb5ba4927cb0449da6ab54ff5f4bb.jpg'); // Meme chửi thề hoặc giang hồ (placeholder)
-
-        const btn = new ButtonBuilder()
-            .setCustomId('beggar_give')
-            .setLabel('Cho tiền 💸')
-            .setStyle(ButtonStyle.Danger);
-
-        const row = new ActionRowBuilder().addComponents(btn);
-
-        const replyMsg = await message.channel.send({ embeds: [embed], components: [row] });
-
-        const filter = i => i.customId === 'beggar_give';
-        const collector = replyMsg.createMessageComponentCollector({ filter, time: WAIT_TIME });
-
-        collector.on('collect', async (i) => {
-            const giverId = i.user.id;
-            const giverData = await require('./economyDB').getUser(giverId);
-
-            if (giverData.balance < begAmount) {
-                return i.reply({ content: `Nghèo vãi lồn mà đòi làm từ thiện à? Mày chỉ có ${giverData.balance.toLocaleString()} 🪙 thôi, cút!`, flags: 64 });
-            }
-
-            // Giver has enough money
-            await updateBalance(giverId, -begAmount);
-
-            // Give reward
-            const fishReward = getRandomTier3To7Fish();
-            await addFishToInventory(giverId, fishReward);
-
-            const thanksMsg = THANKS[Math.floor(Math.random() * THANKS.length)].replace('{userId}', giverId);
-
-            const successEmbed = new EmbedBuilder()
-                .setColor(0x2ecc71)
-                .setTitle('💖 ĐẠI GIA ĐÃ LÊN TIẾNG!')
-                .setDescription(thanksMsg + `\n\n🎁 **Phần thưởng:** ${fishReward.emoji} **${fishReward.name}** (Size: ${fishReward.size}cm - Trị giá: ${fishReward.price.toLocaleString()} 🪙)`);
-
-            await i.update({ embeds: [successEmbed], components: [] });
-            collector.stop('given');
-        });
-
-        collector.on('end', async (collected, reason) => {
-            if (reason === 'given') return; // Đã có người cho
-
-            // Hết 5 phút đéo ai cho
-            const channelChatters = recentChatters.get(channelId);
-            if (!channelChatters || channelChatters.size === 0) {
-                return message.channel.send("Địt mẹ kênh vắng như chùa bà đanh, bố mày đi chỗ khác!");
-            }
-
-            // Chọn ngẫu nhiên 1 nạn nhân
-            const arr = Array.from(channelChatters);
-            const victimId = arr[Math.floor(Math.random() * arr.length)];
-
-            const victimData = await require('./economyDB').getUser(victimId);
-            let deducted = 0;
-            let debtAdded = 0;
-
-            if (victimData.balance >= begAmount) {
-                await updateBalance(victimId, -begAmount);
-                deducted = begAmount;
-            } else {
-                deducted = victimData.balance;
-                debtAdded = begAmount - victimData.balance;
-                await updateBalance(victimId, -deducted);
-                await updateLoan(victimId, debtAdded);
-            }
-
-            const insultMsg = INSULTS[Math.floor(Math.random() * INSULTS.length)].replace('{userId}', victimId);
-
-            const failEmbed = new EmbedBuilder()
-                .setColor(0xe74c3c)
-                .setTitle('🔥 HẾT GIỜ! BỐ MÀY ĐI CƯỚP ĐÂY!')
-                .setDescription(`${insultMsg}\n\n💸 Đã tự động lột sạch **${deducted.toLocaleString()} 🪙** của <@${victimId}>!` + (debtAdded > 0 ? `\n📉 Địt mẹ tài khoản đéo đủ, ngân hàng tự ép mày vay thêm **${debtAdded.toLocaleString()} 🪙** trả cho tao!` : ''));
-
-            await message.channel.send({ embeds: [failEmbed] });
-
-            // Xóa nút bấm của tin nhắn cũ
-            await replyMsg.edit({ components: [] }).catch(() => { });
-        });
+        await startBegging(message.channel);
     }
 };

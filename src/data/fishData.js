@@ -285,7 +285,7 @@ const RODS = [
     { id: 34, name: 'Cần Tử Thần', emoji: '☠️', price: 380000000, limited: true, tier: 5, bonusLuck: 105, bonusSize: 1.45, bonusTime: 20, bonusShiny: 35, maxDurability: 2000, shopWeight: 6, desc: '[GIỚI HẠN] Cá tự tìm đến mà cắn. (2000 độ bền)' },
     { id: 35, name: 'Cần Đại Vũ Trụ', emoji: '🌌', price: 700000000, limited: true, tier: 5, bonusLuck: 150, bonusSize: 2.0, bonusTime: 25, bonusShiny: 60, maxDurability: 3500, shopWeight: 3, desc: '[GIỚI HẠN] Tốt nhất toàn vũ trụ. (3500 độ bền)' },
     // Cần dành riêng cho Admin (id 99) - Không xuất hiện trong shop
-    { id: 99, name: 'Quyền Trượng Admin', emoji: '👑', price: 999999999999, limited: true, tier: 5, bonusLuck: 999, bonusSize: 50.0, bonusTime: 100, bonusShiny: 999, maxDurability: 9999999, shopWeight: 0, desc: '[ĐỘC QUYỀN] Chỉ Admin mới có thể sử dụng. Gãy cần là chuyện không thể.' },
+    { id: 99, name: 'Quyền Trượng Admin', emoji: '👑', price: 999999999999, limited: true, tier: 5, bonusLuck: 9999, bonusSize: 50.0, bonusTime: 100, bonusShiny: 999, maxDurability: 9999999, shopWeight: 0, desc: '[ĐỘC QUYỀN] Chỉ Admin mới có thể sử dụng. Gãy cần là chuyện không thể.' },
 ];
 
 // Role names for 3 zones
@@ -302,7 +302,7 @@ function getFishForZone(zoneId) {
 function getWeightedFish(zoneId) {
     const pool = FISH_LIST.filter(f => f.zone <= zoneId);
     const isFishRateUp = getCurrentRateUp() === 'fish';
-    
+
     const weights = pool.map(f => {
         let w = TIER_WEIGHT[f.tier];
         if (isFishRateUp && f.tier >= 5) {
@@ -310,7 +310,7 @@ function getWeightedFish(zoneId) {
         }
         return w;
     });
-    
+
     const total = weights.reduce((a, b) => a + b, 0);
     let r = Math.random() * total;
     for (let i = 0; i < pool.length; i++) {

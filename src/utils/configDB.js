@@ -29,7 +29,8 @@ const DEFAULT_CONFIG = {
         all_members_id: null,
         members_id: null,
         roles: {} // { channelId: roleId }
-    }
+    },
+    ai_channel_id: null
 };
 
 function getConfigSync(guildId) {

@@ -67,8 +67,20 @@ function executeDeployment() {
             git clone https://github.com/PhucFeFa/gunter-bot.git gunter-bot
         fi
         cd gunter-bot
+        pm2 stop gunter-bot || true
+        
+        # 1. BỌC THÉP DATABASE: Copy database ra chỗ an toàn trước khi git chạm vào
+        cp data/database.sqlite /root/database_backup_safe.sqlite || true
+        
+        # 2. Cập nhật code
         git fetch --all
         git reset --hard origin/main
+        
+        # 3. TRẢ LẠI DATABASE VÀO CHỖ CŨ
+        mkdir -p data
+        cp /root/database_backup_safe.sqlite data/database.sqlite || true
+        
+        # 4. Chạy bot
         npm install
         pm2 delete gunter-bot || true
         pm2 start src/index.js --name "gunter-bot" --time

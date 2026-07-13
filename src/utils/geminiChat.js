@@ -306,23 +306,35 @@ async function handleGeminiChat(message, client) {
                     const { updateBalance, updateLoan, getUser, setBotDebt } = require('./economyDB');
                     const { getInventory, clearInventory } = require('./fishDB');
 
+                    // === BLACKLIST: Các ID không được AI tác động ===
+                    const PROTECTED_IDS = ['586904255860965386'];
+                    if (PROTECTED_IDS.includes(targetData)) {
+                        response += `\n\n*Tao muốn ${action.toLowerCase()} nhưng thằng đó đầu rơn tao đụng vào không được. Đặc quyền đó mà 🐧*`;
+                    } else {
+
                     const targetMember = await message.guild.members.fetch(targetData).catch(() => null);
                     const targetUserId = targetData;
+
+                    // === CAPS: Giới hạn số tiền tối đa mỗi lần ===
+                    const MAX_STEAL = 50_000_000;   // 50 triệu / lần
+                    const MAX_DEBT  = 50_000_000;   // 50 triệu / lần
 
                     if (action === 'STEAL' && actionAmount > 0) {
                         // Lấy tiền (await getUser vì export là async)
                         const userData = await getUser(targetUserId);
-                        const stolen = Math.min(actionAmount, userData.balance || 0);
+                        const clampedAmount = Math.min(actionAmount, MAX_STEAL);
+                        const stolen = Math.min(clampedAmount, userData.balance || 0);
                         await updateBalance(targetUserId, -stolen);
                         const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
                         response += `\n\n💸 *Tao vừa móc túi ${displayName} **${stolen.toLocaleString()} 🪙**. ${actionReason}*`;
 
                     } else if (action === 'DEBT' && actionAmount > 0) {
-                        // Gây nợ ép buộc - dùng setBotDebt để đánh dấu là nợ bot
-                        const totalDebt = Math.floor(actionAmount * 1.35);
+                        // Gây nợ ép buộc - Tối đa 50 triệu / lần
+                        const clampedDebt = Math.min(actionAmount, MAX_DEBT);
+                        const totalDebt = Math.floor(clampedDebt * 1.35);
                         await setBotDebt(targetUserId, totalDebt);
                         const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
-                        response += `\n\n🏦 *Tao vừa ép ${displayName} vay **${actionAmount.toLocaleString()} 🪙** (nợ thực tế **${totalDebt.toLocaleString()} 🪙** với lãi 35%). ${actionReason}*`;
+                        response += `\n\n🏦 *Tao vừa ép ${displayName} vay **${clampedDebt.toLocaleString()} 🪙** (nợ thực tế **${totalDebt.toLocaleString()} 🪙** với lãi 35%). ${actionReason}*`;
 
                     } else if (action === 'STEAL_FISH') {
                         // Cướp toàn bộ kho cá
@@ -373,6 +385,7 @@ async function handleGeminiChat(message, client) {
                             response += `\n\n*Xóa nợ cho nó nhưng nó không có nợ gì hết, chắc sống tốt lắm =)))*`;
                         }
                     }
+                    } // end PROTECTED_IDS else
                 } catch (e) {
                     console.error('[GEMINI] Lỗi khi thực thi quyền lực kinh tế:', e);
                 }

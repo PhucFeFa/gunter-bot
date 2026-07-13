@@ -302,6 +302,10 @@ async function handleGeminiChat(message, client) {
         }
         response = result;
 
+        // Xóa sạch prefix "(Tin nhắn từ...)" nếu AI vẫn cố tình nhại lại
+        response = response.replace(/\(Tin nhắn từ[^)]+\):?\s*["']?/gi, '');
+        response = response.replace(/^["']|["']$/g, '').trim();
+
         // ────────────────────────────────────────────────────────
         // XỬ LÝ QUYỀN LỰC - HỆ THỐNG KINH TẾ (ACTION PARSING)
         // ────────────────────────────────────────────────────────
@@ -327,8 +331,6 @@ async function handleGeminiChat(message, client) {
 
             // Xóa mã lệnh khỏi response
             response = response.replace(actionRegex, '').trim();
-            // Xóa tin nhắn prefix nếu AI lỡ nói
-            response = response.replace(/\(Tin nhắn từ[^)]+\):\s*/g, '').trim();
 
             if (action === 'LEARN') {
                 console.log(`[GEMINI] Gunter vừa học được: ${targetData}`);
@@ -434,13 +436,17 @@ async function handleGeminiChat(message, client) {
 
 
         // Xử lý Thả Reaction
-        const reactRegex = /\[REACT:\s*([\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E6}-\u{1F1FF}]+)\]/u;
-        const reactMatch = response.match(reactRegex);
-        if (reactMatch) {
-            const emojiToReact = reactMatch[1];
-            response = response.replace(reactRegex, '').trim();
-            message.react(emojiToReact).catch(() => { });
+        const reactRegex = /\[REACT:\s*([^\]]+)\]/gi;
+        const matchIter = [...response.matchAll(reactRegex)];
+        if (matchIter.length > 0) {
+            const emojiToReact = matchIter[0][1].trim();
+            // Chỉ thả reaction nếu đó là 1 unicode emoji hợp lệ
+            if (/^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E6}-\u{1F1FF}]+$/u.test(emojiToReact)) {
+                message.react(emojiToReact).catch(() => { });
+            }
         }
+        // Xóa hoàn toàn tất cả các tag REACT ra khỏi tin nhắn (dù đúng hay sai)
+        response = response.replace(reactRegex, '').trim();
 
         // Nếu câu trả lời quá dài (Discord giới hạn 2000 ký tự), cắt ra
         if (response.length > 2000) {

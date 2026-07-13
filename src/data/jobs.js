@@ -988,6 +988,7 @@ module.exports = {
             minSalary: 900000,
             maxSalary: 1400000,
             weight: 2,
+            hidden: true,
             dialogues: [
                 "Giải được một bài toán thiên niên kỷ chỉ trong lúc đang đánh răng, nhận ngay giải thưởng 1 triệu đô.",
                 "Dùng toán xác suất bẻ khóa mọi sòng bạc trên thế giới, bị cấm cửa nhưng ôm đống tiền về.",
@@ -1024,7 +1025,7 @@ module.exports = {
     spinJob: function (isPity = false) {
         let rand = Math.random();
         const isJobRateUp = getCurrentRateUp() === 'job';
-        
+
         // Nếu có Rate Up, x2 tỷ lệ ra các Secret và Special ẩn
         let rateMultiplier = isJobRateUp ? 2 : 1;
 

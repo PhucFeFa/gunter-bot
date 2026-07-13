@@ -278,9 +278,17 @@ async function handleGeminiChat(message, client) {
 
         if (match) {
             const action = match[1].toUpperCase();
-            const targetData = match[2].trim();
+            // CHỐNG ẢO GIÁC: Ép ID chỉ được chứa ký tự số
+            let targetData = match[2].trim();
+            const idMatch = targetData.match(/\d+/);
+            if (idMatch) {
+                targetData = idMatch[0];
+            } else {
+                targetData = null; // Trả về null nếu hoàn toàn không tìm thấy số ID nào
+            }
+            
             let actionAmount = match[3] ? Math.abs(parseInt(match[3].trim().replace(/\D/g, ''), 10)) : 0;
-            if (isNaN(actionAmount) || actionAmount === 0) actionAmount = 5000; // Mặc định 5000 nếu Gemini trả về linh tinh (như NaN)
+            if (isNaN(actionAmount) || actionAmount === 0) actionAmount = 10000000; // Mặc định 10 TRIỆU nếu Gemini trả về linh tinh (như NaN)
             
             const actionNickname = match[4] ? match[4].trim().substring(0, 20) : 'Khứa Lấc Cấc 🐧';
             const actionReason = match[5] ? match[5].trim() : 'Bố mày ngứa mắt thì phạt 🐧';
@@ -292,7 +300,7 @@ async function handleGeminiChat(message, client) {
                 console.log(`[GEMINI] Gunter vừa học được: ${targetData}`);
                 const fs = require('fs');
                 fs.appendFileSync('gunter_memory.txt', targetData + '\n');
-            } else {
+            } else if (targetData) {
                 // Các action kinh tế cần fetch user
                 try {
                     const { updateBalance, updateLoan, getUser } = require('./economyDB');

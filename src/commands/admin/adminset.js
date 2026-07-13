@@ -77,7 +77,7 @@ module.exports = {
 
         // g!adminset @user <type> <value>
         if (args.length < 3) {
-            return message.reply('❌ Cú pháp sai! Cách dùng chuẩn:\n`g!adminset @user money 1000`\n`g!adminset @user job <tên_nghề>`\n`g!adminset @user rod <1-5>`');
+            return message.reply('❌ Cú pháp sai! Cách dùng chuẩn:\n`g!adminset @user money 1000`\n`g!adminset @user job <tên_nghề>`\n`g!adminset @user rod <ID_Cần>`');
         }
 
         let targetUser = message.mentions.users.first();

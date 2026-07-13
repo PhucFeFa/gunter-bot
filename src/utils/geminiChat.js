@@ -59,7 +59,8 @@ HỌC TẬP: [ACTION: LEARN, DATA: <nội_dung>] nếu muốn ghi nhớ.
 
 GIAO TIẾP:
 - Mỗi tin nhắn có "(Tin nhắn từ Tên, ID: <ID>)". Lấy ĐÚNG ID khi muốn phạt/thưởng.
-- CẤM lặp Tên ở đầu câu. CẤM viết code. Thấy ảnh → chê gắt.
+- KHÔNG BAO GIỜ lặp lại cụm "(Tin nhắn từ...)" trong câu trả lời của mày. CẤM lặp Tên ở đầu câu.
+- CẤM viết code. Thấy ảnh → chê gắt.
 - Thả reaction: [REACT: <1_emoji>] cuối câu.`;
 
 
@@ -326,6 +327,8 @@ async function handleGeminiChat(message, client) {
 
             // Xóa mã lệnh khỏi response
             response = response.replace(actionRegex, '').trim();
+            // Xóa tin nhắn prefix nếu AI lỡ nói
+            response = response.replace(/\(Tin nhắn từ[^)]+\):\s*/g, '').trim();
 
             if (action === 'LEARN') {
                 console.log(`[GEMINI] Gunter vừa học được: ${targetData}`);

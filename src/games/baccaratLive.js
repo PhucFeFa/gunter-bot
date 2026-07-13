@@ -79,6 +79,9 @@ class BaccaratLiveGame {
 
     // ─── Đặt cược (từ prefix hoặc modal) ─────────────────────
     async placeBet(message, side, amount) {
+        if (this.timeLeft <= 0)
+            return this._reply(message, '❌ Hết thời gian đặt cược rồi! Đợi ván sau nhé.');
+
         if (!['banker', 'player', 'tie'].includes(side))
             return this._reply(message, '❌ Cửa không hợp lệ! Dùng: `banker`, `player` hoặc `tie`');
 
@@ -115,6 +118,10 @@ class BaccaratLiveGame {
 
         while (this.running) {
             this.round++;
+            // Xóa tin nhắn bet thừa từ ván trước (nếu có)
+            for (const m of this.betMsgs) {
+                if (m && typeof m.delete === 'function') m.delete().catch(() => { });
+            }
             this.bets.clear();
             this.betMsgs = [];
             this.timeLeft = 30;

@@ -11,6 +11,7 @@ const { SlashCommandBuilder, PermissionFlagsBits, ChannelType } = require('disco
 const liveGameManager = require('../../utils/liveGameManager');
 const { BaccaratLiveGame } = require('../../games/baccaratLive');
 const { AviatorLiveGame } = require('../../games/aviatorLive');
+const { TaixiuLiveGame } = require('../../games/taixiuLive');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -26,7 +27,8 @@ module.exports = {
                 .setRequired(true)
                 .addChoices(
                     { name: '🎴 Baccarat', value: 'baccarat' },
-                    { name: '🚀 Aviator', value: 'aviator' }
+                    { name: '🚀 Aviator', value: 'aviator' },
+                    { name: '🎲 Tài Xỉu', value: 'taixiu' }
                 ))
             .addChannelOption(opt => opt
                 .setName('channel')
@@ -43,7 +45,8 @@ module.exports = {
                 .setRequired(true)
                 .addChoices(
                     { name: '🎴 Baccarat', value: 'baccarat' },
-                    { name: '🚀 Aviator', value: 'aviator' }
+                    { name: '🚀 Aviator', value: 'aviator' },
+                    { name: '🎲 Tài Xỉu', value: 'taixiu' }
                 ))
         ),
 
@@ -63,8 +66,10 @@ module.exports = {
 
             if (game === 'baccarat') {
                 instance = new BaccaratLiveGame(channel, interaction.client, guildId);
-            } else {
+            } else if (game === 'aviator') {
                 instance = new AviatorLiveGame(channel, interaction.client, guildId);
+            } else if (game === 'taixiu') {
+                instance = new TaixiuLiveGame(channel, interaction.client, guildId);
             }
 
             const ok = liveGameManager.register(guildId, game, instance);

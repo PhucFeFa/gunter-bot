@@ -62,6 +62,29 @@ module.exports = {
                 return interaction.showModal(modal);
             }
 
+            // ─ Taixiu Live: nut bet (mở modal nhập tiền) ─
+            if (['livetx_tai', 'livetx_xiu'].includes(interaction.customId)) {
+                const game = liveGameManager.getByChannel(interaction.channelId);
+                if (!game || game.gameType !== 'taixiu') return interaction.reply({ content: '❌ Không có game Tài Xỉu ở kênh này!', flags: 64 });
+
+                const side = interaction.customId.replace('livetx_', '');
+                const label = side === 'tai' ? '⚫ TÀI' : '⚪ XỈU';
+                const modal = new ModalBuilder()
+                    .setCustomId(`txmodal_${side}`)
+                    .setTitle(`🎲 Bạn đặt cược ${label}`)
+                    .addComponents(
+                        new ActionRowBuilder().addComponents(
+                            new TextInputBuilder()
+                                .setCustomId('tx_amount')
+                                .setLabel('Số tiền cược')
+                                .setStyle(TextInputStyle.Short)
+                                .setPlaceholder('VD: 10000 hoặc all')
+                                .setRequired(true)
+                        )
+                    );
+                return interaction.showModal(modal);
+            }
+
             // ─ Aviator Live: nut bet (mở modal nhập tiền) ─
             if (interaction.customId === 'liveaviator_bet') {
                 const game = liveGameManager.getByChannel(interaction.channelId);
@@ -105,6 +128,31 @@ module.exports = {
                         const payload = typeof opts === 'string' ? { content: opts } : opts;
                         const response = await interaction.reply({ ...payload, withResponse: true }).catch(() => interaction.followUp({ ...payload, withResponse: true }));
                         // Return the interaction response message so subsequent edits work correctly
+                        return response?.resource?.message || response;
+                    }
+                };
+                await game.placeBet(fakeMsg, side, amount);
+                return;
+            }
+
+            if (interaction.customId.startsWith('txmodal_')) {
+                const side = interaction.customId.replace('txmodal_', '');
+                const rawAmt = interaction.fields.getTextInputValue('tx_amount').toLowerCase();
+                const game = liveGameManager.getByChannel(interaction.channelId);
+
+                if (!game || game.gameType !== 'taixiu') {
+                    return interaction.reply({ content: '❌ Không có game Tài Xỉu ở kênh này!', flags: 64 });
+                }
+
+                const userData = await require('../utils/economyDB').getUser(interaction.user.id);
+                const balance = userData.balance;
+                const amount = rawAmt === 'all' ? balance : parseInt(rawAmt);
+
+                const fakeMsg = {
+                    author: interaction.user,
+                    reply: async (opts) => {
+                        const payload = typeof opts === 'string' ? { content: opts } : opts;
+                        const response = await interaction.reply({ ...payload, withResponse: true }).catch(() => interaction.followUp({ ...payload, withResponse: true }));
                         return response?.resource?.message || response;
                     }
                 };

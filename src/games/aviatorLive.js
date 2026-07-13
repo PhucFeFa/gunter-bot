@@ -68,7 +68,7 @@ class AviatorLiveGame {
 
     /** Đặt cược – gọi từ messageCreate (g!bet <tiền>) hoặc modal */
     async placeBet(message, amount) {
-        if (this.phase !== 'betting') return this._reply(message, '⛔ Ván đang bay! Chờ ván mới để đặt cược.');
+        if (this.timeLeft <= 0 || this.phase !== 'betting') return this._reply(message, '⛔ Ván đang bay! Chờ ván mới để đặt cược.');
         if (this.bets.has(message.author.id)) return this._reply(message, '⛔ Bạn đã đặt cược rồi!');
 
         const userData = await getUser(message.author.id);
@@ -132,6 +132,15 @@ class AviatorLiveGame {
                 }
             }
             this.cashoutMsgs = [];
+            // Xóa tin nhắn bet thừa từ ván trước (nếu có)
+            for (const inter of this.betMsgs) {
+                if (inter && typeof inter.deleteReply === 'function') {
+                    inter.deleteReply().catch(() => {});
+                } else if (inter && typeof inter.delete === 'function') {
+                    inter.delete().catch(() => {});
+                }
+            }
+            this.betMsgs = [];
 
             this.currentMult = 1.0;
             this.crashPoint = generateCrashPoint();

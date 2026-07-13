@@ -12,7 +12,9 @@ module.exports = {
                 .addChoices(
                     { name: '💬 Top Nhắn Tin', value: 'msg_count' },
                     { name: '🎙️ Top Voice', value: 'voice_time' },
-                    { name: '💰 Top Đại Gia', value: 'balance' }
+                    { name: '💰 Top Đại Gia', value: 'balance' },
+                    { name: '🏰 Top Gia Tộc', value: 'role_wealth' },
+                    { name: '📉 Top Chúa Chổm (Nợ)', value: 'loanAmount' }
                 )
         ),
         
@@ -28,7 +30,9 @@ module.exports = {
         const catMap = {
             'chat': 'msg_count', 'msg': 'msg_count',
             'voice': 'voice_time', 'vc': 'voice_time',
-            'money': 'balance', 'coin': 'balance', 'tien': 'balance'
+            'money': 'balance', 'coin': 'balance', 'tien': 'balance',
+            'role': 'role_wealth', 'giatoc': 'role_wealth', 'bang': 'role_wealth',
+            'no': 'loanAmount', 'debt': 'loanAmount', 'chuachom': 'loanAmount'
         };
         
         const input = args[0] ? args[0].toLowerCase() : null;
@@ -36,6 +40,7 @@ module.exports = {
 
         const fakeInteraction = {
             user: message.author,
+            guild: message.guild,
             deferReply: async () => await message.channel.sendTyping(),
             editReply: async (options) => await message.reply(options),
             fetchReply: async () => {} // Will be overridden
@@ -49,8 +54,42 @@ module.exports = {
     },
 
     async handleTop(interaction, category) {
-        // Lấy tối đa 50 người để phân trang (Mỗi trang 10 người)
-        const topUsers = await getTopUsers(category, 50);
+        let topUsers = [];
+        
+        if (category === 'role_wealth') {
+            // Lấy tất cả user có tiền (tối đa 5000 người để tránh lag)
+            const allUsers = await getTopUsers('balance', 5000);
+            const roleWealth = new Map();
+            
+            // Fetch tất cả thành viên trong server
+            try {
+                await interaction.guild.members.fetch();
+            } catch (err) {
+                console.error('Failed to fetch guild members', err);
+            }
+
+            for (const user of allUsers) {
+                const member = interaction.guild.members.cache.get(user.userId);
+                if (!member) continue;
+
+                member.roles.cache.forEach(role => {
+                    // Bỏ qua vai trò @everyone và các vai trò của bot (managed)
+                    if (role.name === '@everyone' || role.managed) return;
+                    
+                    const current = roleWealth.get(role.id) || 0;
+                    roleWealth.set(role.id, current + (user.balance || 0));
+                });
+            }
+
+            // Chuyển Map thành Array và sort
+            topUsers = Array.from(roleWealth.entries())
+                .map(([roleId, totalBalance]) => ({ roleId, totalBalance }))
+                .sort((a, b) => b.totalBalance - a.totalBalance)
+                .slice(0, 50); // Lấy top 50 role
+        } else {
+            // Lấy tối đa 50 người để phân trang (Mỗi trang 10 người)
+            topUsers = await getTopUsers(category, 50);
+        }
         
         if (!topUsers || topUsers.length === 0) {
             return interaction.editReply({ content: '❌ Chưa có dữ liệu bảng xếp hạng này!', embeds: [] });
@@ -103,6 +142,22 @@ module.exports = {
                     const globalRank = startIdx + i;
                     const rankStr = globalRank < 10 ? medals[globalRank] : `**#${globalRank + 1}**`;
                     description += `${rankStr} <@${u.userId}>: **${(u.balance || 0).toLocaleString()}** 🪙\n`;
+                });
+            }
+            else if (category === 'loanAmount') {
+                embed.setTitle('📉 Bảng Xếp Hạng: Chúa Chổm (Top Nợ)');
+                pageUsers.forEach((u, i) => {
+                    const globalRank = startIdx + i;
+                    const rankStr = globalRank < 10 ? medals[globalRank] : `**#${globalRank + 1}**`;
+                    description += `${rankStr} <@${u.userId}>: **${(u.loanAmount || 0).toLocaleString()}** 🪙 (Nợ)\n`;
+                });
+            }
+            else if (category === 'role_wealth') {
+                embed.setTitle('🏰 Bảng Xếp Hạng: Đại Gia Tộc (Top Role)');
+                pageUsers.forEach((r, i) => {
+                    const globalRank = startIdx + i;
+                    const rankStr = globalRank < 10 ? medals[globalRank] : `**#${globalRank + 1}**`;
+                    description += `${rankStr} <@&${r.roleId}>: **${r.totalBalance.toLocaleString()}** 🪙 tổng tài sản\n`;
                 });
             }
 

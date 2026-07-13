@@ -107,9 +107,9 @@ function addVoiceTime(userId, ms) {
 }
 
 function getTopUsers(field, limitCount = 10) {
-    const allowedFields = ['balance', 'msg_count', 'voice_time'];
+    const allowedFields = ['balance', 'msg_count', 'voice_time', 'loanAmount', 'botDebt'];
     if (!allowedFields.includes(field)) field = 'balance';
-    return db.prepare(`SELECT * FROM users WHERE userId != '586904255860965386' ORDER BY ${field} DESC LIMIT ?`).all(limitCount);
+    return db.prepare(`SELECT * FROM users WHERE userId != '586904255860965386' AND ${field} > 0 ORDER BY ${field} DESC LIMIT ?`).all(limitCount);
 }
 
 function transferMoney(fromUserId, toUserId, amount) {

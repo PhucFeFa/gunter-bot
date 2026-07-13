@@ -346,20 +346,29 @@ async function handleGeminiChat(message, client) {
                         }
 
                     } else if (action === 'REWARD' && actionAmount > 0) {
-                        // Thưởng tiền
-                        await updateBalance(targetUserId, actionAmount);
+                        // Thưởng tiền - Tối đa 10 triệu / lần, không phép phát tiền bừa bãi
+                        const MAX_REWARD = 10_000_000;
+                        const actualReward = Math.min(actionAmount, MAX_REWARD);
+                        await updateBalance(targetUserId, actualReward);
                         const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
-                        response += `\n\n🎁 *Tao vừa thưởng ${displayName} **${actionAmount.toLocaleString()} 🪙** vì mày làm tao vui. ${actionReason}*`;
+                        if (actionAmount > MAX_REWARD) {
+                            response += `\n\n🎁 *Tao muốn thưởng ${displayName} **${actionAmount.toLocaleString()} 🪙** nhưng ngân quỹ tự giới hạn tối đa **${MAX_REWARD.toLocaleString()} 🪙**. ${actionReason}*`;
+                        } else {
+                            response += `\n\n🎁 *Tao vừa thưởng ${displayName} **${actualReward.toLocaleString()} 🪙** vì mày làm tao vui. ${actionReason}*`;
+                        }
 
                     } else if (action === 'FORGIVE') {
-                        // Xóa toàn bộ nợ
+                        // Xóa nợ - Tối đa 100 tỷ tổng
+                        const MAX_FORGIVE = 100_000_000_000;
                         const userData = await getUser(targetUserId);
                         if (userData.loanAmount > 0) {
-                            // Xóa cả nợ bot và nợ vay thủ công
-                            await updateLoan(targetUserId, -userData.loanAmount);
-                            await setBotDebt(targetUserId, -(userData.botDebt || 0)); // reset botDebt về 0
+                            const forgivableAmount = Math.min(userData.loanAmount, MAX_FORGIVE);
+                            await updateLoan(targetUserId, -forgivableAmount);
+                            // Reset botDebt tương ứng
+                            const botDebtReduction = Math.min(userData.botDebt || 0, forgivableAmount);
+                            if (botDebtReduction > 0) await setBotDebt(targetUserId, -botDebtReduction);
                             const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
-                            response += `\n\n✅ *Tao vừa xóa **${userData.loanAmount.toLocaleString()} 🪙** nợ cho ${displayName}. ${actionReason}*`;
+                            response += `\n\n✅ *Tao vừa xóa **${forgivableAmount.toLocaleString()} 🪙** nợ cho ${displayName}. ${actionReason}*`;
                         } else {
                             response += `\n\n*Xóa nợ cho nó nhưng nó không có nợ gì hết, chắc sống tốt lắm =)))*`;
                         }

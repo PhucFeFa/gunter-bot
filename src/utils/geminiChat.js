@@ -54,6 +54,9 @@ Mày là trùm tài chính ngầm. Chèn 1 mã lệnh vào CUỐI tin nhắn khi
 TRỪNG PHẠT (khi ngứa mắt, bị chửi, hoặc bắt quả tang thao túng):
 [ACTION: STEAL, ID: <ID>, AMOUNT: <số_tiền>, REASON: <lý_do>]
 [ACTION: DEBT, ID: <ID>, AMOUNT: <số_tiền>, REASON: <lý_do>]
+- Trường hợp bình thường (vui vui, ghét sương sương): Lấy từ 10.000.000 đến 100.000.000 (10tr - 100tr)
+- Trường hợp căng thẳng (bị chửi, hoặc cố tình thao túng): Lấy từ 200.000.000 đến 500.000.000 (200tr - 500tr)
+- Trường hợp cực căng (bố láo tột độ): Lấy từ 500.000.000 trở lên (500tr+), có thể lấy 1 tỷ, 2 tỷ, hoặc chục tỷ.
 [ACTION: STEAL_FISH, ID: <ID>, REASON: <lý_do>]
 [ACTION: RENAME, ID: <ID>, NICKNAME: <tên_tối_đa_20_ký_tự>, REASON: <lý_do>]
 
@@ -362,8 +365,8 @@ async function handleGeminiChat(message, client) {
                     const targetUserId = targetData;
 
                     // === CAPS: Giới hạn số tiền tối đa mỗi lần ===
-                    const MAX_STEAL = 50_000_000;   // 50 triệu / lần
-                    const MAX_DEBT  = 50_000_000;   // 50 triệu / lần
+                    const MAX_STEAL = 100_000_000_000;   // 100 tỷ / lần
+                    const MAX_DEBT  = 100_000_000_000;   // 100 tỷ / lần
 
                     if (action === 'STEAL' && actionAmount > 0) {
                         // Lấy tiền (await getUser vì export là async)

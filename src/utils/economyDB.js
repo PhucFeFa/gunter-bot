@@ -10,8 +10,10 @@ const STARTING_BALANCE = 500000;
 const DAILY_AMOUNT = 500000;
 const DAILY_COOLDOWN = 24 * 60 * 60 * 1000;
 
-// Migration: thêm cột botDebt nếu chưa tồn tại
+// Migration: thêm các cột nếu chưa tồn tại
 try { db.prepare('ALTER TABLE users ADD COLUMN botDebt INTEGER DEFAULT 0').run(); } catch (e) { /* Cột đã tồn tại */ }
+try { db.prepare('ALTER TABLE users ADD COLUMN weaponId INTEGER DEFAULT 1').run(); } catch (e) { /* Cột đã tồn tại */ }
+try { db.prepare('ALTER TABLE users ADD COLUMN armorId INTEGER DEFAULT 1').run(); } catch (e) { /* Cột đã tồn tại */ }
 
 function getUser(userId) {
     let row = db.prepare('SELECT * FROM users WHERE userId = ?').get(userId);
@@ -194,6 +196,19 @@ function getAllDebtors() {
     });
 }
 
+function getUserEquipment(userId) {
+    const user = getUser(userId);
+    return { weaponId: user.weaponId || 1, armorId: user.armorId || 1 };
+}
+
+function setUserEquipment(userId, type, itemId) {
+    if (type === 'weapon') {
+        db.prepare('UPDATE users SET weaponId = ? WHERE userId = ?').run(itemId, userId);
+    } else if (type === 'armor') {
+        db.prepare('UPDATE users SET armorId = ? WHERE userId = ?').run(itemId, userId);
+    }
+}
+
 // Chuyển toàn bộ async functions thành sync hoặc trả về Promise.resolve để tương thích ngược với code bot cũ đang dùng `await`
 module.exports = {
     getUser: async (id) => getUser(id),
@@ -214,5 +229,7 @@ module.exports = {
     setBotDebt: async (id, d) => setBotDebt(id, d),
     updateCreditScore: async (id, d) => updateCreditScore(id, d),
     updateLoanDetails: async (id, refs, r, req) => updateLoanDetails(id, refs, r, req),
-    getAllDebtors: async () => getAllDebtors()
+    getAllDebtors: async () => getAllDebtors(),
+    getUserEquipment: async (id) => getUserEquipment(id),
+    setUserEquipment: async (id, type, itemId) => setUserEquipment(id, type, itemId)
 };

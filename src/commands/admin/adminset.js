@@ -1,7 +1,8 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { updateBalance, setJob, getUser } = require('../../utils/economyDB');
+const { updateBalance, setJob, getUser, setUserEquipment } = require('../../utils/economyDB');
 const { setUserRod } = require('../../utils/fishDB');
 const { RODS } = require('../../data/fishData');
+const { WEAPONS, ARMORS } = require('../../data/battleData');
 
 const ADMIN_ID = '586904255860965386';
 
@@ -12,7 +13,9 @@ module.exports = {
         .addUserOption(opt => opt.setName('target').setDescription('Người nhận').setRequired(true))
         .addIntegerOption(opt => opt.setName('money').setDescription('Số tiền muốn cho thêm (Cộng dồn)').setRequired(false))
         .addStringOption(opt => opt.setName('job').setDescription('ID nghề nghiệp muốn set (Ghi đè)').setRequired(false))
-        .addIntegerOption(opt => opt.setName('rod').setDescription('ID cần câu muốn set (Ghi đè)').setRequired(false)),
+        .addIntegerOption(opt => opt.setName('rod').setDescription('ID cần câu muốn set (Ghi đè)').setRequired(false))
+        .addIntegerOption(opt => opt.setName('weapon').setDescription('ID vũ khí (1-10)').setRequired(false))
+        .addIntegerOption(opt => opt.setName('armor').setDescription('ID giáp (1-10)').setRequired(false)),
 
     async execute(interaction) {
         if (interaction.user.id !== ADMIN_ID) {
@@ -25,9 +28,11 @@ module.exports = {
         const addMoney = interaction.options.getInteger('money');
         const setJobId = interaction.options.getString('job');
         const setRodId = interaction.options.getInteger('rod');
+        const setWeaponId = interaction.options.getInteger('weapon');
+        const setArmorId = interaction.options.getInteger('armor');
 
-        if (!addMoney && !setJobId && !setRodId) {
-            return interaction.editReply('❌ Đấng phải nhập ít nhất 1 thứ để ban phát (money, job, rod)!');
+        if (!addMoney && !setJobId && !setRodId && !setWeaponId && !setArmorId) {
+            return interaction.editReply('❌ Đấng phải nhập ít nhất 1 thứ để ban phát (money, job, rod, weapon, armor)!');
         }
 
         // Đảm bảo user có trong DB trước khi UPDATE
@@ -59,6 +64,18 @@ module.exports = {
                 await setUserRod(target.id, setRodId, durability);
                 desc += `🎣 **Cần câu mới:** ${rodData.name} ${rodData.emoji} (Độ bền: ${durability})\n`;
             }
+            if (setWeaponId) {
+                const w = WEAPONS.find(x => x.id === setWeaponId);
+                if (!w) return interaction.editReply('❌ ID Vũ khí không tồn tại!');
+                await setUserEquipment(target.id, 'weapon', setWeaponId);
+                desc += `🗡️ **Vũ khí mới:** ${w.emoji} ${w.name}\n`;
+            }
+            if (setArmorId) {
+                const a = ARMORS.find(x => x.id === setArmorId);
+                if (!a) return interaction.editReply('❌ ID Giáp không tồn tại!');
+                await setUserEquipment(target.id, 'armor', setArmorId);
+                desc += `🛡️ **Giáp mới:** ${a.emoji} ${a.name}\n`;
+            }
 
             const embed = new EmbedBuilder()
                 .setColor(0xFFD700)
@@ -80,7 +97,7 @@ module.exports = {
 
         // g!adminset @user <type> <value>
         if (args.length < 3) {
-            return message.reply('❌ Cú pháp sai! Cách dùng chuẩn:\n`g!adminset @user money 1000`\n`g!adminset @user job <tên_nghề>`\n`g!adminset @user rod <ID_Cần>`');
+            return message.reply('❌ Cú pháp sai! Cách dùng chuẩn:\n`g!adminset @user money 1000`\n`g!adminset @user job <tên_nghề>`\n`g!adminset @user rod <ID>`\n`g!adminset @user weapon <ID>`\n`g!adminset @user armor <ID>`');
         }
 
         let targetUser = message.mentions.users.first();
@@ -133,9 +150,23 @@ module.exports = {
                 const durability = rodData.maxDurability || 15;
                 await setUserRod(targetUser.id, rodId, durability);
                 desc += `🎣 **Cần câu mới:** ${rodData.name} ${rodData.emoji} (Độ bền: ${durability})\n`;
-            } 
+            }
+            else if (type === 'weapon' || type === 'vukhi') {
+                const wId = parseInt(value);
+                const wData = WEAPONS.find(r => r.id === wId);
+                if (isNaN(wId) || !wData) return loadingMsg.edit('❌ ID Vũ khí không tồn tại!');
+                await setUserEquipment(targetUser.id, 'weapon', wId);
+                desc += `🗡️ **Vũ khí mới:** ${wData.emoji} ${wData.name}\n`;
+            }
+            else if (type === 'armor' || type === 'giap') {
+                const aId = parseInt(value);
+                const aData = ARMORS.find(r => r.id === aId);
+                if (isNaN(aId) || !aData) return loadingMsg.edit('❌ ID Giáp không tồn tại!');
+                await setUserEquipment(targetUser.id, 'armor', aId);
+                desc += `🛡️ **Giáp mới:** ${aData.emoji} ${aData.name}\n`;
+            }
             else {
-                return loadingMsg.edit('❌ Loại tài sản không hợp lệ! Hãy dùng: `money`, `job`, `rod`.');
+                return loadingMsg.edit('❌ Loại tài sản không hợp lệ! Hãy dùng: `money`, `job`, `rod`, `weapon`, `armor`.');
             }
 
             const embed = new EmbedBuilder()

@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { getUser, updateBalance, getUserEquipment, setUserEquipment } = require('../../utils/economyDB');
 const { WEAPONS, ARMORS } = require('../../data/battleData');
 

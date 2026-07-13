@@ -15,7 +15,7 @@ const ROD_DURABILITY = {
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('give')
+        .setName('adminset')
         .setDescription('[ADMIN] Ban phát tài sản, nghề nghiệp, cần câu cho User')
         .addUserOption(opt => opt.setName('target').setDescription('Người nhận').setRequired(true))
         .addIntegerOption(opt => opt.setName('money').setDescription('Số tiền muốn cho thêm (Cộng dồn)').setRequired(false))
@@ -74,9 +74,9 @@ module.exports = {
             return message.reply('❌ Bạn không phải là đấng tạo hóa!');
         }
 
-        // g!give @user <type> <value>
+        // g!adminset @user <type> <value>
         if (args.length < 3) {
-            return message.reply('❌ Cú pháp sai! Cách dùng chuẩn:\n`g!give @user money 1000`\n`g!give @user job <tên_nghề>`\n`g!give @user rod <1-5>`');
+            return message.reply('❌ Cú pháp sai! Cách dùng chuẩn:\n`g!adminset @user money 1000`\n`g!adminset @user job <tên_nghề>`\n`g!adminset @user rod <1-5>`');
         }
 
         const targetUser = message.mentions.users.first();

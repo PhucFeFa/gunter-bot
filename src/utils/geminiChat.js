@@ -60,20 +60,24 @@ GIAO TIẾP:
 
 
 // Danh sách các model theo thứ tự ưu tiên (Tự động chuyển đổi nếu hết Quota)
+// Sắp xếp: Model còn nhiều quota (Lite) lên trước, model dễ cạn quota (Flash) xuống sau
 const MODELS = [
-    'gemini-3.5-flash',
-    'gemini-3.1-flash-lite',
-    'gemini-3-flash',
-    'gemini-2.5-flash',
-    'gemini-2.5-flash-lite',
-    'gemini-2.0-flash',
-    'gemma-4-31b-it'
+    'gemini-2.5-flash-lite',    // RPD 500 - nhiều nhất
+    'gemini-3.1-flash-lite',    // RPD 500
+    'gemini-3-flash',           // RPD 20 - tiết kiệm
+    'gemini-2.5-flash',         // RPD 20 - dễ hết
+    'gemini-3.5-flash',         // RPD 20 - dễ hết nhất
+    'gemma-4-31b-it'            // Fallback cuối
 ];
 let currentModelIndex = 0;
 
 // Track các key bị dead (quota) kèm theo thời gian - tự recover sau 1 giờ
 const deadKeys = new Map(); // keyIndex -> timestamp khi bị đánh dấu dead
 const KEY_DEAD_DURATION = 60 * 60 * 1000; // 1 giờ
+
+// Track các model bị dead theo từng key (key:model -> timestamp)
+const deadModels = new Map();
+const MODEL_DEAD_DURATION = 60 * 60 * 1000; // 1 giờ
 
 function isKeyDead(keyIdx) {
     if (!deadKeys.has(keyIdx)) return false;
@@ -88,6 +92,23 @@ function isKeyDead(keyIdx) {
 function markKeyDead(keyIdx) {
     deadKeys.set(keyIdx, Date.now());
     console.warn(`[GEMINI] API Key [${keyIdx}] bị đánh dấu DEAD (hết quota). Tự recover sau 1 giờ.`);
+}
+
+function isModelDead(keyIdx, modelName) {
+    const k = `${keyIdx}:${modelName}`;
+    if (!deadModels.has(k)) return false;
+    const diedAt = deadModels.get(k);
+    if (Date.now() - diedAt > MODEL_DEAD_DURATION) {
+        deadModels.delete(k);
+        return false;
+    }
+    return true;
+}
+
+function markModelDead(keyIdx, modelName) {
+    const k = `${keyIdx}:${modelName}`;
+    deadModels.set(k, Date.now());
+    console.warn(`[GEMINI] Key [${keyIdx}] + Model [${modelName}] bị đánh dấu DEAD (hết RPD). Tự recover sau 1 giờ.`);
 }
 
 /**
@@ -112,6 +133,12 @@ async function smartFallback(buildModelFn) {
                 continue;
             }
 
+            // Bỏ qua nếu key+model này đã hết RPD
+            if (isModelDead(keyIdx, modelName)) {
+                console.log(`[GEMINI] Bỏ qua Key [${keyIdx}] + Model [${modelName}] (RPD exhausted)`);
+                continue;
+            }
+
             allKeysDead = false;
             const dynGenAI = API_KEYS.length > 0 ? new GoogleGenerativeAI(API_KEYS[keyIdx]) : genAI;
 
@@ -128,12 +155,12 @@ async function smartFallback(buildModelFn) {
                 const isNotFound = msg.includes('404') || msg.includes('not found') || msg.includes('MODEL_NOT_FOUND');
 
                 if (is429) {
-                    // Key này đã hết quota -> đánh dấu dead và thử key tiếp ngay
-                    markKeyDead(keyIdx);
+                    // Đánh dấu cả key+model combo dead (hết RPD theo ngày)
+                    markModelDead(keyIdx, modelName);
                     console.warn(`[GEMINI] Key [${keyIdx}] - Model ${modelName} -> 429. Nhảy key tiếp ngay.`);
                     continue;
                 } else if (isServer || isNotFound) {
-                    // Lỗi server hoặc model không sãn có -> thử model tiếp theo
+                    // Lỗi server hoặc model không sẵn có -> thử model tiếp theo
                     console.warn(`[GEMINI] Key [${keyIdx}] - Model ${modelName} -> ${msg.substring(0, 60)}. Nhảy model tiếp.`);
                     break; // out of key loop -> try next model
                 } else {

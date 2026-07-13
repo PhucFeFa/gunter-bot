@@ -12,7 +12,7 @@ module.exports = {
         .addUserOption(opt => opt.setName('target').setDescription('Người nhận').setRequired(true))
         .addIntegerOption(opt => opt.setName('money').setDescription('Số tiền muốn cho thêm (Cộng dồn)').setRequired(false))
         .addStringOption(opt => opt.setName('job').setDescription('ID nghề nghiệp muốn set (Ghi đè)').setRequired(false))
-        .addIntegerOption(opt => opt.setName('rod').setDescription('ID cần câu muốn set (Ghi đè, 1-5)').setRequired(false)),
+        .addIntegerOption(opt => opt.setName('rod').setDescription('ID cần câu muốn set (Ghi đè)').setRequired(false)),
 
     async execute(interaction) {
         if (interaction.user.id !== ADMIN_ID) {
@@ -51,10 +51,13 @@ module.exports = {
                 await setJob(target.id, actualJobId);
             }
             if (setRodId) {
-                const rodId = Math.max(1, Math.min(5, setRodId)); // Đảm bảo rod từ 1 đến 5
-                const durability = ROD_DURABILITY[rodId] || 15;
-                await setUserRod(target.id, rodId, durability);
-                desc += `🎣 **Cần câu mới:** Cấp \`${rodId}\` (Độ bền: ${durability})\n`;
+                const rodData = RODS.find(r => r.id === setRodId);
+                if (!rodData) {
+                    return interaction.editReply('❌ ID Cần câu không tồn tại!');
+                }
+                const durability = rodData.maxDurability || 15;
+                await setUserRod(target.id, setRodId, durability);
+                desc += `🎣 **Cần câu mới:** ${rodData.name} ${rodData.emoji} (Độ bền: ${durability})\n`;
             }
 
             const embed = new EmbedBuilder()

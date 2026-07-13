@@ -8,7 +8,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('work')
         .setDescription('Làm việc kiếm tiền dựa trên nghề nghiệp hiện tại của bạn (Cooldown 30s)'),
-        
+
     async execute(interaction) {
         await interaction.deferReply();
         const userId = interaction.user.id;
@@ -29,7 +29,7 @@ module.exports = {
         if (lastWork && (now - lastWork) < WORK_COOLDOWN) {
             const remaining = WORK_COOLDOWN - (now - lastWork);
             const seconds = Math.ceil(remaining / 1000);
-            
+
             const embed = new EmbedBuilder()
                 .setColor(0xf39c12)
                 .setTitle('⏳ Nghỉ tay đi thằng culi!')
@@ -38,16 +38,16 @@ module.exports = {
         }
 
         const currentJob = jobs[job];
-        
+
         // Random câu thoại
         const randomDialogue = currentJob.dialogues[Math.floor(Math.random() * currentJob.dialogues.length)];
-        
+
         // Random tiền lương
         const originalSalary = Math.floor(Math.random() * (currentJob.maxSalary - currentJob.minSalary + 1)) + currentJob.minSalary;
 
         const user = await require('../../utils/economyDB').getUser(userId);
         const { updateLoan } = require('../../utils/economyDB');
-        
+
         let salary = originalSalary;
         let debtPaid = 0;
         let loanInfo = '';
@@ -75,18 +75,65 @@ module.exports = {
             loanInfo = `\n\n🏦 **${randomDebtMsg}:** -${debtPaid.toLocaleString()} 🪙\n📉 **Còn nợ tao:** ${(user.loanAmount - debtPaid).toLocaleString()} 🪙. Trốn đi đâu?`;
         }
 
+        // Xử lý các event đặc biệt của nghề nghiệp (Tú Sena, Jack, Ộ i i)
+        let specialInfo = '';
+        let penaltyAmount = 0;
+        let rewardAmount = 0;
+        let addedDebt = 0;
+
+        if (currentJob.id === 'tu_sena') {
+            // 30% bị công an bắt
+            if (Math.random() < 0.3) {
+                penaltyAmount = Math.floor(Math.random() * 3000000) + 2000000; // Phạt 2-5 triệu
+                if (user.balance < penaltyAmount) {
+                    penaltyAmount = user.balance; // Trừ về 0
+                }
+                salary = 0; // Bị bắt thì mất cả chì lẫn chài (mất lương hôm đó)
+                specialInfo = `\n\n🚨 **CẢNH SÁT ẬP VÀO!**\nBị bế lên đồn vì tội tổ chức đánh bạc, nộp phạt **${penaltyAmount.toLocaleString()} 🪙**!`;
+            }
+        } else if (currentJob.id === 'jack') {
+            // 25% bị thu tiền nuôi con (cố định 5 củ)
+            if (Math.random() < 0.25) {
+                penaltyAmount = 5000000;
+                specialInfo = `\n\n🍼 **TING TING!**\nĐến tháng chu cấp cho Thiên Ân, tự động trừ **5,000,000 🪙** tiền nuôi con! Trách nhiệm của 1 người cha!`;
+            }
+        } else if (currentJob.id === 'o_i_i') {
+            const randOii = Math.random();
+            if (randOii < 0.2) { // 20% nổ donate siêu lớn
+                rewardAmount = Math.floor(Math.random() * 10000000) + 5000000; // 5-15 triệu
+                salary += rewardAmount;
+                specialInfo = `\n\n🤑 **DONATE KHỦNG!**\nCó đại gia Donate nổ sập kênh, nhận ngay **${rewardAmount.toLocaleString()} 🪙**! Chúc anh sức khỏe, công việc thuận lợi!`;
+            } else if (randOii < 0.4) { // 20% bị vặt tiền xây trường/cầu (5-10 triệu)
+                penaltyAmount = Math.floor(Math.random() * 5000000) + 5000000;
+                specialInfo = `\n\n🧱 **TỪ THIỆN XÂY TRƯỜNG!**\nHô hào đóng góp xây trường/cầu, bạn bị trừ **${penaltyAmount.toLocaleString()} 🪙**.`;
+
+                // Cơ chế thêm nợ nếu không đủ tiền
+                if (user.balance + salary - debtPaid < penaltyAmount) {
+                    const thieu = penaltyAmount - (user.balance + salary - debtPaid);
+                    addedDebt = thieu;
+                    specialInfo += `\nTiền trong người đéo đủ? Ngân hàng đã tự động ép bạn vay **${addedDebt.toLocaleString()} 🪙** để làm từ thiện! Uy tín làm đầu!`;
+                }
+            }
+        }
+
         // Cập nhật Database
-        const newBalance = await updateBalance(userId, salary);
+        let finalIncome = salary - penaltyAmount;
+        let newBalance = await updateBalance(userId, finalIncome);
+        if (addedDebt > 0) {
+            await updateLoan(userId, addedDebt);
+        }
+
         await updateLastWork(userId);
 
         const embed = new EmbedBuilder()
             .setColor(currentJob.color)
             .setTitle(`💼 Phát lương đây thằng culi! (${currentJob.name})`)
             .setDescription(`*${randomDialogue}*\n\n` +
-                            `💵 Công sức mồ hôi nước mắt: **${originalSalary.toLocaleString()} 🪙**` +
-                            loanInfo +
-                            `\n\n💰 **Thực lãnh bỏ túi:** **${salary.toLocaleString()} 🪙**\n` +
-                            `💳 Số dư hiện tại: **${newBalance.toLocaleString()} 🪙**`)
+                `💵 Lương cơ bản: **${originalSalary.toLocaleString()} 🪙**` +
+                loanInfo +
+                specialInfo +
+                `\n\n💰 **Thực lãnh cuối cùng:** **${finalIncome.toLocaleString()} 🪙**\n` +
+                `💳 Số dư hiện tại: **${newBalance.toLocaleString()} 🪙**`)
             .setThumbnail(interaction.user.displayAvatarURL());
 
         return interaction.editReply({ embeds: [embed] });
@@ -97,8 +144,8 @@ module.exports = {
             user: message.author,
             deferred: true,
             replied: true,
-            deferReply: async function() {},
-            editReply: async function(options) {
+            deferReply: async function () { },
+            editReply: async function (options) {
                 return await message.reply(options);
             }
         };

@@ -88,7 +88,7 @@ module.exports = {
             else if (i.customId === 'inv_next' && page < totalPages - 1) page++;
             else if (i.customId === 'inv_sellall') {
                 const { items: allItems } = await getInventory(userId, 0, 9999);
-                if (!allItems.length) return i.reply({ content: '❌ Kho trống rỗng!', ephemeral: true });
+                if (!allItems.length) return i.reply({ content: '❌ Kho trống rỗng!', flags: 64 });
                 const sellTotal = allItems.reduce((s, f) => s + (f.price || 0), 0);
                 await clearInventory(userId);
                 await updateBalance(userId, sellTotal);

@@ -12,7 +12,7 @@ module.exports = {
                 
     async execute(interaction) {
         if (!interaction.deferred && !interaction.replied) {
-            await interaction.deferReply({ ephemeral: true });
+            await interaction.deferReply({ flags: 64 });
         }
 
         const guildId = interaction.guildId;

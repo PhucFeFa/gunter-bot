@@ -21,7 +21,7 @@ module.exports = {
         .addSubcommand(s => s.setName('repair').setDescription('Sửa cần câu bị gãy (phí = 30% giá gốc)')),
 
     async execute(interaction) {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: 64 });
         const sub = interaction.options.getSubcommand();
         const userId = interaction.user.id;
         const guildId = interaction.guildId;
@@ -121,13 +121,13 @@ module.exports = {
                 const rolePrices = { 1: 0, 2: 5000000, 3: 15000000 };
                 const price = rolePrices[zoneNum];
                 const roleId = zones[`zone${zoneNum}Role`];
-                if (!roleId) return i.reply({ content: '❌ Role chưa được setup!', ephemeral: true });
+                if (!roleId) return i.reply({ content: '❌ Role chưa được setup!', flags: 64 });
 
                 const userData = await getUser(userId);
-                if (userData.balance < price) return i.reply({ content: `❌ Không đủ tiền! Cần **${price.toLocaleString()} 🪙**`, ephemeral: true });
+                if (userData.balance < price) return i.reply({ content: `❌ Không đủ tiền! Cần **${price.toLocaleString()} 🪙**`, flags: 64 });
                 if (price > 0) await updateBalance(userId, -price);
                 await i.member.roles.add(roleId).catch(() => {});
-                await i.reply({ content: `✅ Đã mua role **${ZONE_ROLES[zoneNum - 1].name}**!`, ephemeral: true });
+                await i.reply({ content: `✅ Đã mua role **${ZONE_ROLES[zoneNum - 1].name}**!`, flags: 64 });
             });
 
             return;
@@ -212,14 +212,14 @@ module.exports = {
             if (i.customId.startsWith('buyrod_')) {
                 const rodId = parseInt(i.customId.split('_')[1]);
                 const rod = RODS.find(r => r.id === rodId);
-                if (!rod) return i.reply({ content: '❌ Cần không tồn tại!', ephemeral: true });
+                if (!rod) return i.reply({ content: '❌ Cần không tồn tại!', flags: 64 });
 
                 const userData = await getUser(userId);
-                if (userData.balance < rod.price) return i.reply({ content: `❌ Không đủ tiền! Cần **${rod.price.toLocaleString()} 🪙**`, ephemeral: true });
+                if (userData.balance < rod.price) return i.reply({ content: `❌ Không đủ tiền! Cần **${rod.price.toLocaleString()} 🪙**`, flags: 64 });
 
                 if (rod.price > 0) await updateBalance(userId, -rod.price);
                 await setUserRod(userId, rod.id, rod.maxDurability);
-                await i.reply({ content: `✅ Đã mua và trang bị **${rod.emoji} ${rod.name}**!`, ephemeral: true });
+                await i.reply({ content: `✅ Đã mua và trang bị **${rod.emoji} ${rod.name}**!`, flags: 64 });
             }
         });
 

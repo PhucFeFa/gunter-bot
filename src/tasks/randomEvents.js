@@ -2,8 +2,8 @@ const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('
 const { getGeminiResponse } = require('../utils/geminiChat');
 const { updateBalance } = require('../utils/economyDB');
 
-const MAIN_CHAT_ID = '1494709251187150860';
-const THREAD_CHANNEL_ID = '1524752989091270768';
+const MAIN_CHAT_ID = process.env.MAIN_CHAT_ID;
+const THREAD_CHANNEL_ID = process.env.THREAD_CHANNEL_ID;
 
 function initRandomEvents(client) {
     // Chạy bộ đếm mỗi 1 tiếng một lần

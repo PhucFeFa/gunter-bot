@@ -56,7 +56,7 @@ class BaccaratLiveGame {
         this.gameType = 'baccarat';
         this.running = false;
         this.round = 0;
-        this.road = [];        // Tối đa 20 kết quả
+        this.road = [];        // Tối đa 15 kết quả
         this.bets = new Map(); // userId → { side, amount }
         this.betMsgs = [];        // Tin nhắn cược để xóa sau
         this.mainMsg = null;      // Embed chính (không đổi trong suốt game)
@@ -184,7 +184,7 @@ class BaccaratLiveGame {
 
         // Push road trước khi show kết quả
         this.road.push(r.result);
-        if (this.road.length > 20) this.road.shift();
+        if (this.road.length > 15) this.road.shift();
 
         // Win/lose list
         const winList = [], loseList = [];
@@ -278,7 +278,7 @@ class BaccaratLiveGame {
     // ─── Purge user messages in channel ─────────────────────
     async _purgeUserMessages() {
         try {
-            const msgs = await this.channel.messages.fetch({ limit: 50 });
+            const msgs = await this.channel.messages.fetch({ limit: 50, cache: false });
             const toDelete = msgs.filter(m => !m.author.bot && Date.now() - m.createdTimestamp < 1296000000);
             if (toDelete.size > 0) {
                 await this.channel.bulkDelete(toDelete, true).catch(() => {});

@@ -13,9 +13,9 @@ const fs = require('fs');
 const path = require('path');
 const { getConfig } = require('../utils/configDB');
 const { handleGeminiChat } = require('../utils/geminiChat');
-const { handleGroqChat } = require('../utils/groqChat');
 const { getResponses } = require('../utils/autoResponderDB');
 const liveGameManager = require('../utils/liveGameManager');
+const beggarManager = require('../utils/beggarManager');
 
 const autoResponderCooldowns = new Map();
 
@@ -44,6 +44,13 @@ module.exports = {
         const { checkCooldown } = require('../utils/cooldown');
         const { incrementMsgCount } = require('../utils/economyDB');
         incrementMsgCount(message.author.id).catch(e => console.error('[STATS] Lỗi đếm tin nhắn:', e));
+
+        // --- SỰ KIỆN XIN TIỀN BỰA ---
+        try {
+            await beggarManager.handleMessage(message);
+        } catch (error) {
+            console.error('[BEGGAR] Lỗi xử lý sự kiện xin tiền:', error);
+        }
 
         const config = await getConfig(message.guild.id);
         const prefix = config.prefix || 'g!';
@@ -123,7 +130,9 @@ module.exports = {
                                 return sentMsg;
                             },
                             editReply: async function(options) {
-                                const payload = typeof options === 'string' ? { content: options } : { ...options };
+                                const payload = typeof options === 'string' 
+                                    ? { content: options, embeds: [], components: [] } 
+                                    : { content: options.content || null, ...options };
                                 delete payload.ephemeral;
                                 delete payload.flags;
                                 // Nếu đã có sentMsg thì edit, không thì reply mới
@@ -132,8 +141,9 @@ module.exports = {
                                         sentMsg = await sentMsg.edit(payload);
                                         return sentMsg;
                                     } catch (e) {
+                                        console.error('[FAKE INTERACTION] Lỗi khi edit tin nhắn:', e.message);
                                         // Message bị xóa → reply mới
-                                        sentMsg = await message.reply(payload);
+                                        sentMsg = await message.reply(payload).catch(() => null);
                                         return sentMsg;
                                     }
                                 }
@@ -155,6 +165,7 @@ module.exports = {
                                 getRole: (name) => message.mentions.roles.first() || null,
                                 getChannel: (name) => message.mentions.channels.first() || null,
                                 getBoolean: (name) => null,
+                                getSubcommand: () => args[0] ? args[0].toLowerCase() : null,
                                 getString: (name) => {
                                     // Nếu có option names mapping, trả đúng arg theo index
                                     const idx = optionNames.indexOf(name);
@@ -235,18 +246,18 @@ module.exports = {
         }
 
         // ─── Feature 3: Chabot AI (Gemini) ─────────────────────
-        const AI_CHANNEL_ID = '1524806887454019795';
+        const AI_CHANNEL_ID = process.env.AI_CHANNEL_ID;
 
         // Nếu tin nhắn nằm trong kênh AI, bot sẽ tự động trả lời mọi tin nhắn (không cần tag)
         if (message.channel.id === AI_CHANNEL_ID) {
             await handleGeminiChat(message, client);
         }
 
-        // ─── Feature 4: Chabot AI Ticket (Groq) ─────────────────────
-        // Nếu trong kênh ticket và có tag bot, sử dụng não phụ Groq để hỗ trợ
+        // ─── Feature 4: Chabot AI Ticket (Gemini) ─────────────────────
+        // Nếu trong kênh ticket và có tag bot, sử dụng não phụ Gemini để hỗ trợ
         if (message.channel.name && message.channel.name.startsWith('ticket-')) {
             if (message.mentions.has(client.user)) {
-                await handleGroqChat(message, client);
+                await handleGeminiChat(message, client);
             }
         }
 

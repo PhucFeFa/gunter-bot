@@ -163,7 +163,7 @@ module.exports = {
 
         collector.on('collect', async i => {
             if (i.user.id !== user.id) {
-                return i.reply({ content: 'Đừng bấm bài của người khác!', ephemeral: true });
+                return i.reply({ content: 'Đừng bấm bài của người khác!', flags: 64 });
             }
 
             collector.resetTimer();

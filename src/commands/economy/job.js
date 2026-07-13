@@ -1,6 +1,8 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } = require('discord.js');
 const { getJobData, getUser, updateBalance, setJob, updateJobSpins } = require('../../utils/economyDB');
 const { jobs, spinJob } = require('../../data/jobs');
+
+const activeSpins = new Set();
 
 const SPIN_COST = 100000;
 
@@ -22,6 +24,11 @@ module.exports = {
             subcommand
                 .setName('spin')
                 .setDescription(`Quay nghề nghiệp mới (Phí: ${SPIN_COST.toLocaleString()} 🪙)`)
+        )
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('spin5')
+                .setDescription(`Quay 5 nghề nghiệp 1 lúc (Phí: ${(SPIN_COST * 5).toLocaleString()} 🪙)`)
         ),
         
     async execute(interaction) {
@@ -117,7 +124,7 @@ module.exports = {
 
             collector.on('collect', async i => {
                 if (i.user.id !== interaction.user.id) {
-                    return i.reply({ content: 'Bạn không thể thao tác bảng này!', ephemeral: true });
+                    return i.reply({ content: 'Bạn không thể thao tác bảng này!', flags: 64 });
                 }
 
                 if (i.customId === 'prev_page') currentPage--;
@@ -137,58 +144,154 @@ module.exports = {
             return;
         }
 
-        if (subcommand === 'spin') {
-            const user = await getUser(userId);
-            
-            if (user.balance < SPIN_COST) {
-                const embed = new EmbedBuilder()
-                    .setColor(0xe74c3c)
-                    .setTitle('❌ Không đủ tiền')
-                    .setDescription(`Bạn cần **${SPIN_COST.toLocaleString()} 🪙** để xin việc/quay nghề.\nSố dư hiện tại: **${user.balance.toLocaleString()} 🪙**`);
-                return interaction.editReply({ embeds: [embed] });
+        if (subcommand === 'spin' || subcommand === 'spin5') {
+            try {
+                if (activeSpins.has(userId)) {
+                    return await interaction.editReply({ content: '⏳ Bạn đang trong quá trình quay hoặc chọn nghề, không thể quay tiếp! Hãy hoàn thành thao tác trước.' }).catch(()=>{});
+                }
+
+                const numSpins = subcommand === 'spin5' ? 5 : 1;
+                const totalCost = SPIN_COST * numSpins;
+                const user = await getUser(userId);
+                
+                if (user.balance < totalCost) {
+                    const embed = new EmbedBuilder()
+                        .setColor(0xe74c3c)
+                        .setTitle('❌ Không đủ tiền')
+                        .setDescription(`Bạn cần **${totalCost.toLocaleString()} 🪙** để thực hiện lệnh này.\nSố dư hiện tại: **${user.balance.toLocaleString()} 🪙**`);
+                    return await interaction.editReply({ embeds: [embed] }).catch(()=>{});
+                }
+
+                // Khóa người dùng
+                activeSpins.add(userId);
+
+                // Trừ tiền
+                await updateBalance(userId, -totalCost);
+                
+                let currentSpins = user.jobSpins || 0;
+                const rolledJobs = [];
+                let pityTriggered = false;
+
+                for (let i = 0; i < numSpins; i++) {
+                    currentSpins += 1;
+                    let isPity = false;
+                    
+                    if (currentSpins >= 90) {
+                        isPity = true;
+                        currentSpins = 0; 
+                        pityTriggered = true;
+                    }
+                    
+                    const newJob = spinJob(isPity);
+                    rolledJobs.push(newJob);
+
+                    if (!isPity && ['Legendary', 'Mythic', 'Divine', 'Secret', 'Special'].includes(newJob.rarity)) {
+                        currentSpins = 0; // Reset nếu trúng hàng xịn (tự nhiên)
+                    }
+                }
+
+                // Cập nhật lại số lượt spin
+                await updateJobSpins(userId, currentSpins);
+
+                if (numSpins === 1) {
+                    const newJob = rolledJobs[0];
+                    await setJob(userId, newJob.id);
+                    activeSpins.delete(userId);
+
+                    let pityText = pityTriggered ? '\n✨ **BẢO HIỂM (90 lần)**: Bạn chắc chắn nhận được nghề Legendary hoặc cao hơn!' : '';
+                    const embed = new EmbedBuilder()
+                        .setColor(newJob.color)
+                        .setTitle('🎉 Chúc mừng bạn đã có công việc mới!')
+                        .setDescription(`Bạn đã quay trúng nghề: **${newJob.name}**\n\n` +
+                                        `🌟 Độ hiếm: **${newJob.rarity}**\n` +
+                                        `💸 Mức lương: **${newJob.minSalary.toLocaleString()} - ${newJob.maxSalary.toLocaleString()} 🪙**\n\n` +
+                                        `Hãy dùng lệnh \`/work\` để bắt đầu kiếm tiền nhé!` + pityText)
+                        .setFooter({ text: `Đã trừ ${totalCost.toLocaleString()} 🪙 phí xin việc | Lượt quay: ${currentSpins}/90` });
+
+                    return interaction.editReply({ embeds: [embed] });
+                } else {
+                    // Xử lý spin5
+                    let description = '**Bạn đã quay được 5 nghề sau đây:**\n\n';
+                    rolledJobs.forEach((job, index) => {
+                        description += `${index + 1}. **${job.name}** (${job.rarity})\n`;
+                    });
+                    description += `\n⚠️ **Vui lòng chọn 1 nghề bên dưới để nhận.**\nBạn có **1 phút** để chọn, nếu không chọn nghề sẽ tự mất và không được hoàn tiền.`;
+                    
+                    if (pityTriggered) {
+                        description += '\n✨ **BẢO HIỂM (90 lần)**: Bạn đã được đảm bảo rơi ra nghề xịn trong đợt quay này!';
+                    }
+
+                    const embed = new EmbedBuilder()
+                        .setColor(0xf39c12)
+                        .setTitle('🎰 Kết quả quay x5')
+                        .setDescription(description)
+                        .setFooter({ text: `Đã trừ ${totalCost.toLocaleString()} 🪙 | Lượt quay: ${currentSpins}/90` });
+
+                    const selectMenu = new StringSelectMenuBuilder()
+                        .setCustomId('select_job_spin5')
+                        .setPlaceholder('Vui lòng chọn một nghề bạn muốn nhận...')
+                        .addOptions(rolledJobs.map((job, index) => {
+                            return {
+                                label: `${index + 1}. ${job.name}`,
+                                description: `Độ hiếm: ${job.rarity} - Lương: ${(job.minSalary/1000).toLocaleString()}k-${(job.maxSalary/1000).toLocaleString()}k`,
+                                value: `${index}_${job.id}` // Gắn kèm index để xử lý trường hợp trùng nghề
+                            };
+                        }));
+
+                    const row = new ActionRowBuilder().addComponents(selectMenu);
+
+                    const msg = await interaction.editReply({ embeds: [embed], components: [row] });
+                    
+                    if (!msg || !msg.createMessageComponentCollector) {
+                        activeSpins.delete(userId);
+                        return;
+                    }
+
+                    const collector = msg.createMessageComponentCollector({ time: 60000 }); // 1 phút
+
+                    collector.on('collect', async i => {
+                        if (i.user.id !== userId) {
+                            return i.reply({ content: 'Bạn không phải là người đang chọn nghề!', flags: 64 });
+                        }
+
+                        const selectedValue = i.values[0];
+                        const selectedJobId = selectedValue.split('_').slice(1).join('_'); // Lấy jobId từ value
+                        const selectedJob = jobs[selectedJobId];
+
+                        await setJob(userId, selectedJobId);
+                        activeSpins.delete(userId); // Mở khóa
+
+                        const successEmbed = new EmbedBuilder()
+                            .setColor(selectedJob.color)
+                            .setTitle('🎉 Bạn đã chọn công việc mới!')
+                            .setDescription(`Bạn đã lựa chọn trang bị nghề: **${selectedJob.name}**\n\n` +
+                                            `🌟 Độ hiếm: **${selectedJob.rarity}**\n` +
+                                            `💸 Mức lương: **${selectedJob.minSalary.toLocaleString()} - ${selectedJob.maxSalary.toLocaleString()} 🪙**\n\n` +
+                                            `Hãy dùng lệnh \`/work\` để bắt đầu kiếm tiền nhé!`)
+                            .setFooter({ text: 'Chúc bạn may mắn với công việc mới!' });
+
+                        await i.update({ embeds: [successEmbed], components: [] });
+                        collector.stop('selected');
+                    });
+
+                    collector.on('end', (collected, reason) => {
+                        if (reason !== 'selected') {
+                            activeSpins.delete(userId); // Mở khóa
+                            const timeoutEmbed = new EmbedBuilder()
+                                .setColor(0xe74c3c)
+                                .setTitle('⏳ Hết giờ chọn nghề')
+                                .setDescription('Bạn đã không chọn nghề trong thời gian 1 phút. Các nghề quay được đã bị hủy bỏ và bạn vẫn giữ nghề cũ (Không hoàn tiền).');
+                            
+                            // Sử dụng edit để tương thích tốt với prefix message
+                            msg.edit({ embeds: [timeoutEmbed], components: [] }).catch(() => {});
+                        }
+                    });
+                }
+            } catch (error) {
+                activeSpins.delete(userId);
+                console.error('[JOB SPIN] Lỗi:', error);
+                return interaction.editReply({ content: 'Có lỗi xảy ra trong quá trình xử lý. Hãy thử lại.' }).catch(()=>{});
             }
-
-            // Trừ tiền
-            await updateBalance(userId, -SPIN_COST);
-            
-            // Xử lý pity
-            let currentSpins = user.jobSpins || 0;
-            currentSpins += 1;
-            
-            let isPity = false;
-            let pityText = '';
-            
-            if (currentSpins >= 90) {
-                isPity = true;
-                currentSpins = 0; // Reset sau khi nổ hũ pity
-                pityText = '\n✨ **BẢO HIỂM (90 lần)**: Bạn chắc chắn nhận được nghề Legendary hoặc cao hơn!';
-            }
-            
-            // Cập nhật lại số lượt spin
-            await updateJobSpins(userId, currentSpins);
-            
-            // Quay nghề
-            const newJob = spinJob(isPity);
-            
-            // Nếu người chơi may mắn quay ra nghề hiếm tự nhiên (Legendary trở lên) trước 90 lượt, ta cũng reset pity?
-            // "khi người dùng quay đủ 90 lượt thì sẽ đảm bảo cho họ 1 nghề legendary" -> Cứ để tích luỹ, hoặc reset nếu trúng đồ ngon. 
-            // Ở đây tôi chọn reset nếu ra nghề xịn để tránh lạm phát.
-            if (!isPity && ['Legendary', 'Mythic', 'Divine', 'Secret'].includes(newJob.rarity)) {
-                await updateJobSpins(userId, 0);
-            }
-
-            await setJob(userId, newJob.id);
-
-            const embed = new EmbedBuilder()
-                .setColor(newJob.color)
-                .setTitle('🎉 Chúc mừng bạn đã có công việc mới!')
-                .setDescription(`Bạn đã quay trúng nghề: **${newJob.name}**\n\n` +
-                                `🌟 Độ hiếm: **${newJob.rarity}**\n` +
-                                `💸 Mức lương: **${newJob.minSalary.toLocaleString()} - ${newJob.maxSalary.toLocaleString()} 🪙**\n\n` +
-                                `Hãy dùng lệnh \`/work\` để bắt đầu kiếm tiền nhé!` + pityText)
-                .setFooter({ text: `Đã trừ ${SPIN_COST.toLocaleString()} 🪙 phí xin việc | Lượt quay: ${currentSpins}/90` });
-
-            return interaction.editReply({ embeds: [embed] });
         }
     },
 

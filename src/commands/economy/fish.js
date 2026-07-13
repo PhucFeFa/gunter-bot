@@ -166,11 +166,11 @@ module.exports = {
             newDur = currentDurability - 1;
             if (newDur <= 0) {
                 await updateRodDurability(userId, -1); // -1 = broken
-                await interaction.followUp({ content: `🚨 **${rod.emoji} ${rod.name}** đã **gãy** sau ván câu này! Dùng \`/fishshop repair\` để sửa (phí = 30% giá gốc).`, ephemeral: true }).catch(() => {});
+                await interaction.followUp({ content: `🚨 **${rod.emoji} ${rod.name}** đã **gãy** sau ván câu này! Dùng \`/fishshop repair\` để sửa (phí = 30% giá gốc).`, flags: 64 }).catch(() => {});
             } else {
                 await updateRodDurability(userId, newDur);
                 if (newDur === 5) {
-                    await interaction.followUp({ content: `⚠️ **${rod.emoji} ${rod.name}** sắp gãy! Chỉ còn **5 độ bền**. Hãy chuẩn bị sửa hoặc mua cần mới!`, ephemeral: true }).catch(() => {});
+                    await interaction.followUp({ content: `⚠️ **${rod.emoji} ${rod.name}** sắp gãy! Chỉ còn **5 độ bền**. Hãy chuẩn bị sửa hoặc mua cần mới!`, flags: 64 }).catch(() => {});
                 }
             }
         }

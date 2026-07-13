@@ -29,6 +29,9 @@ module.exports = {
         const { initRandomEvents } = require('../tasks/randomEvents');
         initRandomEvents(client);
 
+        const { initRateUpManager } = require('../utils/rateManager');
+        initRateUpManager(client);
+
 
         // Cập nhật Server Stats ngầm mỗi 15 phút (900000ms)
         setInterval(async () => {

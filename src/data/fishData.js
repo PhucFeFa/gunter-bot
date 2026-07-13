@@ -6,6 +6,8 @@
  * size: cm, price = basePrice * (size/minSize)
  */
 
+const { getCurrentRateUp } = require('../utils/rateManager');
+
 const ZONES = [
     { id: 1, name: 'Vịnh Làng Chài', emoji: '🏖️', roleColor: 0x00BFFF },
     { id: 2, name: 'Đại Dương Sâu Thẳm', emoji: '🌊', roleColor: 0x0000CD },
@@ -299,7 +301,16 @@ function getFishForZone(zoneId) {
 
 function getWeightedFish(zoneId) {
     const pool = FISH_LIST.filter(f => f.zone <= zoneId);
-    const weights = pool.map(f => TIER_WEIGHT[f.tier]);
+    const isFishRateUp = getCurrentRateUp() === 'fish';
+    
+    const weights = pool.map(f => {
+        let w = TIER_WEIGHT[f.tier];
+        if (isFishRateUp && f.tier >= 5) {
+            w = w * 2; // Gấp đôi tỷ lệ ra cá tier 5+
+        }
+        return w;
+    });
+    
     const total = weights.reduce((a, b) => a + b, 0);
     let r = Math.random() * total;
     for (let i = 0; i < pool.length; i++) {
@@ -336,7 +347,11 @@ function rollChest() {
 function rollShiny(fish, rod) {
     const baseRate = fish.shinyRate ?? 0.005;
     const bonusMult = 1 + (rod.bonusShiny || 0) / 100;
-    return Math.random() < baseRate * bonusMult;
+    let finalRate = baseRate * bonusMult;
+    if (getCurrentRateUp() === 'fish') {
+        finalRate *= 2; // Gấp đôi tỷ lệ ra Shiny
+    }
+    return Math.random() < finalRate;
 }
 
 function applyShiny(fishResult) {

@@ -1,3 +1,5 @@
+const { getCurrentRateUp } = require('../utils/rateManager');
+
 module.exports = {
     jobs: {
         an_may: {
@@ -723,6 +725,127 @@ module.exports = {
                 "Chỉ bằng một câu nói 'Mua lại công ty đó cho tôi', bạn đã thâu tóm toàn bộ thị trường ngách."
             ]
         },
+        than_thoi_gian: {
+            id: 'than_thoi_gian',
+            name: 'Thần Thời Gian',
+            rarity: 'Divine',
+            color: 0x8e44ad,
+            minSalary: 1600000,
+            maxSalary: 2600000,
+            weight: 1,
+            hidden: true,
+            dialogues: [
+                "Tua nhanh thời gian cây lúa chín để thu hoạch đem bán, nhận tiền trong 1 giây.",
+                "Quay ngược thời gian để mua Bitcoin năm 2009, nhưng lại lười nên thôi.",
+                "Lấy cắp thời gian của kẻ thù đem bán cho đại gia đang hấp hối.",
+                "Tạo ra một vòng lặp thời gian để ăn xin 1000 lần một ngày.",
+                "Dừng thời gian lại để... ngủ nướng, đéo làm mà vẫn có lương.",
+                "Đóng băng thời gian toàn vũ trụ, tiện tay vơ vét một ít vàng."
+            ]
+        },
+        than_khong_gian: {
+            id: 'than_khong_gian',
+            name: 'Thần Không Gian',
+            rarity: 'Divine',
+            color: 0x2980b9,
+            minSalary: 1700000,
+            maxSalary: 2700000,
+            weight: 1,
+            hidden: true,
+            dialogues: [
+                "Mở cổng không gian trộm kho bạc ngân hàng nhà nước ở một chiều không gian khác.",
+                "Gấp khúc không gian để ship hàng lậu xuyên dải ngân hà, phí ship cực cao.",
+                "Chuyển ngân hàng Gunter vào túi không gian riêng của mình.",
+                "Dịch chuyển một hòn đảo vàng ở hành tinh khác về làm của riêng.",
+                "Nén không gian tạo ra lỗ đen, đe dọa vũ trụ và nhận tiền chuộc.",
+                "Bẻ cong không gian để nhìn trộm sổ xố tương lai."
+            ]
+        },
+        ban_tra_da: {
+            id: 'ban_tra_da',
+            name: 'Bán Trà Đá Vỉa Hè',
+            rarity: 'Common',
+            color: 0x2ecc71,
+            minSalary: 5000,
+            maxSalary: 20000,
+            weight: 230,
+            dialogues: [
+                "Bán được chục cốc trà đá, thu luôn tiền cắn hướng dương của khách.",
+                "Ngồi hóng hớt buôn chuyện cả ngày, nhặt được vài đồng lẻ khách làm rơi.",
+                "Khách bo thêm tiền thừa vì thấy quán cô nghèo quá.",
+                "Bị đô thị rượt chạy té khói, may mà vẫn ôm được hòm tiền.",
+                "Pha nhầm nước vối thay trà đá, khách chửi nhưng vẫn phải trả tiền.",
+                "Nghe trộm được kèo bóng đá của mấy anh tài xế, đánh theo và ăn được một ít."
+            ]
+        },
+        grab_bike: {
+            id: 'grab_bike',
+            name: 'Grab Bike',
+            rarity: 'Uncommon',
+            color: 0x1abc9c,
+            minSalary: 40000,
+            maxSalary: 90000,
+            weight: 70,
+            dialogues: [
+                "Chở khách Tây đi chợ Bến Thành, khách bo tiền đô.",
+                "Bị book đi ngõ hẻm lắt léo, rát cả xe nhưng bù lại cước cao.",
+                "Hủy cuốc bị app trừ tiền, xót ruột nhưng bù lại cuốc sau thơm hơn.",
+                "Chở em gái mưa đi học, được ẻm tip cho chai nước suối ngọt ngào.",
+                "Chạy sấp mặt giữa trưa nắng, đủ tiền thay bình nhớt mới.",
+                "Gặp khách hãm bắt chờ 30 phút, bạn chửi thầm nhưng tiền vẫn bỏ túi."
+            ]
+        },
+        content_creator: {
+            id: 'content_creator',
+            name: 'Content Creator',
+            rarity: 'Rare',
+            color: 0x9b59b6,
+            minSalary: 120000,
+            maxSalary: 230000,
+            weight: 30,
+            dialogues: [
+                "Làm video giật tít câu view, bị chửi sấp mặt nhưng tiền quảng cáo nổ ầm ầm.",
+                "Nhận PR lố cho mỹ phẩm kem trộn, túi rủng rỉnh tiền.",
+                "Lên mạng khóc lóc kể khổ, fan donate cứu trợ liên tục.",
+                "Bị bóc phốt trên group, lượt tương tác tăng đột biến kéo theo tiền tài trợ.",
+                "Quay clip nhảy nhót uốn éo, lên xu hướng tóp tóp kiếm bộn tiền.",
+                "Chôm content nước ngoài về dịch lại, ăn view dễ như ăn kẹo."
+            ]
+        },
+        kol_tiktok: {
+            id: 'kol_tiktok',
+            name: 'KOL Tóp Tóp',
+            rarity: 'Epic',
+            color: 0xe74c3c,
+            minSalary: 250000,
+            maxSalary: 400000,
+            weight: 12,
+            dialogues: [
+                "Livestream chốt đơn xà phòng tắm, hoa hồng nhảy ầm ầm vào tài khoản.",
+                "PK livestream với idol khác, fan ném thiên thạch, sư tử ầm ầm.",
+                "Được nhãn hàng book đi sự kiện, check-in 1 tấm hình nhận ngay vài củ.",
+                "Review quán ăn khen lấy khen để, chủ quán dúi thêm phong bì dày cộp.",
+                "Tạo drama giả trên mạng, view tăng chóng mặt, tiền booking quảng cáo x3.",
+                "Lên live giả vờ khóc lóc đòi nghỉ làm, fan ném quà dồn dập an ủi."
+            ]
+        },
+        ty_phu: {
+            id: 'ty_phu',
+            name: 'Tỷ Phú Tự Thân',
+            rarity: 'Legendary',
+            color: 0xf1c40f,
+            minSalary: 500000,
+            maxSalary: 750000,
+            weight: 4,
+            dialogues: [
+                "Mua lại luôn mạng xã hội bạn đang dùng chỉ vì thấy nó lag.",
+                "Cổ phiếu công ty khởi nghiệp của bạn tăng vọt lên sàn Nasdaq.",
+                "Vừa đi dạo vừa tiện tay ký cái hợp đồng nghìn tỷ.",
+                "Xây khu đô thị mới, bán đứt cho giới siêu giàu lấy tiền mặt đập hộp.",
+                "Đầu tư vào Bitcoin từ lúc nó giá 1 đô, giờ chốt lời mua biệt thự.",
+                "Tham dự tiệc VIP giới thượng lưu, nhận được khoản đầu tư khổng lồ từ thái dương."
+            ]
+        },
         kho_ga_mixi: {
             id: 'kho_ga_mixi',
             name: 'Khô Gà Mixi Seller',
@@ -740,6 +863,157 @@ module.exports = {
                 "Khách hàng đòi mua sỉ khô gà với số lượng không tưởng, bạn thu về doanh thu bạc tỷ.",
                 "Hôm nay có thằng ngu nào vừa donate cho, doanh thu x3, bạn vui vẻ đi sắm đồ hiệu."
             ]
+        },
+        tu_sena: {
+            id: 'tu_sena',
+            name: 'Tú Sena',
+            rarity: 'Special',
+            color: 0x8b0000,
+            minSalary: 3000000,
+            maxSalary: 6000000,
+            weight: 0,
+            hidden: true,
+            dialogues: [
+                "Vừa bú được kèo tài xỉu thơm phức, tiền vô như nước cống.",
+                "All-in baccarat ăn nguyên mâm, bạn tự tin gáy to nhất sòng.",
+                "Làm cái kèo xiên 5 bóng đá, ăn trọn tiền nhà cái.",
+                "Kéo 500 anh em vào bờ thành công, thu phế mỏi tay."
+            ]
+        },
+        jack: {
+            id: 'jack',
+            name: 'Jack 5 Triệu',
+            rarity: 'Special',
+            color: 0xf1c40f,
+            minSalary: 1000000,
+            maxSalary: 2000000,
+            weight: 0,
+            hidden: true,
+            dialogues: [
+                "Ra MV mới top 1 trending, view ầm ầm tiền Youtube đổ về.",
+                "Đi hát hội chợ fan hú hét ầm ĩ, cát-xê chục củ nhẹ nhàng.",
+                "Được tham gia chung mâm với sao quốc tế (dù đi ké), giá trị thương hiệu tăng vọt.",
+                "Lên show thực tế gáy khét lẹt, cát-xê vẫn nhận đều đều."
+            ]
+        },
+        o_i_i: {
+            id: 'o_i_i',
+            name: 'Ộ i i',
+            rarity: 'Special',
+            color: 0x3498db,
+            minSalary: 1500000,
+            maxSalary: 2500000,
+            weight: 0,
+            hidden: true,
+            dialogues: [
+                "Ngồi lải nhải trên stream 4 tiếng đồng hồ, chửi viewer như hát hay.",
+                "Kể chuyện ma ngày xưa, viewer sợ tái mặt ném tiền donate rào rào.",
+                "Hát mấy bài nhạc chế, bị chửi là thảm họa nhưng view thì ngất ngưởng.",
+                "Tâm sự tuổi hồng khuyên răn giới trẻ, được tung hô là idol."
+            ]
+        },
+        thay_boi: {
+            id: 'thay_boi',
+            name: 'Thầy Bói Xem Voi',
+            rarity: 'Uncommon',
+            color: 0xe67e22,
+            minSalary: 30000,
+            maxSalary: 80000,
+            weight: 60,
+            dialogues: [
+                "Phán bừa một câu xanh rờn, khách sợ quá rút ví đưa tiền giải hạn.",
+                "Đeo kính đen giả mù ngồi vỉa hè, gom được bộn tiền lẻ.",
+                "Bói bài Tarot cho mấy em gái mộng mơ, kiếm được tiền ăn sáng.",
+                "Khách hỏi bao giờ giàu, bạn trả lời 'sắp rồi' và nhận luôn tiền tip.",
+                "Dọa khách nhà có vong rủ nhau đi mua sắm, nhận thù lao trừ tà.",
+                "Phán sai lè nhưng lấp liếm giỏi, khách vẫn tin sái cổ."
+            ]
+        },
+        hacker_lom: {
+            id: 'hacker_lom',
+            name: 'Hacker Lỏm',
+            rarity: 'Rare',
+            color: 0x2c3e50,
+            minSalary: 90000,
+            maxSalary: 180000,
+            weight: 30,
+            dialogues: [
+                "Dùng tool có sẵn đi dọa sập web trường, ai dè web tự sập do quá tải, được tiếng tăm.",
+                "Cài win dạo nhưng bốc phét là fix lỗi hệ thống nghiêm trọng, chém giá gấp 3.",
+                "Lấy lại nick Facebook bị hack cho bà hàng xóm, nhận ngay chục củ.",
+                "Tải mã nguồn trên Github về sửa đổi màu sắc, bán cho doanh nghiệp giá trên trời.",
+                "Lừa đảo lấy mã OTP, nhưng cuối cùng lại giúp cảnh sát bắt một băng nhóm, được thưởng.",
+                "Dùng lệnh 'ping' màn hình đen chữ xanh khè mấy đứa bạn, tụi nó tưởng cao thủ nên bao ăn."
+            ]
+        },
+        chu_hui: {
+            id: 'chu_hui',
+            name: 'Chủ Hụi',
+            rarity: 'Epic',
+            color: 0xc0392b,
+            minSalary: 200000,
+            maxSalary: 350000,
+            weight: 12,
+            dialogues: [
+                "Hốt hụi chót lọt tháng này, tay ôm một bọc tiền dày cộp.",
+                "Bốc thảo một bát hụi lớn, anh em đóng hụi sống chết mang tiền đến tận nhà.",
+                "Lên danh sách con hụi uy tín, thu lời đều đặn mỗi tháng không trượt phát nào.",
+                "Một con hụi định giật tiền nhưng bị bạn chặn đường lấy lại, còn được tiền bồi thường.",
+                "Tiền lãi hụi sinh sôi nảy nở, bạn đi mua thêm dây chuyền vàng đeo trĩu cổ.",
+                "Tổ chức tiệc tất niên cho hội chơi hụi, thu thêm tiền hoa hồng quản lý."
+            ]
+        },
+        dai_gia_bds: {
+            id: 'dai_gia_bds',
+            name: 'Đại Gia Bất Động Sản',
+            rarity: 'Legendary',
+            color: 0xf39c12,
+            minSalary: 450000,
+            maxSalary: 800000,
+            weight: 4,
+            dialogues: [
+                "Mua lô đất nông nghiệp, tự nhiên quy hoạch thành khu đô thị, lãi gấp trăm lần.",
+                "Bán sang tay một căn biệt thự triệu đô chỉ bằng một cuộc gọi điện thoại.",
+                "Tổ chức hội thảo bán đất nền, người dân tranh nhau đặt cọc mua sạch.",
+                "Thu tiền thuê của 100 tòa nhà chung cư, máy đếm tiền chạy cháy cả khét.",
+                "Lên sóng truyền hình chém gió về giá đất, vô tình đẩy giá khu đất mình đang nắm giữ lên cao vút.",
+                "Bơm thổi giá nhà đất thành công, úp sọt một đống người đầu cơ non tay."
+            ]
+        },
+        than_dong: {
+            id: 'than_dong',
+            name: 'Thần Đồng Toán Học',
+            rarity: 'Mythic',
+            color: 0x1abc9c,
+            minSalary: 900000,
+            maxSalary: 1400000,
+            weight: 2,
+            dialogues: [
+                "Giải được một bài toán thiên niên kỷ chỉ trong lúc đang đánh răng, nhận ngay giải thưởng 1 triệu đô.",
+                "Dùng toán xác suất bẻ khóa mọi sòng bạc trên thế giới, bị cấm cửa nhưng ôm đống tiền về.",
+                "Viết một phương trình tối ưu hóa giao dịch chứng khoán, bot tự động kiếm tiền khi bạn ngủ.",
+                "Phát minh ra thuật toán nén dữ liệu vô cực, bán bản quyền cho thung lũng Silicon.",
+                "Làm bài tập hộ sinh viên trên toàn cầu qua mạng, nhận tiền thanh toán không xuể.",
+                "Được mời về làm cố vấn tối cao cho NASA, tiền lương chỉ là con số lẻ."
+            ]
+        },
+        o_shisa: {
+            id: 'o_shisa',
+            name: 'Ộ Shisa',
+            rarity: 'Secret',
+            color: 0xff00ff,
+            minSalary: 5000000,
+            maxSalary: 10000000,
+            weight: 0,
+            hidden: true,
+            dialogues: [
+                "Bạn kéo một hơi Shisha thật dài, nhả khói hình rồng cuộn bay lên trời, khách hàng choáng ngợp ném tiền thưởng.",
+                "Vừa hút Shisha vừa thả khói hình chữ Ộ, khói bay đến đâu tiền rơi đến đó.",
+                "Đứng giữa bar với Gerard Pique thả một đám mây khói Shisha khổng lồ bao trùm cả quán, chủ quán lác mắt phải trả tiền thuê biểu diễn.",
+                "Bí kíp thả khói Shisha xuyên lục địa của bạn đã được Gerard Pique trả giá hàng triệu đô để học hỏi.",
+                "Rít một hơi Shisha táo bạc hà cực căng, nhả khói làm mờ nhân ảnh, fan cuồng ném tiền donate liên tục.",
+                "Kết hợp nhả khói Shisha tung tóe với điệu múa cực lố, khách quẩy nhiệt tình và bo tiền không tiếc tay."
+            ]
         }
     },
 
@@ -748,27 +1022,56 @@ module.exports = {
      * @param {boolean} isPity - Có phải đang dùng bảo hiểm (90 roll) không?
      */
     spinJob: function (isPity = false) {
-        // Tỷ lệ bí mật 0.01% ra Khô Gà Mixi
-        if (Math.random() < 0.0001) {
+        let rand = Math.random();
+        const isJobRateUp = getCurrentRateUp() === 'job';
+        
+        // Nếu có Rate Up, x2 tỷ lệ ra các Secret và Special ẩn
+        let rateMultiplier = isJobRateUp ? 2 : 1;
+
+        // Tỷ lệ bí mật 0.01% ra Khô Gà Mixi, 0.01% ra Ộ Shisa (Secret)
+        if (rand < 0.0001 * rateMultiplier) {
             return module.exports.jobs['kho_ga_mixi'];
         }
+        if (rand >= 0.0001 * rateMultiplier && rand < 0.0002 * rateMultiplier) {
+            return module.exports.jobs['o_shisa'];
+        }
+        // Tỷ lệ bí mật ra 3 nghề Special (Mỗi nghề 0.02%)
+        if (rand >= 0.0002 * rateMultiplier && rand < 0.0004 * rateMultiplier) return module.exports.jobs['tu_sena'];
+        if (rand >= 0.0004 * rateMultiplier && rand < 0.0006 * rateMultiplier) return module.exports.jobs['jack'];
+        if (rand >= 0.0006 * rateMultiplier && rand < 0.0008 * rateMultiplier) return module.exports.jobs['o_i_i'];
 
         const jobList = Object.values(module.exports.jobs).filter(j => j.weight > 0);
-        
+
         let validJobs = jobList;
         // Pity: Guarantee Legendary, Mythic or Divine
         if (isPity) {
             validJobs = jobList.filter(j => ['Legendary', 'Mythic', 'Divine'].includes(j.rarity));
         }
 
-        const totalWeight = validJobs.reduce((sum, job) => sum + job.weight, 0);
+        // Tăng weight cho các nghề hiếm nếu đang có Rate Up
+        let totalWeight = 0;
+        const jobWeights = validJobs.map(job => {
+            let w = job.weight;
+            if (isJobRateUp && !isPity) {
+                // Tăng x2 tỷ lệ ra các nghề từ Epic trở lên
+                if (['Epic', 'Legendary', 'Mythic', 'Divine', 'Secret', 'Special'].includes(job.rarity)) {
+                    w = w * 2;
+                } else {
+                    // Giảm nhẹ tỷ lệ ra nghề Common/Uncommon để nhường chỗ
+                    w = Math.max(1, Math.floor(w * 0.8));
+                }
+            }
+            totalWeight += w;
+            return w;
+        });
+
         let random = Math.floor(Math.random() * totalWeight);
 
-        for (const job of validJobs) {
-            if (random < job.weight) {
-                return job;
+        for (let i = 0; i < validJobs.length; i++) {
+            if (random < jobWeights[i]) {
+                return validJobs[i];
             }
-            random -= job.weight;
+            random -= jobWeights[i];
         }
         return validJobs[0];
     }

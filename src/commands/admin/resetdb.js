@@ -10,7 +10,7 @@ module.exports = {
     async execute(interaction) {
         // Chỉ cho phép Chủ Server (Owner) hoặc Admin cấp cao dùng lệnh này
         if (!interaction.memberPermissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({ content: '❌ Bạn đéo đủ trình để dùng lệnh này!', ephemeral: true });
+            return interaction.reply({ content: '❌ Bạn đéo đủ trình để dùng lệnh này!', flags: 64 });
         }
 
         await interaction.deferReply();

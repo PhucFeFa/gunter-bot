@@ -27,10 +27,10 @@ module.exports = {
         const embed = new EmbedBuilder()
             .setColor(0x2B2D31) // Màu xám đen giống giao diện Discord
             .setAuthor({ 
-                name: `/${guildName}`, 
+                name: `/lostrealm.`, 
                 iconURL: member.guild.iconURL() || client.user.displayAvatarURL()
             })
-            .setDescription(`<@${member.user.id}>\n\nWelcome to the server!\n\n/${guildName} is now at **${memberCount}** members`)
+            .setDescription(`<@${member.user.id}>\n\nWelcome to the server!\n\n/lostrealm. is now at **${memberCount}** members`)
             .setThumbnail(member.user.displayAvatarURL({ size: 256 }));
             
         try {

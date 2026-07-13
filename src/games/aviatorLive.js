@@ -109,14 +109,14 @@ class AviatorLiveGame {
         const collector = this.mainMsg.createMessageComponentCollector({ componentType: ComponentType.Button });
         collector.on('collect', async (i) => {
             if (i.customId === 'liveaviator_bet') {
-                return i.reply({ content: 'Vui lòng gõ `g!bet <số tiền>` để đặt cược!', ephemeral: true });
+                return i.reply({ content: 'Vui lòng gõ `g!bet <số tiền>` để đặt cược!', flags: 64 });
             }
             const result = await this.cashout(i.user.id, i.user.username);
             if (result) {
                 await i.reply({ content: `💵 **${i.user.username}** đã rút tại **${result.mult.toFixed(2)}x** — nhận **${result.winAmount.toLocaleString()} 🪙**!`, ephemeral: false }).catch(() => null);
                 this.cashoutMsgs.push(i);
             } else {
-                await i.reply({ content: '❌ Không thể rút!', ephemeral: true }).catch(() => {});
+                await i.reply({ content: '❌ Không thể rút!', flags: 64 }).catch(() => {});
             }
         });
 
@@ -285,7 +285,7 @@ class AviatorLiveGame {
     // ─── Purge user messages in channel ─────────────────────
     async _purgeUserMessages() {
         try {
-            const msgs = await this.channel.messages.fetch({ limit: 50 });
+            const msgs = await this.channel.messages.fetch({ limit: 50, cache: false });
             const toDelete = msgs.filter(m => !m.author.bot && Date.now() - m.createdTimestamp < 1296000000);
             if (toDelete.size > 0) {
                 await this.channel.bulkDelete(toDelete, true).catch(() => {});

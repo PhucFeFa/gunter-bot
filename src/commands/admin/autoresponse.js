@@ -47,7 +47,7 @@ module.exports = {
 
     async execute(interaction) {
         if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
-            return interaction.reply({ content: '❌ Mày đéo có quyền dùng lệnh này! Chỉ Admin thôi nhé.', ephemeral: true });
+            return interaction.reply({ content: '❌ Mày đéo có quyền dùng lệnh này! Chỉ Admin thôi nhé.', flags: 64 });
         }
 
         const subcommand = interaction.options.getSubcommand();
@@ -66,7 +66,7 @@ module.exports = {
                     new RegExp(triggerRaw); // Test thử regex xem hợp lệ không
                     triggers = [triggerRaw];
                 } catch (e) {
-                    return interaction.reply({ content: `❌ Regex không hợp lệ: \`${e.message}\``, ephemeral: true });
+                    return interaction.reply({ content: `❌ Regex không hợp lệ: \`${e.message}\``, flags: 64 });
                 }
             } else {
                 triggers = triggerRaw.split(',').map(t => t.trim().toLowerCase()).filter(t => t.length > 0);
@@ -94,7 +94,7 @@ module.exports = {
             if (success) {
                 await interaction.reply({ content: `✅ Đã xóa rule có ID: \`${idToRemove}\`` });
             } else {
-                await interaction.reply({ content: `❌ Không tìm thấy rule nào có ID: \`${idToRemove}\``, ephemeral: true });
+                await interaction.reply({ content: `❌ Không tìm thấy rule nào có ID: \`${idToRemove}\``, flags: 64 });
             }
 
         } else if (subcommand === 'list') {

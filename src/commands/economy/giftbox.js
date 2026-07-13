@@ -194,20 +194,20 @@ module.exports = {
 
             // Chặn người tạo
             if (claimer.id === creator.id) {
-                return i.reply({ content: '❌ Bạn là người thả lì xì mà! Tính tự biên tự diễn à?', ephemeral: true });
+                return i.reply({ content: '❌ Bạn là người thả lì xì mà! Tính tự biên tự diễn à?', flags: 64 });
             }
 
             // Chặn acc clone (tham gia server dưới 3 ngày)
             if (antiClone && i.member && i.member.joinedAt) {
                 const joinedDays = (Date.now() - i.member.joinedAt.getTime()) / (1000 * 60 * 60 * 24);
                 if (joinedDays < 3) {
-                    return i.reply({ content: '❌ Nick mới vào server dưới 3 ngày không được nhận lì xì để chống clone!', ephemeral: true });
+                    return i.reply({ content: '❌ Nick mới vào server dưới 3 ngày không được nhận lì xì để chống clone!', flags: 64 });
                 }
             }
 
             // Chặn nếu đang xử lý người khác (chống click đồng thời)
             if (boxState.isProcessing) {
-                return i.reply({ content: '⏳ Đang có người bóc hộp, đợi tí...', ephemeral: true });
+                return i.reply({ content: '⏳ Đang có người bóc hộp, đợi tí...', flags: 64 });
             }
             
             // Lock
@@ -217,12 +217,12 @@ module.exports = {
                 // Kiểm tra lại sau khi lock
                 if (boxState.claimedUsers.has(claimer.id)) {
                     boxState.isProcessing = false;
-                    return i.reply({ content: '❌ Tham thì thâm! Bạn đã nhận phần của mình rồi.', ephemeral: true });
+                    return i.reply({ content: '❌ Tham thì thâm! Bạn đã nhận phần của mình rồi.', flags: 64 });
                 }
 
                 if (boxState.remainingSlots <= 0) {
                     boxState.isProcessing = false;
-                    return i.reply({ content: '😭 Chậm tay mất rồi, lì xì đã phát hết!', ephemeral: true });
+                    return i.reply({ content: '😭 Chậm tay mất rồi, lì xì đã phát hết!', flags: 64 });
                 }
 
                 boxState.claimedUsers.add(claimer.id);
@@ -254,7 +254,7 @@ module.exports = {
                 boxState.isProcessing = false;
                 
                 // Trả lời ephemeral
-                await i.reply({ content: `🎉 TING TING! Bạn vừa bóc được **${amount.toLocaleString()} $** từ hộp quà của <@${creator.id}>.`, ephemeral: true });
+                await i.reply({ content: `🎉 TING TING! Bạn vừa bóc được **${amount.toLocaleString()} $** từ hộp quà của <@${creator.id}>.`, flags: 64 });
 
                 // Cộng tiền BẤT ĐỒNG BỘ 
                 await updateBalance(claimer.id, amount);

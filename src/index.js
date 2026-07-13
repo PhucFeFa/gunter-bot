@@ -8,7 +8,7 @@
  */
 
 require('dotenv').config();
-const { Client, GatewayIntentBits, Partials, Collection } = require('discord.js');
+const { Client, GatewayIntentBits, Partials, Collection, Options } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 const { startServer } = require('./server');
@@ -43,6 +43,20 @@ const client = new Client({
         GatewayIntentBits.GuildMessageReactions,
     ],
     partials: [Partials.Message, Partials.Channel, Partials.Reaction],
+    makeCache: Options.cacheWithLimits({
+        ...Options.DefaultMakeCacheSettings,
+        MessageManager: { maxSize: 25 },
+        PresenceManager: 0,
+        ReactionManager: 0,
+        ReactionUserManager: 0,
+        ThreadManager: 0,
+        GuildEmojiManager: 0,
+        GuildStickerManager: 0,
+        GuildInviteManager: 0,
+        GuildScheduledEventManager: 0,
+        StageInstanceManager: 0,
+        BaseGuildEmojiManager: 0,
+    }),
 });
 
 // --- Initialize Music Player ---

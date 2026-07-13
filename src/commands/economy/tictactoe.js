@@ -100,7 +100,7 @@ module.exports = {
             if (i.customId === 'caro_accept' && i.user.id === p2.id) {
                 const p2Data = await getUser(p2.id);
                 if (p2Data.balance < bet) {
-                    return i.reply({ content: '❌ Bạn không đủ tiền để chơi ván này!', ephemeral: true });
+                    return i.reply({ content: '❌ Bạn không đủ tiền để chơi ván này!', flags: 64 });
                 }
 
                 // Trừ tiền 2 bên và đưa vào ds hoàn tiền khi sập
@@ -153,7 +153,7 @@ module.exports = {
             // Trừ tiền
             const p1Data = await getUser(p1.id);
             if (p1Data.balance < bet) {
-                return i.reply({ content: '❌ Bạn không đủ tiền! Ảo thuật à?', ephemeral: true });
+                return i.reply({ content: '❌ Bạn không đủ tiền! Ảo thuật à?', flags: 64 });
             }
             await updateBalance(p1.id, -bet);
             liveGameManager.addActiveBet(p1.id, bet);
@@ -395,7 +395,7 @@ module.exports = {
 
             if (i.customId === 'caro_surrender') {
                 if (i.user.id !== p1.id && i.user.id !== p2.id) {
-                    return i.reply({ content: 'Kèo của người ta mà bạn đòi đầu hàng?', ephemeral: true });
+                    return i.reply({ content: 'Kèo của người ta mà bạn đòi đầu hàng?', flags: 64 });
                 }
                 isGameOver = true;
                 collector.stop('surrender');
@@ -416,7 +416,7 @@ module.exports = {
             // Kiểm tra đúng người đánh
             const expectedUser = currentTurn === 'X' ? p1 : p2;
             if (i.user.id !== expectedUser.id) {
-                return i.reply({ content: `Chưa đến lượt của bạn hoặc bạn không phải là người chơi!`, ephemeral: true });
+                return i.reply({ content: `Chưa đến lượt của bạn hoặc bạn không phải là người chơi!`, flags: 64 });
             }
 
             const idx = parseInt(i.customId.split('_')[1]);

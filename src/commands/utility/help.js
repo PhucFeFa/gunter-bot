@@ -31,7 +31,7 @@ module.exports = {
                 ])
         );
 
-        const replyMessage = await interaction.reply({ embeds: [embed], components: [row], ephemeral: true, fetchReply: true });
+        const replyMessage = await interaction.reply({ embeds: [embed], components: [row], flags: 64, fetchReply: true });
 
         // Tạo Collector để quản lý tương tác (Vô hiệu hóa menu sau 3 phút không dùng)
         const collector = replyMessage.createMessageComponentCollector({ time: 3 * 60 * 1000 });

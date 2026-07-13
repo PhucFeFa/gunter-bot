@@ -1,7 +1,7 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, ChannelType, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
 
 const TICKET_CATEGORY_ID = null; // Tùy chọn, tạo thẳng vào channel cha nếu null
-const SUPPORTER_ROLE_ID = '1524816270229242029';
+const SUPPORTER_ROLE_ID = process.env.SUPPORTER_ROLE_ID;
 
 // Map lưu trữ timer của mỗi ticket chờ xác nhận (ticketId -> timeoutObj)
 const pendingTickets = new Map();
@@ -206,7 +206,7 @@ async function handleTicketSelect(interaction) {
 }
 
 async function initTicketPanel(client) {
-    const TICKET_CHANNEL_ID = '1524816497397076251'; // Kênh ticket user yêu cầu
+    const TICKET_CHANNEL_ID = process.env.TICKET_CHANNEL_ID; // Kênh ticket user yêu cầu
     try {
         const channel = await client.channels.fetch(TICKET_CHANNEL_ID).catch(() => null);
         if (!channel) return;

@@ -10,6 +10,9 @@ const STARTING_BALANCE = 500000;
 const DAILY_AMOUNT = 500000;
 const DAILY_COOLDOWN = 24 * 60 * 60 * 1000;
 
+// Migration: thêm cột botDebt nếu chưa tồn tại
+try { db.prepare('ALTER TABLE users ADD COLUMN botDebt INTEGER DEFAULT 0').run(); } catch (e) { /* Cột đã tồn tại */ }
+
 function getUser(userId) {
     let row = db.prepare('SELECT * FROM users WHERE userId = ?').get(userId);
     if (!row) {
@@ -33,6 +36,19 @@ function updateLoan(userId, delta) {
     const newLoan = Math.max(0, (user.loanAmount || 0) + delta);
     db.prepare('UPDATE users SET loanAmount = ? WHERE userId = ?').run(newLoan, userId);
     return newLoan;
+}
+
+/**
+ * setBotDebt: Ghi/thêm nợ do bot ép (tách khỏi nợ vay tay)
+ * delta > 0: thêm nợ, delta < 0: trừ nợ
+ */
+function setBotDebt(userId, delta) {
+    const user = getUser(userId);
+    const newBotDebt = Math.max(0, (user.botDebt || 0) + delta);
+    db.prepare('UPDATE users SET botDebt = ? WHERE userId = ?').run(newBotDebt, userId);
+    // Đồng bộ loanAmount để các hàm khác (work, leaderboard...) nhìn thấy
+    updateLoan(userId, delta);
+    return newBotDebt;
 }
 
 function updateCreditScore(userId, delta) {
@@ -195,6 +211,7 @@ module.exports = {
     updateJobSpins: async (id, s) => updateJobSpins(id, s),
     updateLastWork: async (id) => updateLastWork(id),
     updateLoan: async (id, d) => updateLoan(id, d),
+    setBotDebt: async (id, d) => setBotDebt(id, d),
     updateCreditScore: async (id, d) => updateCreditScore(id, d),
     updateLoanDetails: async (id, refs, r, req) => updateLoanDetails(id, refs, r, req),
     getAllDebtors: async () => getAllDebtors()

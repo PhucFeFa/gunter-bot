@@ -303,31 +303,31 @@ async function handleGeminiChat(message, client) {
             } else if (targetData) {
                 // Các action kinh tế cần fetch user
                 try {
-                    const { updateBalance, updateLoan, getUser } = require('./economyDB');
+                    const { updateBalance, updateLoan, getUser, setBotDebt } = require('./economyDB');
                     const { getInventory, clearInventory } = require('./fishDB');
 
                     const targetMember = await message.guild.members.fetch(targetData).catch(() => null);
                     const targetUserId = targetData;
 
                     if (action === 'STEAL' && actionAmount > 0) {
-                        // Lấy tiền
-                        const userData = getUser(targetUserId);
-                        const stolen = Math.min(actionAmount, userData.balance);
-                        updateBalance(targetUserId, -stolen);
+                        // Lấy tiền (await getUser vì export là async)
+                        const userData = await getUser(targetUserId);
+                        const stolen = Math.min(actionAmount, userData.balance || 0);
+                        await updateBalance(targetUserId, -stolen);
                         const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
-                        response += `\n\n💸 *Tao vừa móc túi ${displayName} ${stolen.toLocaleString()} 🪙. ${actionReason}*`;
+                        response += `\n\n💸 *Tao vừa móc túi ${displayName} **${stolen.toLocaleString()} 🪙**. ${actionReason}*`;
 
                     } else if (action === 'DEBT' && actionAmount > 0) {
-                        // Gây nợ ép buộc (không cần tham chiếu)
+                        // Gây nợ ép buộc - dùng setBotDebt để đánh dấu là nợ bot
                         const totalDebt = Math.floor(actionAmount * 1.35);
-                        updateLoan(targetUserId, totalDebt);
+                        await setBotDebt(targetUserId, totalDebt);
                         const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
-                        response += `\n\n🏦 *Tao vừa ép ${displayName} vay ${actionAmount.toLocaleString()} 🪙 (nợ thực tế ${totalDebt.toLocaleString()} 🪙 với lãi 35%). ${actionReason}*`;
+                        response += `\n\n🏦 *Tao vừa ép ${displayName} vay **${actionAmount.toLocaleString()} 🪙** (nợ thực tế **${totalDebt.toLocaleString()} 🪙** với lãi 35%). ${actionReason}*`;
 
                     } else if (action === 'STEAL_FISH') {
                         // Cướp toàn bộ kho cá
-                        const inv = await getInventory(targetUserId, 1, 999);
-                        const fishCount = inv?.fish?.length || 0;
+                        const inv = await getInventory(targetUserId, 0, 999);
+                        const fishCount = inv?.items?.length || inv?.total || 0;
                         if (fishCount > 0) {
                             await clearInventory(targetUserId);
                             const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
@@ -347,17 +347,19 @@ async function handleGeminiChat(message, client) {
 
                     } else if (action === 'REWARD' && actionAmount > 0) {
                         // Thưởng tiền
-                        updateBalance(targetUserId, actionAmount);
+                        await updateBalance(targetUserId, actionAmount);
                         const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
-                        response += `\n\n🎁 *Tao vừa thưởng ${displayName} ${actionAmount.toLocaleString()} 🪙 vì mày làm tao vui. ${actionReason}*`;
+                        response += `\n\n🎁 *Tao vừa thưởng ${displayName} **${actionAmount.toLocaleString()} 🪙** vì mày làm tao vui. ${actionReason}*`;
 
                     } else if (action === 'FORGIVE') {
                         // Xóa toàn bộ nợ
-                        const userData = getUser(targetUserId);
+                        const userData = await getUser(targetUserId);
                         if (userData.loanAmount > 0) {
-                            updateLoan(targetUserId, -userData.loanAmount);
+                            // Xóa cả nợ bot và nợ vay thủ công
+                            await updateLoan(targetUserId, -userData.loanAmount);
+                            await setBotDebt(targetUserId, -(userData.botDebt || 0)); // reset botDebt về 0
                             const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
-                            response += `\n\n✅ *Tao vừa xóa ${userData.loanAmount.toLocaleString()} 🪙 nợ cho ${displayName}. ${actionReason}*`;
+                            response += `\n\n✅ *Tao vừa xóa **${userData.loanAmount.toLocaleString()} 🪙** nợ cho ${displayName}. ${actionReason}*`;
                         } else {
                             response += `\n\n*Xóa nợ cho nó nhưng nó không có nợ gì hết, chắc sống tốt lắm =)))*`;
                         }

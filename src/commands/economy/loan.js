@@ -82,6 +82,10 @@ module.exports = {
             }
 
             if (currentLoan > 0) {
+                const botDebt = user.botDebt || 0;
+                if (botDebt > 0) {
+                    return interaction.editReply(`🔒 **ĐM mày bị GUNTER PHONG TỎA TÀI KHOẢN RỒI!**\nMày đang mang **${botDebt.toLocaleString()} 🪙** nợ do thằng Gunter tự ý ép mày. Tao (Ngân Hàng) đéo cho phép mày vay thêm khi mày còn nợ ông chủ đó.\n\n💡 Muốn vay tiếp? Cút đi làm trả nợ Gunter đi, hoặc cầu xin nó tha nợ cho mày bằng cách: **nịnh nó thật mùi** trong kênh chat!\n📉 Nợ Gunter hiện tại: **${currentLoan.toLocaleString()} 🪙**`);
+                }
                 return interaction.editReply(`❌ Á chà thằng báo thủ! Mày vẫn còn đang khất tao **${currentLoan.toLocaleString()} 🪙**.\nCút về cày cuốc trả sạch nợ cũ đi rồi hẵng há mõm xin vay tiếp nhé con trai!`);
             }
 

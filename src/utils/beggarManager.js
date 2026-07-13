@@ -1,5 +1,5 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
-const { updateBalance, updateLoan } = require('./economyDB');
+const { updateBalance, updateLoan, setBotDebt, getAllDebtors } = require('./economyDB');
 const { addFishToInventory } = require('./fishDB');
 const { FISH_LIST, rollFishSize, calcFishPrice, applyShiny } = require('../data/fishData');
 
@@ -141,15 +141,36 @@ async function startBegging(channel, excludeUserId = null) {
             deducted = victimData.balance;
             debtAdded = begAmount - victimData.balance;
             await updateBalance(victimId, -deducted);
-            await updateLoan(victimId, debtAdded);
+            await setBotDebt(victimId, debtAdded); // Đánh dấu nợ bot, block vay thủ công
         }
 
         const insultMsg = INSULTS[Math.floor(Math.random() * INSULTS.length)].replace('{userId}', victimId);
 
+        // Build bảng phống thần nợ nếu có con nợ mới
+        let debtBoard = '';
+        if (debtAdded > 0) {
+            const allDebtors = await getAllDebtors();
+            const botDebtors = allDebtors.filter(u => (u.botDebt || 0) > 0);
+            if (botDebtors.length > 0) {
+                debtBoard = '\n\n**📌 Bảng Phổng Thần Nợ Của Gunter:**\n';
+                debtBoard += botDebtors.map((u, i) => `${i + 1}. <@${u.userId}> — **${(u.botDebt).toLocaleString()} 🪙** nợ chưa trả`).join('\n');
+            }
+        }
+
+        // Check tham chiếu
+        const victimUser = await require('./economyDB').getUser(victimId);
+        const loanRefs = victimUser.loanRefs || [];
+        let refText = '';
+        if (debtAdded > 0) {
+            if (loanRefs.length === 0) {
+                refText = `\n\n💭 *Thằng vừa bị ghi nợ không có ai bảo lãnh, cô đơn vãi lồn! Tự mày kiếm 2 thằng người quen xin tham chiếu về mà trả nợ đi con!*`;
+            }
+        }
+
         const failEmbed = new EmbedBuilder()
             .setColor(0xe74c3c)
             .setTitle('🔥 HẾT GIỜ! BỐ MÀY ĐI CƯỚP ĐÂY!')
-            .setDescription(`${insultMsg}\n\n💸 Đã tự động lột sạch **${deducted.toLocaleString()} 🪙** của <@${victimId}>!` + (debtAdded > 0 ? `\n📉 Địt mẹ tài khoản đéo đủ, ngân hàng tự ép mày vay thêm **${debtAdded.toLocaleString()} 🪙** trả cho tao!` : ''));
+            .setDescription(`${insultMsg}\n\n💸 Đã tự động lột sạch **${deducted.toLocaleString()} 🪙** của <@${victimId}>!` + (debtAdded > 0 ? `\n📉 Địt mẹ tài khoản đéo đủ, ngân hàng tự ép mày vay thêm **${debtAdded.toLocaleString()} 🪙** trả cho tao!` : '') + refText + debtBoard);
 
         await channel.send({ embeds: [failEmbed] });
 

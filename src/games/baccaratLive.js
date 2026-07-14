@@ -82,8 +82,8 @@ class BaccaratLiveGame {
         if (this.timeLeft <= 0)
             return this._reply(message, '❌ Hết thời gian đặt cược rồi! Đợi ván sau nhé.');
 
-        if (!['banker', 'player', 'tie'].includes(side))
-            return this._reply(message, '❌ Cửa không hợp lệ! Dùng: `banker`, `player` hoặc `tie`');
+        if (!['banker', 'player'].includes(side))
+            return this._reply(message, '❌ Cửa không hợp lệ! Dùng: `banker` hoặc `player`');
 
         const userData = await getUser(message.author.id);
         if (isNaN(amount) || amount <= 0)
@@ -100,7 +100,7 @@ class BaccaratLiveGame {
         await updateBalance(message.author.id, -amount);
         this.bets.set(message.author.id, { side, amount });
 
-        const label = { banker: '🔴 Banker', player: '🔵 Player', tie: '🟢 Tie' }[side];
+        const label = { banker: '🔴 Banker', player: '🔵 Player' }[side];
         const confirmMsg = await message.reply(`✅ **${message.author.username}** đặt **${amount.toLocaleString()} 🪙** vào ${label}!`);
         this.betMsgs.push(message, confirmMsg);
 
@@ -194,10 +194,12 @@ class BaccaratLiveGame {
         if (this.road.length > 15) this.road.shift();
 
         // Win/lose list
-        const winList = [], loseList = [];
+        const winList = [], loseList = [], tieRefundList = [];
         for (const [uid, b] of this.bets) {
-            if (b.side === r.result) {
-                const profit = b.side === 'banker' ? Math.floor(b.amount * 0.95) : b.side === 'tie' ? b.amount * 8 : b.amount;
+            if (r.result === 'tie') {
+                tieRefundList.push(`<@${uid}> Hoàn về ${b.amount.toLocaleString()} 🪙`);
+            } else if (b.side === r.result) {
+                const profit = b.side === 'banker' ? Math.floor(b.amount * 0.95) : b.amount;
                 winList.push(`<@${uid}> +${profit.toLocaleString()} 🪙`);
             } else {
                 loseList.push(`<@${uid}> -${b.amount.toLocaleString()} 🪙`);
@@ -213,6 +215,7 @@ class BaccaratLiveGame {
             );
         if (winList.length) finalEmbed.addFields({ name: '🏆 Thắng', value: winList.join('\n'), inline: false });
         if (loseList.length) finalEmbed.addFields({ name: '💸 Thua', value: loseList.join('\n'), inline: false });
+        if (tieRefundList.length) finalEmbed.addFields({ name: '🔄 Hoàn Tiền (Hòa)', value: tieRefundList.join('\n'), inline: false });
         finalEmbed.setFooter({ text: 'Ván tiếp theo bắt đầu sau 6 giây...' });
 
         // Show kết quả với bảng cầu đã cập nhật
@@ -223,8 +226,11 @@ class BaccaratLiveGame {
     async _processPayouts(r) {
         const tasks = [];
         for (const [uid, b] of this.bets) {
-            if (b.side === r.result) {
-                const profit = b.side === 'banker' ? Math.floor(b.amount * 0.95) : b.side === 'tie' ? b.amount * 8 : b.amount;
+            if (r.result === 'tie') {
+                // Hòa thì hoàn lại tiền đã đặt
+                tasks.push(updateBalance(uid, b.amount).catch(() => { }));
+            } else if (b.side === r.result) {
+                const profit = b.side === 'banker' ? Math.floor(b.amount * 0.95) : b.amount;
                 tasks.push(updateBalance(uid, b.amount + profit).catch(() => { }));
             }
         }
@@ -252,11 +258,11 @@ class BaccaratLiveGame {
             .setTitle('🎴 BACCARAT LIVE')
             .setDescription(
                 this.timeLeft > 0
-                    ? `⏳ **Còn ${this.timeLeft} giây để đặt cược!**\n\nGõ: \`g!bet banker <tiền>\` | \`g!bet player <tiền>\` | \`g!bet tie <tiền>\``
+                    ? `⏳ **Còn ${this.timeLeft} giây để đặt cược!**\n\nGõ: \`g!bet banker <tiền>\` | \`g!bet player <tiền>\`\n*(Nếu Hòa sẽ được hoàn trả tiền cược)*`
                     : `⌛ Hết giờ đặt cược!`
             )
             .addFields(
-                { name: '💰 Tỉ lệ thưởng', value: '🔴 Banker: **0.95x** | 🔵 Player: **1x** | 🟢 Tie: **8x**', inline: false },
+                { name: '💰 Tỉ lệ thưởng', value: '🔴 Banker: **0.95x** | 🔵 Player: **1x**', inline: false },
                 { name: `👥 Người chơi (${this.bets.size})`, value: betterLines.length ? betterLines.join('\n') : '*Chưa có ai*', inline: false }
             )
             .setFooter({ text: 'Đặt cược qua lệnh g!bet hoặc nhấn nút bên dưới' });
@@ -265,8 +271,7 @@ class BaccaratLiveGame {
     _betRow() {
         return new ActionRowBuilder().addComponents(
             new ButtonBuilder().setCustomId('livebacc_banker').setLabel('🔴 Banker').setStyle(ButtonStyle.Danger),
-            new ButtonBuilder().setCustomId('livebacc_player').setLabel('🔵 Player').setStyle(ButtonStyle.Primary),
-            new ButtonBuilder().setCustomId('livebacc_tie').setLabel('🟢 Tie').setStyle(ButtonStyle.Success)
+            new ButtonBuilder().setCustomId('livebacc_player').setLabel('🔵 Player').setStyle(ButtonStyle.Primary)
         );
     }
 

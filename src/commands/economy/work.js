@@ -94,20 +94,71 @@ module.exports = {
         let prisonDuration = 0;
 
         if (currentJob.id === 'tu_sena') {
-            // 30% bị công an bắt
-            if (Math.random() < 0.3) {
-                penaltyAmount = Math.floor(Math.random() * 3000000) + 2000000; // Phạt 2-5 triệu
-                salary = 0; // Mất cả chì lẫn chài
-                
-                if (user.balance < penaltyAmount) {
-                    penaltyAmount = user.balance; // Trừ về 0
-                    isPrisoned = true;
-                    prisonDuration = 10; // Không đủ tiền nộp phạt -> Đi tù 10 phút
+            const inJailChannel = interaction.channelId === '1524752251502067722';
+            const hasJailRole = interaction.member && interaction.member.roles.cache.has('1524641571990142986');
+
+            if (inJailChannel || hasJailRole) {
+                const requiredBail = 20_000_000;
+                const randJail = Math.random();
+
+                if (randJail < 0.4) {
+                    // Sự kiện Chan đê
+                    penaltyAmount = Math.floor(Math.random() * 2000000) + 1000000; // Phạt 1M - 3M
+                    salary = 0;
+                    if (user.balance < penaltyAmount) {
+                        const missing = penaltyAmount - user.balance;
+                        penaltyAmount = user.balance;
+                        addedDebt = missing;
+                    }
+                    specialInfo = `\n\n🎧 **CÓ MỘT THẰNG MỒM LÈO NHÈO BẢO!**\nCó thằng mồm lèo nhại lại: *"Chan đê, chan mẹ mày đê"*. Mày cay cú chửi lại: *"Chan đê, chan cái mẹ mày đê cái thằng mặt l** này!"*\nQuản giáo ngứa mắt vụt cho mày một gậy, trừ cmn **${(penaltyAmount + addedDebt).toLocaleString()} 🪙** tiền bồi thường!`;
+                } else {
+                    // Làm tạp vụ kiếm tiền chuộc thân
+                    salary = Math.floor(Math.random() * 500000) + 500000; // Nhận 500k-1M
+                    if (user.balance + salary >= requiredBail) {
+                        penaltyAmount = requiredBail;
+                        specialInfo = `\n\n⛺ **HIỆU TRƯỞNG ĐẠI HỌC BÔN BA!**\nMày làm tạp vụ trong tù kiếm được **${salary.toLocaleString()} 🪙**.\n✅ **ĐÃ ĐỦ TIỀN CHUỘC THÂN!** Đã đóng đủ **${requiredBail.toLocaleString()} 🪙** bảo lãnh! Tạm thời được thả tự do, về báo nhà tiếp đi con!`;
+                        try {
+                            if (hasJailRole) {
+                                await interaction.member.roles.remove('1524641571990142986').catch(() => false);
+                            }
+                        } catch (e) { }
+                    } else {
+                        specialInfo = `\n\n⛺ **KIẾP NGỒI TÙ!**\nMày rửa bát, quét rác trong tù kiếm được **${salary.toLocaleString()} 🪙**.\n📉 *Vẫn chưa đủ tiền bảo lãnh! Cần gom đủ **${requiredBail.toLocaleString()} 🪙** để được thả (hiện có ${(user.balance + salary).toLocaleString()}). Ráng lên Hiệu trưởng!*`;
+                    }
                 }
-                
-                specialInfo = `\n\n🚨 **CẢNH SÁT ẬP VÀO!**\nBị bế lên đồn vì tội tổ chức đánh bạc, nộp phạt **${penaltyAmount.toLocaleString()} 🪙**!`;
-                if (isPrisoned) {
-                    specialInfo += `\n⛓️ **TRUY TỐ:** Mày đéo đủ tiền nộp phạt, đi tù **${prisonDuration} phút**!`;
+            } else {
+                const randTusena = Math.random();
+                if (randTusena < 0.3) {
+                    // Đua vịt (30%)
+                    const isWin = Math.random() < 0.5;
+                    if (isWin) {
+                        rewardAmount = Math.floor(Math.random() * 10000000) + 5000000;
+                        salary += rewardAmount;
+                        specialInfo = `\n\n🦆 **GÀO THÉT TRƯỜNG ĐUA VỊT!**\nSena All-in con vịt số 3 và nó win! "Đó! Thấy anh mày đỉnh chưa!" - Nhận **${rewardAmount.toLocaleString()} 🪙**!`;
+                    } else {
+                        penaltyAmount = Math.floor(Math.random() * 5000000) + 2000000;
+                        if (user.balance < penaltyAmount) {
+                            const missing = penaltyAmount - user.balance;
+                            penaltyAmount = user.balance;
+                            addedDebt = missing;
+                            specialInfo = `\n\n🦆 **ĐUA VỊT THẤT BẠI!**\nSena All-in con vịt số 5 nhưng nó bơi ngược! Bay màu **${(penaltyAmount + missing).toLocaleString()} 🪙**, ngân hàng tự ghi nợ thêm **${addedDebt.toLocaleString()} 🪙**! "Trời ơi má ơiiiii!"`;
+                        } else {
+                            specialInfo = `\n\n🦆 **ĐUA VỊT THẤT BẠI!**\nSena gào rát họng nhưng con vịt số 2 dậm chân tại chỗ! Bay màu **${penaltyAmount.toLocaleString()} 🪙**!`;
+                        }
+                    }
+                } else if (randTusena < 0.5) {
+                    // Bị cảnh sát bắt (20%)
+                    penaltyAmount = Math.floor(Math.random() * 3000000) + 2000000;
+                    salary = 0;
+                    if (user.balance < penaltyAmount) {
+                        penaltyAmount = user.balance;
+                        isPrisoned = true;
+                        prisonDuration = 10;
+                    }
+                    specialInfo = `\n\n🚨 **CẢNH SÁT ẬP VÀO!**\nBị bế lên đồn vì tội tổ chức đánh bạc, nộp phạt **${penaltyAmount.toLocaleString()} 🪙**!`;
+                    if (isPrisoned) {
+                        specialInfo += `\n⛓️ **TRUY TỐ:** Mày đéo đủ tiền nộp phạt, đi tù **${prisonDuration} phút**!`;
+                    }
                 }
             }
         } else if (currentJob.id === 'jack') {
@@ -143,13 +194,13 @@ module.exports = {
             if (Math.random() < 0.3) { // 30% dính án
                 penaltyAmount = Math.floor(Math.random() * 5000000) + 5000000; // 5-10 triệu
                 salary = 0; // Mất cả lương
-                
+
                 if (user.balance < penaltyAmount) {
                     penaltyAmount = user.balance; // Trừ về 0
                     isPrisoned = true;
                     prisonDuration = 30; // 30 phút
                 }
-                
+
                 specialInfo = `\n\n🚔 **LỆNH BẮT TẠM GIAM!**\nLivestream chửi bới quá lố, bạn bị bế đi vì tội lợi dụng quyền tự do dân chủ! Nộp phạt **${penaltyAmount.toLocaleString()} 🪙**!`;
                 if (isPrisoned) {
                     specialInfo += `\n⛓️ **TRUY TỐ:** Tiền đéo đủ đóng phạt, đi tù **${prisonDuration} phút**!`;
@@ -221,7 +272,7 @@ module.exports = {
                     setTimeout(async () => {
                         try {
                             await member.roles.remove(roleId);
-                        } catch (e) {}
+                        } catch (e) { }
                     }, prisonDuration * 60 * 1000);
                 }
             } catch (e) {

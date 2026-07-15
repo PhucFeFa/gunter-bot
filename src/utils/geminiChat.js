@@ -453,17 +453,37 @@ async function handleGeminiChat(message, client) {
                         targetMember = members.first();
                         targetData = targetMember.id;
                     } else {
+                        // Fallback 1: Nếu trong tin nhắn có tag ai đó (khác bot), lấy luôn ID người đó
+                        const mentionedUser = message.mentions.users.find(u => u.id !== client.user.id);
+                        if (mentionedUser) {
+                            targetData = mentionedUser.id;
+                            targetMember = await message.guild.members.fetch(targetData).catch(() => null);
+                        } else {
+                            // Fallback 2: Trả về chính người gọi lệnh
+                            targetData = userId;
+                            targetMember = await message.guild.members.fetch(targetData).catch(() => null);
+                        }
+                    }
+                } catch(e) {
+                    const mentionedUser = message.mentions.users.find(u => u.id !== client.user.id);
+                    if (mentionedUser) {
+                        targetData = mentionedUser.id;
+                        targetMember = await message.guild.members.fetch(targetData).catch(() => null);
+                    } else {
                         targetData = userId;
                         targetMember = await message.guild.members.fetch(targetData).catch(() => null);
                     }
-                } catch(e) {
-                    targetData = userId;
-                    targetMember = await message.guild.members.fetch(targetData).catch(() => null);
                 }
             } else if (!targetMember && targetData !== userId) {
                 // Rơi vào trường hợp parse ra ID rác
-                targetData = userId;
-                targetMember = await message.guild.members.fetch(targetData).catch(() => null);
+                const mentionedUser = message.mentions.users.find(u => u.id !== client.user.id);
+                if (mentionedUser) {
+                    targetData = mentionedUser.id;
+                    targetMember = await message.guild.members.fetch(targetData).catch(() => null);
+                } else {
+                    targetData = userId;
+                    targetMember = await message.guild.members.fetch(targetData).catch(() => null);
+                }
             }
             const targetUserId = targetData;
             if (targetData) {

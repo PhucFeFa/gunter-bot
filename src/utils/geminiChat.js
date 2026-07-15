@@ -435,6 +435,13 @@ async function handleGeminiChat(message, client) {
         for (const match of matches) {
             const action = match.action;
             let targetData = match.id;
+            
+            let actionAmount = match.amount ? Math.abs(parseInt(match.amount.replace(/\D/g, ''), 10)) : 0;
+            if (isNaN(actionAmount) || actionAmount === 0) actionAmount = 10000000; // Mặc định 10 TRIỆU
+            const actionNickname = match.nickname ? match.nickname.substring(0, 20) : 'Khứa Lấc Cấc 🐧';
+            const actionFishName = match.fishName || 'random';
+            const actionReason = match.reason || 'Sếp nói là chân lý, sai cũng thành đúng 🐧';
+
             let targetMember = await message.guild.members.fetch(targetData).catch(() => null);
 
             // Tự động phân giải tên thành ID nếu AI xài tên thay vì số

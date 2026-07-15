@@ -37,13 +37,13 @@ module.exports = {
             return interaction.editReply({ embeds: [embed] });
         }
 
-        const currentJob = jobs[job];
+        let currentJob = jobs[job];
 
         // Random câu thoại
-        const randomDialogue = currentJob.dialogues[Math.floor(Math.random() * currentJob.dialogues.length)];
+        let randomDialogue = currentJob.dialogues[Math.floor(Math.random() * currentJob.dialogues.length)];
 
         // Random tiền lương
-        const originalSalary = Math.floor(Math.random() * (currentJob.maxSalary - currentJob.minSalary + 1)) + currentJob.minSalary;
+        let originalSalary = Math.floor(Math.random() * (currentJob.maxSalary - currentJob.minSalary + 1)) + currentJob.minSalary;
 
         const user = await require('../../utils/economyDB').getUser(userId);
         const { updateLoan } = require('../../utils/economyDB');
@@ -53,7 +53,11 @@ module.exports = {
         let loanInfo = '';
 
         let isEvadingDebt = false;
-        if (job === 'tu_sena' && user.loanAmount && user.loanAmount > 0) {
+        const inJailCheck = interaction.channelId === '1524752251502067722' || (interaction.member && interaction.member.roles && interaction.member.roles.cache.has('1524641571990142986'));
+        
+        if (inJailCheck) {
+            isEvadingDebt = true; // Tránh trừ nợ sai khi ở trong tù
+        } else if (job === 'tu_sena' && user.loanAmount && user.loanAmount > 0) {
             // Tú Sena có 40% cơ hội né nợ khi đi làm
             if (Math.random() < 0.4) {
                 isEvadingDebt = true;
@@ -98,7 +102,12 @@ module.exports = {
             const hasJailRole = interaction.member && interaction.member.roles.cache.has('1524641571990142986');
 
             if (inJailChannel || hasJailRole) {
-                const requiredBail = 20_000_000;
+                currentJob = { id: 'jail', name: 'Tù Nhân Bôn Ba', color: '#ff0000' };
+                originalSalary = 0;
+                randomDialogue = 'Đang bóc lịch mà đòi làm việc bình thường à con trai?';
+                loanInfo = ''; // Xóa thông báo nợ của nghề cũ
+                salary = 0; // Xóa lương cũ
+                const requiredBail = 5_000_000;
                 const randJail = Math.random();
 
                 if (randJail < 0.4) {

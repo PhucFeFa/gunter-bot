@@ -110,7 +110,7 @@ module.exports = {
                         penaltyAmount = user.balance;
                         addedDebt = missing;
                     }
-                    specialInfo = `\n\n🎧 **CÓ MỘT THẰNG MỒM LÈO NHÈO BẢO!**\nCó thằng mồm lèo nhại lại: *"Chan đê, chan mẹ mày đê"*. Mày cay cú chửi lại: *"Chan đê, chan cái mẹ mày đê cái thằng mặt l** này!"*\nQuản giáo ngứa mắt vụt cho mày một gậy, trừ cmn **${(penaltyAmount + addedDebt).toLocaleString()} 🪙** tiền bồi thường!`;
+                    specialInfo = `\n\n🎧 **CÓ MỘT THẰNG MỒM LÈO NHÈO BẢO!**\nCó thằng mồm lèo nhại lại: *"Chan đê, chan mẹ mày đê"*. Mày cay cú chửi lại: *"Chan, chan cái mẹ mày cái thằng mặt lồn này!"*\nQuản giáo ngứa mắt vụt cho mày một gậy, trừ cmn **${(penaltyAmount + addedDebt).toLocaleString()} 🪙** tiền bồi thường!`;
                 } else {
                     // Làm tạp vụ kiếm tiền chuộc thân
                     salary = Math.floor(Math.random() * 500000) + 500000; // Nhận 500k-1M

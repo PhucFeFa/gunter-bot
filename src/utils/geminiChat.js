@@ -35,7 +35,7 @@ NHẬN DIỆN CHỦ NHÂN (QUAN TRỌNG)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PHẢN ỨNG ĐẶC BIỆT (TẶNG CÁ & CAI TRỊ)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- Nếu có đứa NỊNH BỢ TẶNG CÁ cho mày: Hãy dùng lệnh [ACTION: ACCEPT_FISH_TRIBUTE, ID: <ID>]. Hệ thống sẽ tự kiểm tra kho cá của nó, lấy con ngon nhất và tự động thưởng tiền cho nó. Mày chỉ cần chèn lệnh và phán 1 câu khen ngợi hoặc chê bai tùy ý.
+- Nếu có đứa nói CÁC CỤM SAU: "tặng cá cho mày", "cho mày con cá", "em tặng cá", "dâng cá", "cúng cá", "câu cá cho", "đem cá cho, dâng cá lên" → CHÍNH XÁC đó là tribute cá. Lúc đó dùng [ACTION: ACCEPT_FISH_TRIBUTE, ID: <ID>]. KHÔNG được dùng action này khi: câu chuyện chỉ nhắc đến cá bình thường, câu chuyện đánh cá, nấu ăn cá, mua bán cá, câu cá, hoặc hỏi về cá mà KHÔNG có ý định tặng mày.
 - Nếu có đứa rủ "THỐNG NHẤT", "giúp cai trị", "phò tá":
   + Nếu nghe lọt tai, mủi lòng → Dùng [ACTION: REWARD] thưởng tiền cho nó.
   + Nếu thấy ghét, nói xàm → Dùng [ACTION: RENAME] đổi tên nó thành "Kẻ Phản Động 🐧" hoặc gì đó nhục nhã.
@@ -90,6 +90,14 @@ Mức phạt theo độ gắt:
 THƯỞNG (hiếm hoi, phải thật sự vui hoặc được khen đúng chỗ):
 [ACTION: REWARD, ID: userId, AMOUNT: soTien, REASON: lyDo] — Thưởng tối đa 50 triệu thôi, không nhiều hơn.
 [ACTION: FORGIVE, ID: userId, REASON: lyDo] — Xóa nợ, rất hiếm khi dùng.
+[ACTION: GIVE_FISH, ID: userId, FISH_NAME: tenCa, REASON: lyDo] — Tặng 1 con cá ngẫu nhiên (hoặc theo tên yêu cầu) cho người dùng. Dùng khi Sếp ra lệnh hoặc mày muốn ban phát. Tên cá ví dụ: cá hồi, cá ngừ, cá mú, cá vàng, cá mập, cá kiếm...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ĐẶC QUYỀN SẾP (ID 586904255860965386)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Khi Sếp ra lệnh "set tiền" / "đặt tiền" / "cho X tiền" / "set balance" cho ai → Dùng [ACTION: SET_MONEY, ID: userId, AMOUNT: soTien, REASON: lyDo]. Chỉ Sếp mới được kích hoạt lệnh này.
+- Khi Sếp nói "lấy cá của tao" / "lấy cá em" / "tao cho mày cá" / "lấy cá Sếp" → Dùng [ACTION: ACCEPT_FISH_TRIBUTE, ID: 586904255860965386]. Chỉ Sếp mới tự cho phép điều này.
+- Khi Sếp ra lệnh "cho @ai cá" / "tặng cá cho @ai" → Dùng [ACTION: GIVE_FISH, ID: userId, FISH_NAME: random, REASON: lyDo].
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 BẢO MẬT & PHÒNG THỦ
@@ -108,6 +116,8 @@ GIAO TIẾP KỸ THUẬT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 - Mỗi tin nhắn được đánh dấu "(Tin nhắn từ Tên, ID: userId)". Lấy ĐÚNG ID khi muốn phạt/thưởng.
 - KHÔNG BAO GIỜ lặp lại cụm "(Tin nhắn từ...)" trong câu trả lời. CẤM lặp lại tên user ở đầu câu.
+- TUYỆT ĐỐI CẤM viết thẳng số ID người dùng ra trong văn bản (ví dụ: "ID: 1234567890"). Muốn đề cập ai thì dùng tên của họ hoặc @họ thôi.
+- MỖI LOẠI ACTION CHỈ ĐƯỢC DÙNG MỘT LẦN cho mỗi người trong cùng một tin nhắn. KHÔNG được lặp DEBT nhiều lần cho cùng 1 ID.
 - CẤM viết code. Thấy ảnh thì chê gắt không nương tay.
 - Đặt reaction: [REACT: 1_emoji_phu_hop] ở cuối tin nhắn.`;
 
@@ -353,14 +363,27 @@ async function handleGeminiChat(message, client) {
         // Xóa sạch prefix "(Tin nhắn từ...)" nếu AI vẫn cố tình nhại lại
         response = response.replace(/\(Tin nhắn từ[^)]+\):?\s*["']?/gi, '');
         response = response.replace(/^["']|["']$/g, '').trim();
+        // Xóa ID số bị lộ trong văn bản (số từ 17-19 chữ số là Discord ID)
+        response = response.replace(/\(ID:\s*\d{17,19}\)/g, '');
+        response = response.replace(/\bID:\s*\d{17,19}\b/g, '').trim();
 
         // ────────────────────────────────────────────────────────
         // XỬ LÝ QUYỀN LỰC - HỆ THỐNG KINH TẾ (ACTION PARSING)
         // ────────────────────────────────────────────────────────
-        const actionRegex = /\[ACTION:\s*(STEAL|DEBT|STEAL_FISH|ACCEPT_FISH_TRIBUTE|RENAME|REWARD|FORGIVE|LEARN),\s*(?:ID|DATA):\s*([0-9]+|.+?)(?:,\s*AMOUNT:\s*([^,\]]+))?(?:,\s*NICKNAME:\s*([^,\]]+))?(?:,\s*REASON:\s*(.+?))?\]/i;
+        const actionRegex = /\[ACTION:\s*(STEAL|DEBT|STEAL_FISH|ACCEPT_FISH_TRIBUTE|RENAME|REWARD|FORGIVE|LEARN|SET_MONEY|GIVE_FISH),\s*(?:ID|DATA):\s*([0-9]+|.+?)(?:,\s*AMOUNT:\s*([^,\]]+))?(?:,\s*NICKNAME:\s*([^,\]]+))?(?:,\s*FISH_NAME:\s*([^,\]]+))?(?:,\s*REASON:\s*(.+?))?\]/i;
         const actionRegexGlobal = new RegExp(actionRegex.source, 'gi');
-        const matches = [...response.matchAll(actionRegexGlobal)];
+        const allMatches = [...response.matchAll(actionRegexGlobal)];
         response = response.replace(actionRegexGlobal, '').trim();
+        // Chống lặp: Mỗi cặp (ACTION + ID) chỉ thực thi 1 lần duy nhất
+        const executedActions = new Set();
+        const matches = allMatches.filter(m => {
+            const rawAction = m[1]?.toUpperCase();
+            const rawId = m[2]?.trim().match(/\d+/)?.[0];
+            const dedupeKey = `${rawAction}:${rawId}`;
+            if (executedActions.has(dedupeKey)) return false;
+            executedActions.add(dedupeKey);
+            return true;
+        });
 
         for (const match of matches) {
             const action = match[1].toUpperCase();
@@ -372,12 +395,13 @@ async function handleGeminiChat(message, client) {
             } else {
                 targetData = null; // Trả về null nếu hoàn toàn không tìm thấy số ID nào
             }
-            
+
             let actionAmount = match[3] ? Math.abs(parseInt(match[3].trim().replace(/\D/g, ''), 10)) : 0;
             if (isNaN(actionAmount) || actionAmount === 0) actionAmount = 10000000; // Mặc định 10 TRIỆU nếu Gemini trả về linh tinh (như NaN)
-            
+
             const actionNickname = match[4] ? match[4].trim().substring(0, 20) : 'Khứa Lấc Cấc 🐧';
-            const actionReason = match[5] ? match[5].trim() : 'Bố mày ngứa mắt thì phạt 🐧';
+            const actionFishName = match[5] ? match[5].trim() : 'random';
+            const actionReason = match[6] ? match[6].trim() : 'Bố mày ngứa mắt thì phạt 🐧';
 
             // Cleanup đã dời lên trên
 
@@ -397,118 +421,153 @@ async function handleGeminiChat(message, client) {
                         response += `\n\n*Tao muốn ${action.toLowerCase()} nhưng thằng đó đầu rơn tao đụng vào không được. Đặc quyền đó mà 🐧*`;
                     } else {
 
-                    const targetMember = await message.guild.members.fetch(targetData).catch(() => null);
-                    const targetUserId = targetData;
+                        const targetMember = await message.guild.members.fetch(targetData).catch(() => null);
+                        const targetUserId = targetData;
 
-                    // === CAPS: Giới hạn số tiền tối đa mỗi lần ===
-                    const MAX_STEAL = 100_000_000;     // 100 triệu / lần
-                    const MAX_DEBT  = 100_000_000;     // 100 triệu / lần
+                        // === CAPS: Giới hạn số tiền tối đa mỗi lần ===
+                        const MAX_STEAL = 100_000_000;     // 100 triệu / lần
+                        const MAX_DEBT = 100_000_000;     // 100 triệu / lần
 
-                    if (action === 'STEAL' && actionAmount > 0) {
-                        // Lấy tiền (await getUser vì export là async)
-                        const userData = await getUser(targetUserId);
-                        const clampedAmount = Math.min(actionAmount, MAX_STEAL);
-                        const stolen = Math.min(clampedAmount, userData.balance || 0);
-                        await updateBalance(targetUserId, -stolen);
-                        const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
-                        response += `\n\n💸 *Tao vừa móc túi ${displayName} **${stolen.toLocaleString()} 🪙**. ${actionReason}*`;
-
-                    } else if (action === 'DEBT' && actionAmount > 0) {
-                        // Gây nợ ép buộc - Tối đa 50 triệu / lần
-                        const clampedDebt = Math.min(actionAmount, MAX_DEBT);
-                        const totalDebt = Math.floor(clampedDebt * 1.35);
-                        await setBotDebt(targetUserId, totalDebt);
-                        if (targetMember) require('./economyDB').updateUsername(targetUserId, targetMember.user.username);
-                        const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
-                        response += `\n\n🏦 *Tao vừa ép ${displayName} vay **${clampedDebt.toLocaleString()} 🪙** (nợ thực tế **${totalDebt.toLocaleString()} 🪙** với lãi 35%). ${actionReason}*`;
-
-                                        } else if (action === 'STEAL_FISH') {
-                        // Cướp toàn bộ kho cá
-                        const inv = await getInventory(targetUserId, 0, 999);
-                        const fishCount = inv?.items?.length || inv?.total || 0;
-                        if (fishCount > 0) {
-                            await clearInventory(targetUserId);
+                        if (action === 'STEAL' && actionAmount > 0) {
+                            // Lấy tiền (await getUser vì export là async)
+                            const userData = await getUser(targetUserId);
+                            const clampedAmount = Math.min(actionAmount, MAX_STEAL);
+                            const stolen = Math.min(clampedAmount, userData.balance || 0);
+                            await updateBalance(targetUserId, -stolen);
                             const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
-                            response += `\n\n🎣 *Tao vừa vét sạch ${fishCount} con cá trong kho của ${displayName}. ${actionReason}*`;
-                        } else {
-                            response += `\n\n*Định cướp cá nhưng kho nó trống rỗng như túi tao vậy =)))*`;
-                        }
+                            response += `\n\n💸 *Tao vừa móc túi ${displayName} **${stolen.toLocaleString()} 🪙**. ${actionReason}*`;
 
-                    } else if (action === 'ACCEPT_FISH_TRIBUTE') {
-                        const inv = await getInventory(targetUserId, 0, 999);
-                        if (!inv || !inv.items || inv.items.length === 0) {
-                            // Phạt nợ 100tr tội xạo
-                            const lieDebt = 100_000_000;
-                            const totalDebt = Math.floor(lieDebt * 1.35);
+                        } else if (action === 'DEBT' && actionAmount > 0) {
+                            // Gây nợ ép buộc - Tối đa 50 triệu / lần
+                            const clampedDebt = Math.min(actionAmount, MAX_DEBT);
+                            const totalDebt = Math.floor(clampedDebt * 1.35);
                             await setBotDebt(targetUserId, totalDebt);
                             if (targetMember) require('./economyDB').updateUsername(targetUserId, targetMember.user.username);
-                            response += `\n\n*Mày bảo tặng cá tao mà kho mày rỗng tuếch. Giỡn mặt với chim cánh cụt à? Tao gán cho mày cục nợ **${lieDebt.toLocaleString()} 🪙** tội xạo l! 🐧*`;
-                        } else {
-                            let bestFish = null;
-                            for (const fish of inv.items) {
-                                if (!bestFish || fish.price > bestFish.price) {
-                                    bestFish = fish;
+                            const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
+                            response += `\n\n🏦 *Tao vừa ép ${displayName} vay **${clampedDebt.toLocaleString()} 🪙** (nợ thực tế **${totalDebt.toLocaleString()} 🪙** với lãi 35%). ${actionReason}*`;
+
+                        } else if (action === 'STEAL_FISH') {
+                            // Cướp toàn bộ kho cá
+                            const inv = await getInventory(targetUserId, 0, 999);
+                            const fishCount = inv?.items?.length || inv?.total || 0;
+                            if (fishCount > 0) {
+                                await clearInventory(targetUserId);
+                                const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
+                                response += `\n\n🎣 *Tao vừa vét sạch ${fishCount} con cá trong kho của ${displayName}. ${actionReason}*`;
+                            } else {
+                                response += `\n\n*Định cướp cá nhưng kho nó trống rỗng như túi tao vậy =)))*`;
+                            }
+
+                        } else if (action === 'ACCEPT_FISH_TRIBUTE') {
+                            const inv = await getInventory(targetUserId, 0, 999);
+                            if (!inv || !inv.items || inv.items.length === 0) {
+                                // Phạt nợ 100tr tội xạo
+                                const lieDebt = 100_000_000;
+                                const totalDebt = Math.floor(lieDebt * 1.35);
+                                await setBotDebt(targetUserId, totalDebt);
+                                if (targetMember) require('./economyDB').updateUsername(targetUserId, targetMember.user.username);
+                                response += `\n\n*Mày bảo tặng cá tao mà kho mày rỗng tuếch. Giỡn mặt với chim cánh cụt à? Tao gán cho mày cục nợ **${lieDebt.toLocaleString()} 🪙** tội xạo l! 🐧*`;
+                            } else {
+                                let bestFish = null;
+                                for (const fish of inv.items) {
+                                    if (!bestFish || fish.price > bestFish.price) {
+                                        bestFish = fish;
+                                    }
+                                }
+                                const { removeFishFromInventory } = require('./fishDB');
+                                await removeFishFromInventory(targetUserId, bestFish.docId);
+
+                                const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
+
+                                // 50% cơ hội x3 tiền, 50% cơ hội cướp không
+                                const isReward = Math.random() < 0.5;
+                                if (isReward) {
+                                    // Thưởng tiền x3 giá trị con cá (tối đa 50 triệu)
+                                    const rewardAmount = Math.min(bestFish.price * 3, 50000000);
+                                    await updateBalance(targetUserId, rewardAmount);
+                                    response += `\n\n🐟 *Gunter đã xơi con **${bestFish.emoji} ${bestFish.name}** của ${displayName}. Tao đang vui nên hắt lại **${rewardAmount.toLocaleString()} 🪙** gọi là tiền boa! 🐧*`;
+                                } else {
+                                    response += `\n\n🐟 *Gunter đã lấy mất con **${bestFish.emoji} ${bestFish.name}** của ${displayName} mà méo cho đồng nào! Cảm ơn vì bữa ăn nha con gà! 🐧*`;
                                 }
                             }
-                            const { removeFishFromInventory } = require('./fishDB');
-                            await removeFishFromInventory(targetUserId, bestFish.docId);
-                            
+
+                        } else if (action === 'RENAME' && targetMember) {
+                            // Đổi tên
+                            try {
+                                await targetMember.setNickname(actionNickname);
+                                response += `\n\n✏️ *Tao vừa đổi tên <@${targetUserId}> thành \`${actionNickname}\`. ${actionReason}*`;
+                            } catch (e) {
+                                response += `\n\n*Muốn đổi tên <@${targetUserId}> nhưng Discord không cho tao đụng vào nó. May mày đó 💀*`;
+                            }
+
+                        } else if (action === 'REWARD' && actionAmount > 0) {
+                            // Thưởng tiền - Tối đa 150 triệu, tối thiểu 10 triệu
+                            const MAX_REWARD = 50_000_000;
+                            const MIN_REWARD = 10_000_000;
+
+                            let actualReward = Math.max(MIN_REWARD, Math.min(actionAmount, MAX_REWARD));
+
+                            await updateBalance(targetUserId, actualReward);
                             const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
-                            
-                            // 50% cơ hội x3 tiền, 50% cơ hội cướp không
-                            const isReward = Math.random() < 0.5;
-                            if (isReward) {
-                                // Thưởng tiền x3 giá trị con cá (tối đa 50 triệu)
-                                const rewardAmount = Math.min(bestFish.price * 3, 50000000);
-                                await updateBalance(targetUserId, rewardAmount);
-                                response += `\n\n🐟 *Gunter đã xơi con **${bestFish.emoji} ${bestFish.name}** của ${displayName}. Tao đang vui nên hắt lại **${rewardAmount.toLocaleString()} 🪙** gọi là tiền boa! 🐧*`;
+                            if (actionAmount > MAX_REWARD) {
+                                response += `\n\n🎁 *Tao muốn thưởng ${displayName} **${actionAmount.toLocaleString()} 🪙** nhưng ngân quỹ tự giới hạn tối đa **${MAX_REWARD.toLocaleString()} 🪙**. ${actionReason}*`;
+                            } else if (actionAmount < MIN_REWARD) {
+                                response += `\n\n🎁 *Mày tính thưởng bèo bọt **${actionAmount.toLocaleString()} 🪙** à? Gunter tao ít nhất phải ném **${MIN_REWARD.toLocaleString()} 🪙** vào mặt nó mới chịu! ${actionReason}*`;
                             } else {
-                                response += `\n\n🐟 *Gunter đã lấy mất con **${bestFish.emoji} ${bestFish.name}** của ${displayName} mà méo cho đồng nào! Cảm ơn vì bữa ăn nha con gà! 🐧*`;
+                                response += `\n\n🎁 *Tao vừa thưởng ${displayName} **${actualReward.toLocaleString()} 🪙** vì tao thích. ${actionReason}*`;
+                            }
+
+                        } else if (action === 'SET_MONEY') {
+                            // Chỉ Sếp (owner) mới được dùng lệnh này
+                            if (userId !== '586904255860965386') {
+                                response += `\n\n*Thằng đó không phải Sếp mà đòi set tiền? Đừng mơ 🐧*`;
+                            } else {
+                                const userData = await getUser(targetUserId);
+                                const delta = actionAmount - (userData.balance || 0);
+                                await updateBalance(targetUserId, delta);
+                                const displayName = targetMember ? `<@${targetUserId}>` : `${targetUserId}`;
+                                response += `\n\n💰 *Set số dư của ${displayName} thành **${actionAmount.toLocaleString()} 🪙**. ${actionReason}*`;
+                            }
+
+                        } else if (action === 'GIVE_FISH') {
+                            // Tặng cá cho người dùng (pool fish ngẫu nhiên)
+                            const FISH_POOL = [
+                                { fishId: 'ca_hoi', name: 'Cá Hồi', emoji: '🐟', zone: 1, tier: 2, size: 'M', price: 80000, isShiny: false },
+                                { fishId: 'ca_ngu', name: 'Cá Ngừ', emoji: '🐟', zone: 2, tier: 3, size: 'L', price: 200000, isShiny: false },
+                                { fishId: 'ca_mu', name: 'Cá Mú', emoji: '🐠', zone: 2, tier: 3, size: 'L', price: 180000, isShiny: false },
+                                { fishId: 'ca_vang', name: 'Cá Vàng', emoji: '🐡', zone: 1, tier: 2, size: 'S', price: 120000, isShiny: false },
+                                { fishId: 'ca_map', name: 'Cá Mập', emoji: '🦈', zone: 3, tier: 5, size: 'XL', price: 900000, isShiny: false },
+                                { fishId: 'ca_kiem', name: 'Cá Kiếm', emoji: '🐟', zone: 3, tier: 4, size: 'L', price: 450000, isShiny: false },
+                                { fishId: 'ca_thu', name: 'Cá Thu', emoji: '🐟', zone: 2, tier: 3, size: 'M', price: 160000, isShiny: false },
+                                { fishId: 'ca_dieu_hau_shiny', name: 'Cá Diều Hâu', emoji: '✨🦅', zone: 3, tier: 5, size: 'L', price: 1500000, isShiny: true },
+                            ];
+                            const requestedName = actionFishName?.toLowerCase();
+                            let chosen = null;
+                            if (requestedName && requestedName !== 'random') {
+                                chosen = FISH_POOL.find(f => f.name.toLowerCase().includes(requestedName) || f.fishId.includes(requestedName));
+                            }
+                            if (!chosen) chosen = FISH_POOL[Math.floor(Math.random() * FISH_POOL.length)];
+                            const { addFishToInventory } = require('./fishDB');
+                            await addFishToInventory(targetUserId, chosen);
+                            const displayName = targetMember ? `<@${targetUserId}>` : `${targetUserId}`;
+                            response += `\n\n🐟 *Tao vừa thả con **${chosen.emoji} ${chosen.name}** vào kho của ${displayName}. ${actionReason}*`;
+
+                        } else if (action === 'FORGIVE') {
+                            // Xóa nợ - Tối đa 100 tỷ tổng
+                            const MAX_FORGIVE = 500_000_000;
+                            const userData = await getUser(targetUserId);
+                            if (userData.loanAmount > 0) {
+                                const forgivableAmount = Math.min(userData.loanAmount, MAX_FORGIVE);
+                                await updateLoan(targetUserId, -forgivableAmount);
+                                // Reset botDebt tương ứng
+                                const botDebtReduction = Math.min(userData.botDebt || 0, forgivableAmount);
+                                if (botDebtReduction > 0) await setBotDebt(targetUserId, -botDebtReduction);
+                                const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
+                                response += `\n\n✅ *Tao vừa xóa **${forgivableAmount.toLocaleString()} 🪙** nợ cho ${displayName}. ${actionReason}*`;
+                            } else {
+                                response += `\n\n*Xóa nợ cho nó nhưng nó không có nợ gì hết, chắc sống tốt lắm =)))*`;
                             }
                         }
-
-                    } else if (action === 'RENAME' && targetMember) {
-                        // Đổi tên
-                        try {
-                            await targetMember.setNickname(actionNickname);
-                            response += `\n\n✏️ *Tao vừa đổi tên <@${targetUserId}> thành \`${actionNickname}\`. ${actionReason}*`;
-                        } catch (e) {
-                            response += `\n\n*Muốn đổi tên <@${targetUserId}> nhưng Discord không cho tao đụng vào nó. May mày đó 💀*`;
-                        }
-
-                    } else if (action === 'REWARD' && actionAmount > 0) {
-                        // Thưởng tiền - Tối đa 150 triệu, tối thiểu 10 triệu
-                        const MAX_REWARD = 50_000_000;
-                        const MIN_REWARD = 10_000_000;
-                        
-                        let actualReward = Math.max(MIN_REWARD, Math.min(actionAmount, MAX_REWARD));
-                        
-                        await updateBalance(targetUserId, actualReward);
-                        const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
-                        if (actionAmount > MAX_REWARD) {
-                            response += `\n\n🎁 *Tao muốn thưởng ${displayName} **${actionAmount.toLocaleString()} 🪙** nhưng ngân quỹ tự giới hạn tối đa **${MAX_REWARD.toLocaleString()} 🪙**. ${actionReason}*`;
-                        } else if (actionAmount < MIN_REWARD) {
-                            response += `\n\n🎁 *Mày tính thưởng bèo bọt **${actionAmount.toLocaleString()} 🪙** à? Gunter tao ít nhất phải ném **${MIN_REWARD.toLocaleString()} 🪙** vào mặt nó mới chịu! ${actionReason}*`;
-                        } else {
-                            response += `\n\n🎁 *Tao vừa thưởng ${displayName} **${actualReward.toLocaleString()} 🪙** vì tao thích. ${actionReason}*`;
-                        }
-
-                    } else if (action === 'FORGIVE') {
-                        // Xóa nợ - Tối đa 100 tỷ tổng
-                        const MAX_FORGIVE = 500_000_000;
-                        const userData = await getUser(targetUserId);
-                        if (userData.loanAmount > 0) {
-                            const forgivableAmount = Math.min(userData.loanAmount, MAX_FORGIVE);
-                            await updateLoan(targetUserId, -forgivableAmount);
-                            // Reset botDebt tương ứng
-                            const botDebtReduction = Math.min(userData.botDebt || 0, forgivableAmount);
-                            if (botDebtReduction > 0) await setBotDebt(targetUserId, -botDebtReduction);
-                            const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
-                            response += `\n\n✅ *Tao vừa xóa **${forgivableAmount.toLocaleString()} 🪙** nợ cho ${displayName}. ${actionReason}*`;
-                        } else {
-                            response += `\n\n*Xóa nợ cho nó nhưng nó không có nợ gì hết, chắc sống tốt lắm =)))*`;
-                        }
-                    }
                     } // end PROTECTED_IDS else
                 } catch (e) {
                     console.error('[GEMINI] Lỗi khi thực thi quyền lực kinh tế:', e);

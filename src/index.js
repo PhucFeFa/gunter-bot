@@ -175,8 +175,9 @@ client.login(process.env.DISCORD_TOKEN)
                     if (!user.seizedRod) {
                         // Thử siết cần câu nếu chưa siết
                         try {
-                            const { getJobData } = require('./utils/economyDB');
-                            const { rod } = await getRod(user.userId);
+                            const { getJobData, updateLoanDetails } = require('./utils/economyDB');
+                            const { getFishProfile, setUserRod } = require('./utils/fishDB');
+                            const { rod } = await getFishProfile(user.userId);
                             if (rod > 1) { // Chỉ siết nếu cần > 1 (khác cần tre)
                                 const seizedRequire = Math.floor(Math.random() * (user.loanAmount * 0.5)) + Math.floor(user.loanAmount * 0.1);
                                 await updateLoanDetails(user.userId, undefined, rod, seizedRequire);

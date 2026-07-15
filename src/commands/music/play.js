@@ -22,9 +22,28 @@ module.exports = {
 
         await interaction.deferReply();
 
+        let finalQuery = query;
+        if (query.includes('spotify.com/episode') || query.includes('spotify.com/show')) {
+            try {
+                const response = await fetch(query);
+                const html = await response.text();
+                const titleMatch = html.match(/<title>(.*?)<\/title>/i);
+                if (titleMatch && titleMatch[1]) {
+                    // Split by '|' or '-' to get just the episode name and remove "Spotify" suffix
+                    finalQuery = titleMatch[1].split('|')[0].split('- Spotify')[0].trim();
+                    console.log('[MUSIC] Chuyển đổi Spotify Podcast thành từ khóa:', finalQuery);
+                } else {
+                    return interaction.editReply({ content: '❌ Không thể phân tích link Podcast Spotify. Vui lòng gõ tên Podcast ra nhé!' });
+                }
+            } catch (err) {
+                console.error(err);
+                return interaction.editReply({ content: '❌ Có lỗi khi đọc link Podcast Spotify. Vui lòng gõ tên Podcast ra nhé!' });
+            }
+        }
+
         try {
             // player.play() tự động tìm kiếm, kết nối và phát nhạc
-            const { track } = await player.play(channel, query, {
+            const { track } = await player.play(channel, finalQuery, {
                 searchEngine: QueryType.AUTO,
                 nodeOptions: {
                     metadata: interaction

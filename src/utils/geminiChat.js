@@ -394,10 +394,15 @@ async function handleGeminiChat(message, client) {
             const action = m[1].toUpperCase();
             const payload = m[2];
             
-            // Tìm ID (chỉ lấy chuỗi số 17-19)
-            const idMatch = payload.match(/(?:ID|DATA).*?([0-9]{17,19})/i) || payload.match(/([0-9]{17,19})/);
-            // NẾU AI QUÊN ID, tự động gán cho ID của người đang chat
-            const rawId = idMatch ? idMatch[1] : userId;
+            // Tìm ID hoặc Tên (nếu AI ghi ID: Tên)
+            const idMatch = payload.match(/(?:ID|DATA)\s*:\s*([^,\]]+)/i);
+            let rawId = userId;
+            if (idMatch) {
+                const text = idMatch[1].trim();
+                const numMatch = text.match(/([0-9]{17,19})/);
+                if (numMatch) rawId = numMatch[1];
+                else rawId = text; // AI ghi tên (VD: Dwe)
+            }
             
             // Tìm AMOUNT
             const amountMatch = payload.match(/AMOUNT.*?([0-9\.,kKmM]+)/i);
@@ -430,21 +435,29 @@ async function handleGeminiChat(message, client) {
         for (const match of matches) {
             const action = match.action;
             let targetData = match.id;
+            let targetMember = await message.guild.members.fetch(targetData).catch(() => null);
 
-            let actionAmount = match.amount ? Math.abs(parseInt(match.amount.replace(/\D/g, ''), 10)) : 0;
-            if (isNaN(actionAmount) || actionAmount === 0) actionAmount = 10000000; // Mặc định 10 TRIỆU
-
-            const actionNickname = match.nickname ? match.nickname.substring(0, 20) : 'Khứa Lấc Cấc 🐧';
-            const actionFishName = match.fishName || 'random';
-            const actionReason = match.reason || 'Sếp nói là chân lý, sai cũng thành đúng 🐧';
-
-            // Cleanup đã dời lên trên
-
-            if (action === 'LEARN') {
-                console.log(`[GEMINI] Gunter vừa học được: ${targetData}`);
-                const fs = require('fs');
-                fs.appendFileSync('gunter_memory.txt', targetData + '\n');
-            } else if (targetData) {
+            // Tự động phân giải tên thành ID nếu AI xài tên thay vì số
+            if (!targetMember && isNaN(targetData)) {
+                try {
+                    const members = await message.guild.members.fetch({ query: targetData, limit: 1 });
+                    if (members.size > 0) {
+                        targetMember = members.first();
+                        targetData = targetMember.id;
+                    } else {
+                        targetData = userId;
+                        targetMember = await message.guild.members.fetch(targetData).catch(() => null);
+                    }
+                } catch(e) {
+                    targetData = userId;
+                    targetMember = await message.guild.members.fetch(targetData).catch(() => null);
+                }
+            } else if (!targetMember && targetData !== userId) {
+                // Rơi vào trường hợp parse ra ID rác
+                targetData = userId;
+                targetMember = await message.guild.members.fetch(targetData).catch(() => null);
+            }
+            const targetUserId = targetData;
                 // Các action kinh tế cần fetch user
                 try {
                     const { updateBalance, updateLoan, getUser, setBotDebt } = require('./economyDB');
@@ -456,9 +469,6 @@ async function handleGeminiChat(message, client) {
                     if (PROTECTED_IDS.includes(targetData) && NEGATIVE_ACTIONS.includes(action)) {
                         response += `\n\n*Tao định chơi xấu thằng đó nhưng nó làm Sếp nên đụng vào đéo được. Đặc quyền rồi con trai 🐧*`;
                     } else {
-
-                        const targetMember = await message.guild.members.fetch(targetData).catch(() => null);
-                        const targetUserId = targetData;
 
                         // === CAPS: Giới hạn số tiền tối đa mỗi lần ===
                         const MAX_STEAL = 100_000_000;     // 100 triệu / lần
@@ -566,27 +576,49 @@ async function handleGeminiChat(message, client) {
                             }
 
                         } else if (action === 'GIVE_FISH') {
-                            // Tặng cá cho người dùng (pool fish ngẫu nhiên)
-                            const FISH_POOL = [
-                                { fishId: 'ca_hoi', name: 'Cá Hồi', emoji: '🐟', zone: 1, tier: 2, size: 'M', price: 80000, isShiny: false },
-                                { fishId: 'ca_ngu', name: 'Cá Ngừ', emoji: '🐟', zone: 2, tier: 3, size: 'L', price: 200000, isShiny: false },
-                                { fishId: 'ca_mu', name: 'Cá Mú', emoji: '🐠', zone: 2, tier: 3, size: 'L', price: 180000, isShiny: false },
-                                { fishId: 'ca_vang', name: 'Cá Vàng', emoji: '🐡', zone: 1, tier: 2, size: 'S', price: 120000, isShiny: false },
-                                { fishId: 'ca_map', name: 'Cá Mập', emoji: '🦈', zone: 3, tier: 5, size: 'XL', price: 900000, isShiny: false },
-                                { fishId: 'ca_kiem', name: 'Cá Kiếm', emoji: '🐟', zone: 3, tier: 4, size: 'L', price: 450000, isShiny: false },
-                                { fishId: 'ca_thu', name: 'Cá Thu', emoji: '🐟', zone: 2, tier: 3, size: 'M', price: 160000, isShiny: false },
-                                { fishId: 'ca_dieu_hau_shiny', name: 'Cá Diều Hâu', emoji: '✨🦅', zone: 3, tier: 5, size: 'L', price: 1500000, isShiny: true },
-                            ];
+                            // Tặng cá cho người dùng từ database chuẩn
+                            const { FISH_LIST, rollFishSize, calcFishPrice, applyShiny } = require('../data/fishData');
                             const requestedName = actionFishName?.toLowerCase();
-                            let chosen = null;
-                            if (requestedName && requestedName !== 'random') {
-                                chosen = FISH_POOL.find(f => f.name.toLowerCase().includes(requestedName) || f.fishId.includes(requestedName));
+                            
+                            let chosenData = null;
+                            if (requestedName && (requestedName.includes('tốt') || requestedName.includes('xịn') || requestedName.includes('vip') || requestedName.includes('mập') || requestedName.includes('khủng'))) {
+                                // Lọc tier >= 5
+                                const highTiers = FISH_LIST.filter(f => f.tier >= 5);
+                                if (highTiers.length > 0) chosenData = highTiers[Math.floor(Math.random() * highTiers.length)];
+                            } else if (requestedName && requestedName !== 'random') {
+                                chosenData = FISH_LIST.find(f => f.name.toLowerCase().includes(requestedName));
                             }
-                            if (!chosen) chosen = FISH_POOL[Math.floor(Math.random() * FISH_POOL.length)];
+                            
+                            if (!chosenData) chosenData = FISH_LIST[Math.floor(Math.random() * FISH_LIST.length)];
+                            
+                            const size = rollFishSize(chosenData);
+                            let price = calcFishPrice(chosenData, size);
+                            let finalName = chosenData.name;
+                            let isShiny = false;
+                            
+                            // 5% shiny
+                            if (Math.random() < 0.05) {
+                                const shiny = applyShiny({ name: finalName, price });
+                                finalName = shiny.name;
+                                price = shiny.price;
+                                isShiny = true;
+                            }
+                            
+                            const fishItem = {
+                                fishId: chosenData.id,
+                                name: finalName,
+                                emoji: chosenData.emoji,
+                                zone: chosenData.zone,
+                                tier: chosenData.tier,
+                                size: size,
+                                price: price,
+                                isShiny: isShiny
+                            };
+                            
                             const { addFishToInventory } = require('./fishDB');
-                            await addFishToInventory(targetUserId, chosen);
+                            await addFishToInventory(targetUserId, fishItem);
                             const displayName = targetMember ? `<@${targetUserId}>` : `${targetUserId}`;
-                            response += `\n\n🐟 *Tao vừa thả con **${chosen.emoji} ${chosen.name}** vào kho của ${displayName}. ${actionReason}*`;
+                            response += `\n\n🐟 *Tao vừa thả con **${chosenData.emoji} ${finalName}** vào kho của ${displayName}. ${actionReason}*`;
 
                         } else if (action === 'FORGIVE') {
                             // Xóa nợ - Tối đa 100 tỷ tổng

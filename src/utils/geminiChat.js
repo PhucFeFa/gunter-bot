@@ -370,38 +370,63 @@ async function handleGeminiChat(message, client) {
         // ────────────────────────────────────────────────────────
         // XỬ LÝ QUYỀN LỰC - HỆ THỐNG KINH TẾ (ACTION PARSING)
         // ────────────────────────────────────────────────────────
-        const actionRegex = /\[ACTION:\s*(STEAL|DEBT|STEAL_FISH|ACCEPT_FISH_TRIBUTE|RENAME|REWARD|FORGIVE|LEARN|SET_MONEY|GIVE_FISH),\s*(?:ID|DATA):\s*([0-9]+|.+?)(?:,\s*AMOUNT:\s*([^,\]]+))?(?:,\s*NICKNAME:\s*([^,\]]+))?(?:,\s*FISH_NAME:\s*([^,\]]+))?(?:,\s*REASON:\s*(.+?))?\]/i;
-        const actionRegexGlobal = new RegExp(actionRegex.source, 'gi');
-        const allMatches = [...response.matchAll(actionRegexGlobal)];
-        response = response.replace(actionRegexGlobal, '').trim();
+        // ────────────────────────────────────────────────────────
+        // XỬ LÝ QUYỀN LỰC - HỆ THỐNG KINH TẾ (ACTION PARSING)
+        // ────────────────────────────────────────────────────────
+        const actionBlockRegex = /\[ACTION:\s*([A-Z_]+)([^\]]*)\]/gi;
+        const allMatches = [...response.matchAll(actionBlockRegex)];
+        response = response.replace(actionBlockRegex, '').trim();
+        // Quét lại lần cuối xóa tàn dư nếu AI viết ngoặc sai
+        response = response.replace(/\[ACTION:[^\]]+\]/gi, '').trim();
+
+        // Parse từng block cực kỳ linh hoạt (chống AI ảo giác)
+        const parsedActions = allMatches.map(m => {
+            const action = m[1].toUpperCase();
+            const payload = m[2];
+            
+            // Tìm ID (chỉ lấy chuỗi số 17-19)
+            const idMatch = payload.match(/(?:ID|DATA).*?([0-9]{17,19})/i) || payload.match(/([0-9]{17,19})/);
+            // NẾU AI QUÊN ID, tự động gán cho ID của người đang chat
+            const rawId = idMatch ? idMatch[1] : userId;
+            
+            // Tìm AMOUNT
+            const amountMatch = payload.match(/AMOUNT.*?([0-9\.,kKmM]+)/i);
+            // Tìm NICKNAME
+            const nickMatch = payload.match(/NICKNAME\s*:\s*([^,]+)/i);
+            // Tìm FISH_NAME
+            const fishMatch = payload.match(/FISH_NAME\s*:\s*([^,]+)/i);
+            // Tìm REASON
+            const reasonMatch = payload.match(/REASON\s*:\s*(.+)$/i);
+
+            return {
+                action,
+                id: rawId,
+                amount: amountMatch ? amountMatch[1] : '',
+                nickname: nickMatch ? nickMatch[1].trim() : '',
+                fishName: fishMatch ? fishMatch[1].trim() : '',
+                reason: reasonMatch ? reasonMatch[1].trim() : ''
+            };
+        });
+
         // Chống lặp: Mỗi cặp (ACTION + ID) chỉ thực thi 1 lần duy nhất
         const executedActions = new Set();
-        const matches = allMatches.filter(m => {
-            const rawAction = m[1]?.toUpperCase();
-            const rawId = m[2]?.trim().match(/\d+/)?.[0];
-            const dedupeKey = `${rawAction}:${rawId}`;
+        const matches = parsedActions.filter(p => {
+            const dedupeKey = `${p.action}:${p.id}`;
             if (executedActions.has(dedupeKey)) return false;
             executedActions.add(dedupeKey);
             return true;
         });
 
         for (const match of matches) {
-            const action = match[1].toUpperCase();
-            // CHỐNG ẢO GIÁC: Ép ID chỉ được chứa ký tự số
-            let targetData = match[2].trim();
-            const idMatch = targetData.match(/\d+/);
-            if (idMatch) {
-                targetData = idMatch[0];
-            } else {
-                targetData = null; // Trả về null nếu hoàn toàn không tìm thấy số ID nào
-            }
+            const action = match.action;
+            let targetData = match.id;
 
-            let actionAmount = match[3] ? Math.abs(parseInt(match[3].trim().replace(/\D/g, ''), 10)) : 0;
-            if (isNaN(actionAmount) || actionAmount === 0) actionAmount = 10000000; // Mặc định 10 TRIỆU nếu Gemini trả về linh tinh (như NaN)
+            let actionAmount = match.amount ? Math.abs(parseInt(match.amount.replace(/\D/g, ''), 10)) : 0;
+            if (isNaN(actionAmount) || actionAmount === 0) actionAmount = 10000000; // Mặc định 10 TRIỆU
 
-            const actionNickname = match[4] ? match[4].trim().substring(0, 20) : 'Khứa Lấc Cấc 🐧';
-            const actionFishName = match[5] ? match[5].trim() : 'random';
-            const actionReason = match[6] ? match[6].trim() : 'Bố mày ngứa mắt thì phạt 🐧';
+            const actionNickname = match.nickname ? match.nickname.substring(0, 20) : 'Khứa Lấc Cấc 🐧';
+            const actionFishName = match.fishName || 'random';
+            const actionReason = match.reason || 'Sếp nói là chân lý, sai cũng thành đúng 🐧';
 
             // Cleanup đã dời lên trên
 

@@ -458,6 +458,7 @@ async function handleGeminiChat(message, client) {
                 targetMember = await message.guild.members.fetch(targetData).catch(() => null);
             }
             const targetUserId = targetData;
+            if (targetData) {
                 // Các action kinh tế cần fetch user
                 try {
                     const { updateBalance, updateLoan, getUser, setBotDebt } = require('./economyDB');

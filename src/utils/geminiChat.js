@@ -440,10 +440,11 @@ async function handleGeminiChat(message, client) {
                     const { updateBalance, updateLoan, getUser, setBotDebt } = require('./economyDB');
                     const { getInventory, clearInventory } = require('./fishDB');
 
-                    // === BLACKLIST: Các ID không được AI tác động ===
+                    // === BLACKLIST: Các ID không được AI tác động tiêu cực ===
                     const PROTECTED_IDS = ['586904255860965386'];
-                    if (PROTECTED_IDS.includes(targetData)) {
-                        response += `\n\n*Tao muốn ${action.toLowerCase()} nhưng thằng đó đầu rơn tao đụng vào không được. Đặc quyền đó mà 🐧*`;
+                    const NEGATIVE_ACTIONS = ['STEAL', 'DEBT', 'STEAL_FISH', 'RENAME'];
+                    if (PROTECTED_IDS.includes(targetData) && NEGATIVE_ACTIONS.includes(action)) {
+                        response += `\n\n*Tao định chơi xấu thằng đó nhưng nó làm Sếp nên đụng vào đéo được. Đặc quyền rồi con trai 🐧*`;
                     } else {
 
                         const targetMember = await message.guild.members.fetch(targetData).catch(() => null);

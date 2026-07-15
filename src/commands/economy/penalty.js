@@ -156,8 +156,16 @@ module.exports = {
             time: 60000
         });
 
+        let isProcessing = false;
+
         collector.on('collect', async i => {
-            if (isEnded) return;
+            if (isEnded || isProcessing) {
+                // Phản hồi để discord không báo lỗi
+                if (!i.replied && !i.deferred) await i.deferUpdate().catch(() => {});
+                return;
+            }
+
+            isProcessing = true;
 
             if (i.customId === 'pen_cashout') {
                 isEnded = true;
@@ -185,7 +193,7 @@ module.exports = {
                 collector.stop('lose');
                 liveGameManager.removeActiveBet(userId, bet);
                 lastResultMsg = '🧤 Bắt bài cmnr! Thủ môn ỉa vào mặt mày!';
-                await interaction.editReply({ embeds: [generateEmbed('lose')], components: generateButtons(true) }).catch(() => {});
+                await i.editReply({ embeds: [generateEmbed('lose')], components: generateButtons(true) }).catch(() => {});
             } else {
                 step++;
                 if (step >= MULTIPLIERS.length) {
@@ -195,12 +203,13 @@ module.exports = {
                     await updateBalance(userId, winAmount);
                     liveGameManager.removeActiveBet(userId, bet);
                     lastResultMsg = '🔥 GÓC CHẾT! Mày hack à?';
-                    await interaction.editReply({ embeds: [generateEmbed('win')], components: generateButtons(true) }).catch(() => {});
+                    await i.editReply({ embeds: [generateEmbed('win')], components: generateButtons(true) }).catch(() => {});
                 } else {
                     // Cập nhật lại timer
                     collector.resetTimer();
                     lastResultMsg = '⚽ VÀOOOO! Rùa vcl! Sút tiếp đi con trai!';
-                    await interaction.editReply({ embeds: [generateEmbed('playing')], components: generateButtons() }).catch(() => {});
+                    await i.editReply({ embeds: [generateEmbed('playing')], components: generateButtons() }).catch(() => {});
+                    isProcessing = false;
                 }
             }
         });
@@ -215,14 +224,14 @@ module.exports = {
                     liveGameManager.removeActiveBet(userId, bet);
                     lastResultMsg = '⏳ Chậm chạp vcl! Trọng tài thổi còi đuổi mày ra, tự động chốt tiền cút!';
                     try {
-                        await interaction.editReply({ embeds: [generateEmbed('cashout')], components: generateButtons(true) });
+                        await msg.edit({ embeds: [generateEmbed('cashout')], components: generateButtons(true) });
                     } catch(e) {}
                 } else {
                     // Timeout before first shot => refund
                     await updateBalance(userId, bet);
                     liveGameManager.removeActiveBet(userId, bet);
                     try {
-                        await interaction.editReply({ content: '❌ Lâu la vãi, biến mẹ đi tao trả lại tiền nè!', embeds: [], components: [] });
+                        await msg.edit({ content: '❌ Lâu la vãi, biến mẹ đi tao trả lại tiền nè!', embeds: [], components: [] });
                     } catch(e) {}
                 }
             }

@@ -442,45 +442,43 @@ async function handleGeminiChat(message, client) {
             const actionFishName = match.fishName || 'random';
             const actionReason = match.reason || 'Sếp nói là chân lý, sai cũng thành đúng 🐧';
 
+            // ── PRIORITY 1: Ưu tiên tuyệt đối vào người được tag trong tin nhắn ──
+            // Khi Sếp tag @ai trong chat, Discord đã xác định chính xác ID rồi,
+            // không cần AI phải hiểu, cứ lấy người được tag mà thực thi.
+            // Ngoại trừ các action chỉ nhắm vào chính người gọi (ACCEPT_FISH_TRIBUTE)
+            const mentionedUsers = message.mentions.users.filter(u => u.id !== client.user.id && u.id !== userId);
+            if (mentionedUsers.size > 0 && action !== 'ACCEPT_FISH_TRIBUTE') {
+                // Có người được tag → dùng người đó làm target
+                const mentionedTarget = mentionedUsers.first();
+                targetData = mentionedTarget.id;
+            }
+
             let targetMember = await message.guild.members.fetch(targetData).catch(() => null);
 
-            // Tự động phân giải tên thành ID nếu AI xài tên thay vì số
-            if (!targetMember && isNaN(targetData)) {
+            // ── PRIORITY 2: Nếu vẫn chưa tìm được member (ID rác từ AI) → query tên ──
+            if (!targetMember) {
                 try {
-                    let searchName = targetData.replace(/@/g, '').trim();
-                    const members = await message.guild.members.fetch({ query: searchName, limit: 1 });
-                    if (members.size > 0) {
-                        targetMember = members.first();
-                        targetData = targetMember.id;
-                    } else {
-                        // Fallback 1: Nếu trong tin nhắn có tag ai đó (khác bot), lấy luôn ID người đó
-                        const mentionedUser = message.mentions.users.find(u => u.id !== client.user.id);
-                        if (mentionedUser) {
-                            targetData = mentionedUser.id;
+                    // Thử tìm qua tên nếu AI trả về tên thay vì số
+                    if (isNaN(targetData)) {
+                        let searchName = targetData.replace(/@/g, '').trim();
+                        const members = await message.guild.members.fetch({ query: searchName, limit: 1 });
+                        if (members.size > 0) {
+                            targetMember = members.first();
+                            targetData = targetMember.id;
+                        }
+                    }
+                    // Nếu vẫn không ra → lấy người được tag (nếu có) hoặc người gọi lệnh
+                    if (!targetMember) {
+                        const fallbackMention = message.mentions.users.find(u => u.id !== client.user.id);
+                        if (fallbackMention) {
+                            targetData = fallbackMention.id;
                             targetMember = await message.guild.members.fetch(targetData).catch(() => null);
                         } else {
-                            // Fallback 2: Trả về chính người gọi lệnh
                             targetData = userId;
                             targetMember = await message.guild.members.fetch(targetData).catch(() => null);
                         }
                     }
                 } catch(e) {
-                    const mentionedUser = message.mentions.users.find(u => u.id !== client.user.id);
-                    if (mentionedUser) {
-                        targetData = mentionedUser.id;
-                        targetMember = await message.guild.members.fetch(targetData).catch(() => null);
-                    } else {
-                        targetData = userId;
-                        targetMember = await message.guild.members.fetch(targetData).catch(() => null);
-                    }
-                }
-            } else if (!targetMember && targetData !== userId) {
-                // Rơi vào trường hợp parse ra ID rác
-                const mentionedUser = message.mentions.users.find(u => u.id !== client.user.id);
-                if (mentionedUser) {
-                    targetData = mentionedUser.id;
-                    targetMember = await message.guild.members.fetch(targetData).catch(() => null);
-                } else {
                     targetData = userId;
                     targetMember = await message.guild.members.fetch(targetData).catch(() => null);
                 }

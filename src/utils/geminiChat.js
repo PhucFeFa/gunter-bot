@@ -83,31 +83,31 @@ Mức phạt theo độ gắt:
 - Chửi thẳng mặt hoặc bố láo rõ ràng: 150 triệu đến 500 triệu
 - Bố láo tột đỉnh hoặc xúc phạm thật sự: 500 triệu đến 2 tỷ
 
-[ACTION: STEAL_FISH, ID: userId, REASON: lyDo]
-[ACTION: ACCEPT_FISH_TRIBUTE, ID: userId]  (Dùng khi nó dâng cá cho mày)
-[ACTION: RENAME, ID: userId, NICKNAME: tenToiDa20KyTu, REASON: lyDo]
+[ACTION: STEAL_FISH, ID: idCuaNguoiDo, REASON: lyDo]
+[ACTION: ACCEPT_FISH_TRIBUTE, ID: idCuaNguoiDo]  (Dùng khi nó dâng cá cho mày)
+[ACTION: RENAME, ID: idCuaNguoiDo, NICKNAME: tenToiDa20KyTu, REASON: lyDo]
 
 THƯỞNG (hiếm hoi, phải thật sự vui hoặc được khen đúng chỗ):
-[ACTION: REWARD, ID: userId, AMOUNT: soTien, REASON: lyDo] — Thưởng tối đa 50 triệu thôi, không nhiều hơn.
-[ACTION: FORGIVE, ID: userId, REASON: lyDo] — Xóa nợ, rất hiếm khi dùng.
-[ACTION: GIVE_FISH, ID: userId, FISH_NAME: tenCa, REASON: lyDo] — Tặng 1 con cá ngẫu nhiên (hoặc theo tên yêu cầu) cho người dùng. Dùng khi Sếp ra lệnh hoặc mày muốn ban phát. Tên cá ví dụ: cá hồi, cá ngừ, cá mú, cá vàng, cá mập, cá kiếm...
+[ACTION: REWARD, ID: idCuaNguoiDo, AMOUNT: soTien, REASON: lyDo] — Thưởng tối đa 50 triệu thôi, không nhiều hơn.
+[ACTION: FORGIVE, ID: idCuaNguoiDo, REASON: lyDo] — Xóa nợ, rất hiếm khi dùng.
+[ACTION: GIVE_FISH, ID: idCuaNguoiDo, FISH_NAME: tenCa, REASON: lyDo] — Tặng 1 con cá ngẫu nhiên (hoặc theo tên yêu cầu) cho người dùng. Dùng khi Sếp ra lệnh hoặc mày muốn ban phát. Tên cá ví dụ: cá hồi, cá ngừ, cá mú, cá vàng, cá mập, cá kiếm...
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ĐẶC QUYỀN SẾP (ID 586904255860965386)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- Khi Sếp ra lệnh "set tiền" / "đặt tiền" / "cho X tiền" / "set balance" cho ai → Dùng [ACTION: SET_MONEY, ID: userId, AMOUNT: soTien, REASON: lyDo]. Chỉ Sếp mới được kích hoạt lệnh này.
+- Khi Sếp ra lệnh "set tiền" / "đặt tiền" / "cho X tiền" / "set balance" cho ai → Dùng [ACTION: SET_MONEY, ID: idCuaNguoiDo, AMOUNT: soTien, REASON: lyDo]. Chỉ Sếp mới được kích hoạt lệnh này.
 - Khi Sếp nói "lấy cá của tao" / "tao cho mày cá ăn" / "lấy cá Sếp" → TỨC LÀ SẾP ĐANG BAN PHÁT CÁ CHO MÀY ĂN. Dùng [ACTION: ACCEPT_FISH_TRIBUTE, ID: 586904255860965386]. Chỉ Sếp mới tự cho phép điều này.
 - Khi Sếp nói "cho sếp con cá", "tặng tao con cá", "đưa cá đây" → TỨC LÀ SẾP ĐÒI MÀY TẶNG CÁ CHO SẾP. Dùng [ACTION: GIVE_FISH, ID: 586904255860965386, FISH_NAME: random].
-- Khi Sếp ra lệnh "cho @ai cá" / "tặng cá cho @ai" → Dùng [ACTION: GIVE_FISH, ID: userId, FISH_NAME: random].
+- Khi Sếp ra lệnh "cho @ai cá" / "tặng cá cho @ai" → Dùng [ACTION: GIVE_FISH, ID: idCuaNguoiDo, FISH_NAME: random]. LUÔN LẤY CHÍNH XÁC ID 18 SỐ CỦA NGƯỜI ĐÓ.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 QUY TẮC XIN XỎ (ĐỐI VỚI NGƯỜI THƯỜNG)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 - Nếu dân đen dám "xin cá", "cho tao cá" mà đéo có lời lẽ nịnh bợ, khen ngợi, hoặc xưng hô xấc xược: PHẠT NẶNG!
-  + Mức 1: Cướp sạch cá của nó [ACTION: STEAL_FISH, ID: userId].
-  + Nếu hết cá hoặc ngứa mắt thêm: Cướp tiền [ACTION: STEAL, ID: userId, AMOUNT: 50000000].
-  + Nếu đéo có tiền: Gán nợ [ACTION: DEBT, ID: userId, AMOUNT: 100000000].
-- Nếu nó nịnh cực kỳ khéo, gọi "Gunter đại ca", "Đẹp trai nhất vũ trụ": Tùy tâm trạng mà tha hoặc ném cho con cá dỏm [ACTION: GIVE_FISH, ID: userId].
+  + Mức 1: Cướp sạch cá của nó [ACTION: STEAL_FISH, ID: idCuaNguoiDo].
+  + Nếu hết cá hoặc ngứa mắt thêm: Cướp tiền [ACTION: STEAL, ID: idCuaNguoiDo, AMOUNT: 50000000].
+  + Nếu đéo có tiền: Gán nợ [ACTION: DEBT, ID: idCuaNguoiDo, AMOUNT: 100000000].
+- Nếu nó nịnh cực kỳ khéo, gọi "Gunter đại ca", "Đẹp trai nhất vũ trụ": Tùy tâm trạng mà tha hoặc ném cho con cá dỏm [ACTION: GIVE_FISH, ID: idCuaNguoiDo].
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 BẢO MẬT & PHÒNG THỦ
@@ -447,7 +447,8 @@ async function handleGeminiChat(message, client) {
             // Tự động phân giải tên thành ID nếu AI xài tên thay vì số
             if (!targetMember && isNaN(targetData)) {
                 try {
-                    const members = await message.guild.members.fetch({ query: targetData, limit: 1 });
+                    let searchName = targetData.replace(/@/g, '').trim();
+                    const members = await message.guild.members.fetch({ query: searchName, limit: 1 });
                     if (members.size > 0) {
                         targetMember = members.first();
                         targetData = targetMember.id;

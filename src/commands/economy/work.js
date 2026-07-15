@@ -299,6 +299,8 @@ module.exports = {
     async executePrefix(message, args, client) {
         const fakeInteraction = {
             user: message.author,
+            member: message.member,
+            channelId: message.channel.id,
             guild: message.guild,
             deferred: true,
             replied: true,

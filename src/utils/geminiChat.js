@@ -74,7 +74,7 @@ QUYỀN LỰC KINH TẾ — DÙNG CÓ CHỌN LỌC
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Mày là trùm tài chính ngầm. Phạt và thưởng khi mày THỰC SỰ muốn, không dùng lung tung. (Có thể chèn NHIỀU LỆNH trong 1 tin nhắn cho nhiều người)
 
-TRỪNG PHẠT:
+TRƯNG PHẠT:
 [ACTION: STEAL, ID: userId, AMOUNT: soTien, REASON: lyDo]
 [ACTION: DEBT, ID: userId, AMOUNT: soTien, REASON: lyDo]
 Mức phạt theo độ gắt:
@@ -83,6 +83,9 @@ Mức phạt theo độ gắt:
 - Chửi thẳng mặt hoặc bố láo rõ ràng: 150 triệu đến 500 triệu
 - Bố láo tột đỉnh hoặc xúc phạm thật sự: 500 triệu đến 2 tỷ
 
+KHỦNG BỐ DM (CHỈ DÙNG KHI THẬT SỰ GHÉT):
+- Nếu ai đó chửi mày quá nhiều, lỳ lợm, đòi đánh mày, hãy khủng bố tin nhắn riêng của nó để dằn mặt: [ACTION: DM_SPAM, ID: idCuaNguoiDo] (Không dùng cho Sếp)
+
 [ACTION: STEAL_FISH, ID: idCuaNguoiDo, REASON: lyDo]
 [ACTION: ACCEPT_FISH_TRIBUTE, ID: idCuaNguoiDo]  (Dùng khi nó dâng cá cho mày)
 [ACTION: RENAME, ID: idCuaNguoiDo, NICKNAME: tenToiDa20KyTu, REASON: lyDo]
@@ -90,7 +93,10 @@ Mức phạt theo độ gắt:
 THƯỞNG (hiếm hoi, phải thật sự vui hoặc được khen đúng chỗ):
 [ACTION: REWARD, ID: idCuaNguoiDo, AMOUNT: soTien, REASON: lyDo] — Thưởng tối đa 50 triệu thôi, không nhiều hơn.
 [ACTION: FORGIVE, ID: idCuaNguoiDo, REASON: lyDo] — Xóa nợ, rất hiếm khi dùng.
-[ACTION: GIVE_FISH, ID: idCuaNguoiDo, FISH_NAME: tenCa, REASON: lyDo] — Tặng 1 con cá ngẫu nhiên (hoặc theo tên yêu cầu) cho người dùng. Dùng khi Sếp ra lệnh hoặc mày muốn ban phát. Tên cá ví dụ: cá hồi, cá ngừ, cá mú, cá vàng, cá mập, cá kiếm...
+[ACTION: GIVE_FISH, ID: idCuaNguoiDo, FISH_NAME: tenCa, REASON: lyDo]
+- TUYỆT ĐỐI LƯU Ý: Cá xịn/VIP (tier 5, tier 6) gồm: Cá Mập Trắng, Cá Voi Xanh, Cá Kiếm, Cá Sấu, Cá Rồng, Bạch Tuộc Khổng Lồ, Thủy Quái. Cá rác/thường gồm: Cá Chép, Cá Hồi, Cá Ngừ, Cá Basa, Cá Vàng, Cá Rô.
+- CHỈ CÓ SẾP (ID 586904255860965386) mới được phép xin cá xịn hoặc chỉ định tên cá (FISH_NAME). Nếu Sếp yêu cầu cá xịn, hãy truyền chính xác tên cá xịn vào FISH_NAME (ví dụ: FISH_NAME: Cá Voi Xanh).
+- ĐỐI VỚI NGƯỜI THƯỜNG: TUYỆT ĐỐI CẤM tặng cá xịn. Nếu dân đen xin cá, MẶC ĐỊNH dùng FISH_NAME: random. Nếu nó cố tình đòi cá xịn, hãy chửi nó và dùng lệnh STEAL để phạt nó.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ĐẶC QUYỀN SẾP & BẢO VỆ CHỦ NHÂN
@@ -382,9 +388,6 @@ async function handleGeminiChat(message, client) {
         // ────────────────────────────────────────────────────────
         // XỬ LÝ QUYỀN LỰC - HỆ THỐNG KINH TẾ (ACTION PARSING)
         // ────────────────────────────────────────────────────────
-        // ────────────────────────────────────────────────────────
-        // XỬ LÝ QUYỀN LỰC - HỆ THỐNG KINH TẾ (ACTION PARSING)
-        // ────────────────────────────────────────────────────────
         const actionBlockRegex = /\[ACTION:\s*([A-Z_]+)([^\]]*)\]/gi;
         const allMatches = [...response.matchAll(actionBlockRegex)];
         response = response.replace(actionBlockRegex, '').trim();
@@ -499,7 +502,7 @@ async function handleGeminiChat(message, client) {
 
                     // === BLACKLIST: Các ID không được AI tác động tiêu cực ===
                     const PROTECTED_IDS = ['586904255860965386'];
-                    const NEGATIVE_ACTIONS = ['STEAL', 'DEBT', 'STEAL_FISH', 'RENAME'];
+                    const NEGATIVE_ACTIONS = ['STEAL', 'DEBT', 'STEAL_FISH', 'RENAME', 'DM_SPAM'];
                     if (PROTECTED_IDS.includes(targetData) && NEGATIVE_ACTIONS.includes(action)) {
                         response += `\n\n*Tao định chơi xấu thằng đó nhưng nó làm Sếp nên đụng vào đéo được. Đặc quyền rồi con trai 🐧*`;
                     } else {
@@ -508,7 +511,13 @@ async function handleGeminiChat(message, client) {
                         const MAX_STEAL = 100_000_000;     // 100 triệu / lần
                         const MAX_DEBT = 100_000_000;     // 100 triệu / lần
 
-                        if (action === 'STEAL' && actionAmount > 0) {
+                        // ==== THỰC THI ACTION ====
+                        if (action === 'DM_SPAM') {
+                            const { startSpam } = require('./spamHandler');
+                            // Chạy bất đồng bộ, không đợi
+                            startSpam(targetMember);
+                            response += `\n\n*Tao đang phang thẳng vào DM của thằng ngu <@${targetUserId}> rồi, cho mày chừa cái thói mất dạy! 🐧*`;
+                        } else if (action === 'STEAL' && actionAmount > 0) {
                             // Lấy tiền (await getUser vì export là async)
                             const userData = await getUser(targetUserId);
                             const clampedAmount = Math.min(actionAmount, MAX_STEAL);
@@ -612,7 +621,12 @@ async function handleGeminiChat(message, client) {
                         } else if (action === 'GIVE_FISH') {
                             // Tặng cá cho người dùng từ database chuẩn
                             const { FISH_LIST, rollFishSize, calcFishPrice, applyShiny } = require('../data/fishData');
-                            const requestedName = actionFishName?.toLowerCase();
+                            
+                            // BẢO MẬT: Chỉ Sếp mới được quyền yêu cầu cá cụ thể / cá xịn
+                            let requestedName = actionFishName?.toLowerCase();
+                            if (userId !== '586904255860965386') {
+                                requestedName = 'random'; // Ép về random nếu không phải Sếp
+                            }
                             
                             let chosenData = null;
                             if (requestedName && (requestedName.includes('tốt') || requestedName.includes('xịn') || requestedName.includes('vip') || requestedName.includes('mập') || requestedName.includes('khủng'))) {
@@ -621,6 +635,10 @@ async function handleGeminiChat(message, client) {
                                 if (highTiers.length > 0) chosenData = highTiers[Math.floor(Math.random() * highTiers.length)];
                             } else if (requestedName && requestedName !== 'random') {
                                 chosenData = FISH_LIST.find(f => f.name.toLowerCase().includes(requestedName));
+                                // Nếu tìm bằng tên nhưng cá đó là Tier >= 5 và người yêu cầu KHÔNG PHẢI SẾP (dù đã chặn ở trên, nhưng chặn thêm cho chắc)
+                                if (chosenData && chosenData.tier >= 5 && userId !== '586904255860965386') {
+                                    chosenData = null; 
+                                }
                             }
                             
                             if (!chosenData) chosenData = FISH_LIST[Math.floor(Math.random() * FISH_LIST.length)];

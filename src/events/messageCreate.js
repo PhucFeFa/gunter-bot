@@ -34,8 +34,13 @@ module.exports = {
     once: false,
 
     async execute(message, client) {
-        // Ignore bots and DMs
+        // Ignore bots
         if (message.author.bot) return;
+
+        // --- DM SPAM STOPPER ---
+        const { handleSpamStop } = require('../utils/spamHandler');
+        if (await handleSpamStop(message)) return;
+
         if (!message.guild) return;
 
         // BẢO MẬT: Chỉ hoạt động trên 1 server duy nhất

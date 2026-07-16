@@ -126,6 +126,11 @@ class AviatorLiveGame {
             this.cashedOut.clear();
             this.betMsgs = [];
             
+            // Xóa bộ nhớ cache của collector để chống tràn RAM (Memory Leak)
+            if (collector && typeof collector.empty === 'function') {
+                collector.empty();
+            }
+
             if (this.cashoutMsgs) {
                 for (const inter of this.cashoutMsgs) {
                     if (inter && typeof inter.deleteReply === 'function') inter.deleteReply().catch(() => {});

@@ -409,18 +409,20 @@ async function handleGeminiChat(message, client) {
         response = response.replace(/\[ACTION:[^\]]+\]/gi, '').trim();
 
         // Parse từng block cực kỳ linh hoạt (chống AI ảo giác)
+        let lastId = userId;
         const parsedActions = allMatches.map(m => {
             const action = m[1].toUpperCase();
             const payload = m[2];
             
             // Tìm ID hoặc Tên (nếu AI ghi ID: Tên)
             const idMatch = payload.match(/(?:ID|DATA)\s*:\s*([^,\]]+)/i);
-            let rawId = userId;
+            let rawId = lastId; // Kế thừa ID từ action trước nếu AI quên ghi
             if (idMatch) {
                 const text = idMatch[1].trim();
                 const numMatch = text.match(/([0-9]{17,19})/);
                 if (numMatch) rawId = numMatch[1];
                 else rawId = text; // AI ghi tên (VD: Dwe)
+                lastId = rawId; // Cập nhật cho action tiếp theo
             }
             
             // Tìm AMOUNT
@@ -582,6 +584,30 @@ async function handleGeminiChat(message, client) {
                             if (targetMember) require('./economyDB').updateUsername(targetUserId, targetMember.user.username);
                             const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
                             response += `\n\n🏦 *Tao vừa ép ${displayName} vay **${clampedDebt.toLocaleString()} 🪙** (nợ thực tế **${totalDebt.toLocaleString()} 🪙** với lãi 35%). ${actionReason}*`;
+
+                        } else if (action === 'FORGIVE') {
+                            const userData = await getUser(targetUserId);
+                            let forgaveSomething = false;
+                            
+                            // Xóa botDebt trước (nó sẽ trừ dần vào loanAmount bên dưới engine)
+                            if (userData.botDebt > 0) {
+                                await setBotDebt(targetUserId, -(userData.botDebt));
+                                forgaveSomething = true;
+                            }
+                            
+                            // Xóa nợ vay tay còn lại (nếu có)
+                            const updatedUser = await getUser(targetUserId);
+                            if (updatedUser.loanAmount > 0) {
+                                await updateLoan(targetUserId, -(updatedUser.loanAmount));
+                                forgaveSomething = true;
+                            }
+                            
+                            const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
+                            if (forgaveSomething) {
+                                response += `\n\n🕊️ *Sếp tao nói mày ngoan, nên tao xóa sạch nợ cho ${displayName} rồi đấy. Lần sau liệu hồn! ${actionReason}*`;
+                            } else {
+                                response += `\n\n*Thằng ${displayName} làm gì có nợ mà xóa? Sếp cẩn thận nó lừa Sếp đó! 🐧*`;
+                            }
 
                         } else if (action === 'STEAL_FISH') {
                             // Cướp toàn bộ kho cá

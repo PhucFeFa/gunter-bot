@@ -324,7 +324,15 @@ async function handleGeminiChat(message, client) {
         const isBoss = userId === '586904255860965386';
         const isSubBoss = dynamicProtected.includes(userId);
         const roleStr = isBoss ? 'Sếp' : (isSubBoss ? 'Sub-boss/Được Bảo Kê' : 'Dân Đen');
-        const finalPrompt = `(Tin nhắn từ ${roleStr} ${senderName}, ID: ${userId}): ${content || '*Chỉ gửi ảnh*'}`;
+        
+        // Thêm danh sách người được nhắc đến (phòng hờ trường hợp Sếp reply nhưng không tag thẳng trong text)
+        const mentionedOthers = message.mentions.users.filter(u => u.id !== client.user.id && u.id !== userId);
+        let mentionContext = '';
+        if (mentionedOthers.size > 0) {
+            mentionContext = ` [Gợi ý ID những người được tag/reply: ${mentionedOthers.map(u => `@${u.displayName || u.username} (ID: ${u.id})`).join(', ')}]`;
+        }
+
+        const finalPrompt = `(Tin nhắn từ ${roleStr} ${senderName}, ID: ${userId}): ${content || '*Chỉ gửi ảnh*'}${mentionContext}`;
 
         // Bật hiệu ứng "Bot đang gõ..."
         await message.channel.sendTyping();
@@ -469,10 +477,18 @@ async function handleGeminiChat(message, client) {
                 targetMember = await message.guild.members.fetch(targetData).catch(() => null);
             }
 
+            // ── AI CONFUSION OVERRIDE ──
+            // Nếu AI tự nhiên nhắm mục tiêu vào người gọi (userId) nhưng tin nhắn lại CÓ nhắc đến người khác,
+            // Rất có thể AI bị lú và lấy nhầm ID của người gọi lệnh.
+            const mentionedUsers = message.mentions.users.filter(u => u.id !== client.user.id && u.id !== userId);
+            if (targetData === userId && mentionedUsers.size > 0 && action !== 'ACCEPT_FISH_TRIBUTE' && action !== 'STEAL') {
+                targetData = mentionedUsers.first().id;
+                targetMember = await message.guild.members.fetch(targetData).catch(() => null);
+            }
+
             // ── PRIORITY 2: Nếu AI không đưa ra ID hợp lệ (chữ, tên, hoặc parse hụt) ──
             if (!targetMember) {
                 // Thử xem có ai được tag trong câu lệnh không
-                const mentionedUsers = message.mentions.users.filter(u => u.id !== client.user.id && u.id !== userId);
                 if (mentionedUsers.size > 0 && action !== 'ACCEPT_FISH_TRIBUTE') {
                     // Nếu AI trả về 1 cái tên chữ, cố gắng khớp tên đó với một trong những người được tag
                     let foundMatch = false;

@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const { getUser, updateBalance } = require('../../utils/economyDB');
+const liveGameManager = require('../../utils/liveGameManager');
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
@@ -22,7 +23,12 @@ const HEADERS = {
 let cachedMatches = [];
 let lastFetchTime = 0;
 
+function getCachedMatches() {
+    return cachedMatches;
+}
+
 module.exports = {
+    getCachedMatches,
     data: new SlashCommandBuilder()
         .setName('bongda')
         .setDescription('Hệ thống cá độ bóng đá Live (Cập nhật liên tục)')
@@ -45,9 +51,21 @@ module.exports = {
             .setDescription('Xem các vé cược đang chờ kết quả')),
 
     async execute(interaction) {
-        await interaction.deferReply();
+        const guildId = interaction.guildId;
+        const liveChannelId = liveGameManager.getChannelByType(guildId, 'bongda');
+
+        if (!liveChannelId) {
+            return interaction.reply({ content: `❌ Trò chơi này hiện đang đóng cửa! Vui lòng chờ Admin mở Sòng **Bóng Đá Live** (lệnh \`/livegame\`).`, ephemeral: true });
+        }
+        if (interaction.channelId !== liveChannelId) {
+            return interaction.reply({ content: `❌ Bắt quả tang đánh bạc trái phép! Hãy ra đúng sòng Bóng Đá tại <#${liveChannelId}> để chơi!`, ephemeral: true });
+        }
+
         const subcommand = interaction.options.getSubcommand();
         const userId = interaction.user.id;
+
+        // Cho riêng lệnh list chạy ngầm (ephemeral) để không trôi tin nhắn
+        await interaction.deferReply({ ephemeral: subcommand === 'list' });
 
         if (subcommand === 'list') {
             try {
@@ -71,6 +89,7 @@ module.exports = {
 
                 // Thiết kế UI Embed nhiều trận với cờ/logo
                 const embeds = [];
+                const components = [];
 
                 // Lấy tối đa 5 trận để tránh bị dài quá
                 const displayMatches = cachedMatches.slice(0, 5);
@@ -111,10 +130,27 @@ module.exports = {
                         .setDescription(`**${home}** (Nhà) 🆚 **${away}** (Khách)\n\n📊 **Trạng thái:** ${statusDisplay}\n🏟️ **Sân:** ${m.fixture.venue.name || 'Đang cập nhật'}`)
                         .setFooter({ text: 'Home Logo (Phải) | Away Logo (Trái)', iconURL: leagueFlag });
                     
+                    const actionRow = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder()
+                                .setCustomId(`bongdabet_${m.fixture.id}_home`)
+                                .setLabel(home.length > 20 ? home.substring(0, 20) + '...' : home)
+                                .setStyle(ButtonStyle.Primary),
+                            new ButtonBuilder()
+                                .setCustomId(`bongdabet_${m.fixture.id}_draw`)
+                                .setLabel('Hòa (Draw)')
+                                .setStyle(ButtonStyle.Secondary),
+                            new ButtonBuilder()
+                                .setCustomId(`bongdabet_${m.fixture.id}_away`)
+                                .setLabel(away.length > 20 ? away.substring(0, 20) + '...' : away)
+                                .setStyle(ButtonStyle.Danger)
+                        );
+
                     embeds.push(matchEmbed);
+                    components.push(actionRow);
                 });
 
-                return interaction.editReply({ embeds: embeds });
+                return interaction.editReply({ embeds: embeds, components: components });
 
             } catch (err) {
                 console.error('[FOOTBALL] Lỗi tải list:', err);

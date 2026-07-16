@@ -78,10 +78,18 @@ async function checkAndResolveBets(client) {
             }
         }
 
-        // Lưu lại kết quả
-        if (resolvedCount > 0) {
+        // Dọn dẹp các vé cược đã xong (giữ lại trong 3 ngày để tra cứu nếu cần)
+        const THREE_DAYS = 3 * 24 * 60 * 60 * 1000;
+        const now = Date.now();
+        const initialLength = data.bets.length;
+        data.bets = data.bets.filter(b => b.status === 'PENDING' || (now - b.timestamp) < THREE_DAYS);
+
+        // Lưu lại kết quả nếu có vé được quyết toán HOẶC có vé cũ bị xóa
+        if (resolvedCount > 0 || data.bets.length !== initialLength) {
             fs.writeFileSync(BETS_FILE, JSON.stringify(data, null, 4));
-            console.log(`[FOOTBALL] Đã quyết toán xong ${resolvedCount} vé cược!`);
+            if (resolvedCount > 0) {
+                console.log(`[FOOTBALL] Đã quyết toán xong ${resolvedCount} vé cược!`);
+            }
         }
 
     } catch (err) {

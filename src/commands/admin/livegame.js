@@ -12,6 +12,7 @@ const liveGameManager = require('../../utils/liveGameManager');
 const { BaccaratLiveGame } = require('../../games/baccaratLive');
 const { AviatorLiveGame } = require('../../games/aviatorLive');
 const { TaixiuLiveGame } = require('../../games/taixiuLive');
+const { FootballLiveGame } = require('../../games/footballLive');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -28,7 +29,8 @@ module.exports = {
                 .addChoices(
                     { name: '🎴 Baccarat', value: 'baccarat' },
                     { name: '🚀 Aviator', value: 'aviator' },
-                    { name: '🎲 Tài Xỉu', value: 'taixiu' }
+                    { name: '🎲 Tài Xỉu', value: 'taixiu' },
+                    { name: '⚽ Bóng Đá', value: 'bongda' }
                 ))
             .addChannelOption(opt => opt
                 .setName('channel')
@@ -46,7 +48,8 @@ module.exports = {
                 .addChoices(
                     { name: '🎴 Baccarat', value: 'baccarat' },
                     { name: '🚀 Aviator', value: 'aviator' },
-                    { name: '🎲 Tài Xỉu', value: 'taixiu' }
+                    { name: '🎲 Tài Xỉu', value: 'taixiu' },
+                    { name: '⚽ Bóng Đá', value: 'bongda' }
                 ))
         ),
 
@@ -70,6 +73,8 @@ module.exports = {
                 instance = new AviatorLiveGame(channel, interaction.client, guildId);
             } else if (game === 'taixiu') {
                 instance = new TaixiuLiveGame(channel, interaction.client, guildId);
+            } else if (game === 'bongda') {
+                instance = new FootballLiveGame(channel, interaction.client, guildId);
             }
 
             const ok = liveGameManager.register(guildId, game, instance);

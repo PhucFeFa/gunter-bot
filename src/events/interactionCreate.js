@@ -105,6 +105,29 @@ module.exports = {
                     );
                 return interaction.showModal(modal);
             }
+
+            // ─ Bóng Đá Live: nut bet (mở modal nhập tiền) ─
+            if (interaction.customId.startsWith('bongdabet_')) {
+                const parts = interaction.customId.split('_');
+                const matchId = parts[1];
+                const choice = parts[2];
+                let choiceName = choice === 'home' ? 'ĐỘI NHÀ' : (choice === 'away' ? 'ĐỘI KHÁCH' : 'HÒA');
+
+                const modal = new ModalBuilder()
+                    .setCustomId(`bongdamodal_${matchId}_${choice}`)
+                    .setTitle(`⚽ Bạn cược ${choiceName}`)
+                    .addComponents(
+                        new ActionRowBuilder().addComponents(
+                            new TextInputBuilder()
+                                .setCustomId('bongda_amount')
+                                .setLabel('Số tiền cược')
+                                .setStyle(TextInputStyle.Short)
+                                .setPlaceholder('VD: 10000 hoặc all')
+                                .setRequired(true)
+                        )
+                    );
+                return interaction.showModal(modal);
+            }
         }
 
         // ─ Xử lý modal submit (Baccarat / Aviator bet) ─
@@ -183,6 +206,64 @@ module.exports = {
                 };
                 await game.placeBet(fakeMsg, amount);
                 return;
+            }
+
+            if (interaction.customId.startsWith('bongdamodal_')) {
+                const parts = interaction.customId.split('_');
+                const matchId = parseInt(parts[1]);
+                const choice = parts[2];
+                const rawAmt = interaction.fields.getTextInputValue('bongda_amount').toLowerCase();
+                
+                const { getUser, updateBalance } = require('../utils/economyDB');
+                const fs = require('fs');
+                const path = require('path');
+                const BETS_FILE = path.join(__dirname, '..', 'data', 'footballBets.json');
+
+                const userData = await getUser(interaction.user.id);
+                const balance = userData.balance;
+                const amount = rawAmt === 'all' ? balance : parseInt(rawAmt);
+
+                if (isNaN(amount) || amount <= 0) {
+                    return interaction.reply({ content: '❌ Tiền cược không hợp lệ!', flags: 64 });
+                }
+
+                if (balance < amount) {
+                    return interaction.reply({ content: `❌ Trong túi còn có **${balance.toLocaleString()} 🪙** mà đòi cược ${amount.toLocaleString()}?`, flags: 64 });
+                }
+
+                await updateBalance(interaction.user.id, -amount);
+                
+                let data = { bets: [] };
+                try { data = JSON.parse(fs.readFileSync(BETS_FILE, 'utf-8')); } catch(e){}
+
+                const { getCachedMatches } = require('../commands/economy/bongda.js');
+                const cachedMatches = getCachedMatches();
+                const matchInfo = cachedMatches.find(m => m.fixture.id == matchId);
+                const homeName = matchInfo ? matchInfo.teams.home.name : "Đội Nhà";
+                const awayName = matchInfo ? matchInfo.teams.away.name : "Đội Khách";
+
+                data.bets.push({
+                    userId: interaction.user.id,
+                    matchId,
+                    homeName,
+                    awayName,
+                    choice,
+                    amount,
+                    odds: 1.95,
+                    timestamp: Date.now(),
+                    status: 'PENDING'
+                });
+                fs.writeFileSync(BETS_FILE, JSON.stringify(data, null, 4));
+
+                let choiceDisplay = choice === 'home' ? `Đội Nhà (${homeName})` : (choice === 'away' ? `Đội Khách (${awayName})` : 'Hòa (Draw)');
+                const embed = new EmbedBuilder()
+                    .setColor(0xF1C40F)
+                    .setTitle('🎰 XUỐNG XÁC THÀNH CÔNG!')
+                    .setThumbnail('https://cdn-icons-png.flaticon.com/512/3067/3067576.png')
+                    .setDescription(`Mày vừa vứt **${amount.toLocaleString()} 🪙** vào cửa **${choiceDisplay}** cho trận \`${homeName} vs ${awayName}\` (Mã \`${matchId}\`).\n\n💰 Nếu thắng mày húp: **${(amount * 1.95).toLocaleString()} 🪙**`)
+                    .setFooter({ text: 'Kết quả sẽ được tự động quyết toán khi trận đấu kết thúc (FT).' });
+
+                return interaction.reply({ embeds: [embed] });
             }
         }
 

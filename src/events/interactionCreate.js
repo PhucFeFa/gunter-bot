@@ -238,9 +238,18 @@ module.exports = {
 
                 const { getCachedMatches } = require('../commands/economy/bongda.js');
                 const cachedMatches = getCachedMatches();
-                const matchInfo = cachedMatches.find(m => m.fixture.id == matchId);
-                const homeName = matchInfo ? matchInfo.teams.home.name : "Đội Nhà";
-                const awayName = matchInfo ? matchInfo.teams.away.name : "Đội Khách";
+                const matchInfo = cachedMatches.find(m => m.matchId.toString() === matchId.toString());
+                
+                if (!matchInfo) {
+                    return interaction.reply({ content: '❌ Trận đấu này không còn mở cược nữa hoặc danh sách đã cũ! Vui lòng dùng lệnh `/bongda list` để xem lại.', flags: 64 });
+                }
+                
+                if (matchInfo.status !== 0) {
+                    return interaction.reply({ content: '❌ Khôn như Sếp quê em đầy! Trận đấu đã bắt đầu hoặc kết thúc, không được phép cược nữa!', flags: 64 });
+                }
+
+                const homeName = matchInfo.homeName;
+                const awayName = matchInfo.awayName;
 
                 data.bets.push({
                     userId: interaction.user.id,

@@ -74,10 +74,16 @@ module.exports = {
                         // API trả về mảng trực tiếp trong data.data
                         let allMatches = res.data.data;
                         
-                        // Lấy các trận chưa kết thúc (status >= 0) hoặc lấy tạm 5 trận bất kỳ
-                        let liveOrUpcoming = allMatches.filter(m => m.status !== -10 && m.status !== -14);
+                        // Cắt bỏ các trận bị huỷ
+                        let validMatches = allMatches.filter(m => m.status !== -10 && m.status !== -14);
                         
-                        cachedMatches = liveOrUpcoming.slice(0, 5);
+                        // Sắp xếp: Đang đá (status > 0) lên đầu -> Sắp đá (status === 0) -> Đã đá xong (status === -1)
+                        validMatches.sort((a, b) => {
+                            const rank = (s) => (s > 0 ? 1 : (s === 0 ? 2 : 3));
+                            return rank(a.status) - rank(b.status);
+                        });
+                        
+                        cachedMatches = validMatches.slice(0, 5);
                         lastFetchTime = now;
                     }
                 }

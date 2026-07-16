@@ -108,6 +108,9 @@ module.exports = {
 
             // ─ Bóng Đá Live: nut bet (mở modal nhập tiền) ─
             if (interaction.customId.startsWith('bongdabet_')) {
+                const game = liveGameManager.getByChannel(interaction.channelId);
+                if (!game || game.gameType !== 'bongda') return interaction.reply({ content: '❌ Sòng Bóng Đá ở kênh này hiện đang ĐÓNG CỬA! Gọi Admin mở lại nhé!', flags: 64 });
+
                 const parts = interaction.customId.split('_');
                 const matchId = parts[1];
                 const choice = parts[2];
@@ -209,6 +212,9 @@ module.exports = {
             }
 
             if (interaction.customId.startsWith('bongdamodal_')) {
+                const game = liveGameManager.getByChannel(interaction.channelId);
+                if (!game || game.gameType !== 'bongda') return interaction.reply({ content: '❌ Sòng Bóng Đá ở kênh này đã ĐÓNG CỬA!', flags: 64 });
+
                 const parts = interaction.customId.split('_');
                 const matchId = parseInt(parts[1]);
                 const choice = parts[2];

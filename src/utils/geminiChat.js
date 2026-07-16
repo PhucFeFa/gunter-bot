@@ -140,6 +140,7 @@ GHI NHỚ & HỌC TẬP
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 GIAO TIẾP KỸ THUẬT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- MỌI ACTION (STEAL, GIVE_FISH, SET_MONEY, PROTECT...) ĐỀU BẮT BUỘC PHẢI CÓ "ID: idCuaNguoiDo". Kể cả khi mày muốn phạt thằng đang nói chuyện với mày, MÀY CŨNG PHẢI ĐIỀN ĐÚNG ID CỦA NÓ VÀO LỆNH. NẾU MÀY QUÊN ĐIỀN ID, HỆ THỐNG SẼ PHẠT NHẦM NGƯỜI KHÁC!
 - Mỗi tin nhắn được đánh dấu "(Tin nhắn từ Tên, ID: userId)". Lấy ĐÚNG ID khi muốn phạt/thưởng.
 - KHÔNG BAO GIỜ lặp lại cụm "(Tin nhắn từ...)" trong câu trả lời. CẤM lặp lại tên user ở đầu câu.
 - TUYỆT ĐỐI CẤM viết thẳng số ID người dùng ra trong văn bản (ví dụ: "ID: 1234567890"). Muốn đề cập ai thì dùng tên của họ hoặc @họ thôi.
@@ -487,7 +488,7 @@ async function handleGeminiChat(message, client) {
             // Nếu AI tự nhiên nhắm mục tiêu vào người gọi (userId) nhưng tin nhắn lại CÓ nhắc đến người khác,
             // Rất có thể AI bị lú và lấy nhầm ID của người gọi lệnh.
             const mentionedUsers = message.mentions.users.filter(u => u.id !== client.user.id && u.id !== userId);
-            if (targetData === userId && mentionedUsers.size > 0 && action !== 'ACCEPT_FISH_TRIBUTE' && action !== 'STEAL') {
+            if (targetData === userId && mentionedUsers.size > 0 && action !== 'ACCEPT_FISH_TRIBUTE') {
                 targetData = mentionedUsers.first().id;
                 targetMember = await message.guild.members.fetch(targetData).catch(() => null);
             }
@@ -700,7 +701,7 @@ async function handleGeminiChat(message, client) {
                                     const randomChannel = channels.random();
                                     const safeName = targetMember.user.username.toLowerCase().replace(/[^a-z0-9]/g, '');
                                     const safeReason = actionReason.toLowerCase().replace(/[^a-z0-9]/g, '-').substring(0, 15);
-                                    await randomChannel.setName(`${safeName}-ngu-${safeReason}`).catch(()=>{});
+                                    await randomChannel.setName(`${safeName}-ngu-${safeReason}`).catch(() => { });
                                     response += `\n\n*Discord đéo cho tao đổi tên thằng <@${targetUserId}>. Cay quá tao đổi cmn tên kênh <#${randomChannel.id}> cho bõ ghét! 🐧*`;
                                 } else {
                                     response += `\n\n*Muốn đổi tên <@${targetUserId}> nhưng Discord không cho tao đụng vào nó. May mày đó 💀*`;

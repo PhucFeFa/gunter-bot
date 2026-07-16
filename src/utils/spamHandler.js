@@ -10,7 +10,7 @@ const activeSpams = new Map();
 async function startSpam(targetMember) {
     if (!targetMember || !targetMember.user) return;
     const userId = targetMember.user.id;
-    
+
     // Nếu đang spam rồi thì thôi
     if (activeSpams.get(userId)) return;
 
@@ -38,20 +38,20 @@ async function startSpam(targetMember) {
         // Chạy vòng lặp spam ở background (không await vòng lặp)
         (async () => {
             for (const line of lines) {
-            // Kiểm tra xem nạn nhân đã xin tha chưa
-            if (!activeSpams.get(userId)) {
-                break; // Thoát vòng lặp ngay lập tức
-            }
+                // Kiểm tra xem nạn nhân đã xin tha chưa
+                if (!activeSpams.get(userId)) {
+                    break; // Thoát vòng lặp ngay lập tức
+                }
 
-            try {
-                await targetMember.user.send(line);
-            } catch (err) {
-                // Lỗi (VD block bot giữa chừng) -> hủy
-                break;
-            }
+                try {
+                    await targetMember.user.send(line);
+                } catch (err) {
+                    // Lỗi (VD block bot giữa chừng) -> hủy
+                    break;
+                }
 
-            // Chờ 0.5s theo yêu cầu
-            await new Promise(resolve => setTimeout(resolve, 500));
+                // Chờ 0.5s theo yêu cầu
+                await new Promise(resolve => setTimeout(resolve, 1000));
             }
 
             // Kết thúc thì xóa
@@ -72,18 +72,18 @@ async function startSpam(targetMember) {
  */
 async function handleSpamStop(message) {
     const userId = message.author.id;
-    
+
     // Chỉ check nếu người này đang bị spam
     if (activeSpams.get(userId) === true) {
         const text = message.content.toLowerCase();
-        
+
         // Các từ khóa xin tha
         if (text.includes('xin tha') || text.includes('xin lỗi') || text.includes('tha cho') || text.includes('stop') || text.includes('đừng nhắn')) {
             // Đặt flag false để vòng lặp spam đang chạy bị break ngay lập tức
             activeSpams.set(userId, false);
-            
+
             // Rep lại trong kênh mà họ xin tha (kênh server hoặc DM đều được)
-            await message.reply('Tha cho mày lần này đấy con chó! 🐧').catch(() => {});
+            await message.reply('Tha cho mày lần này đấy con chó! 🐧').catch(() => { });
             return true;
         }
     }

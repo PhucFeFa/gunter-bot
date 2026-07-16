@@ -314,9 +314,17 @@ async function handleGeminiChat(message, client) {
             }
         });
 
-        // Định dạng câu hỏi để bot biết ai đang nói và kèm theo ID
+        // Lấy cấu hình bảo kê (Sub-boss)
+        const { getConfig } = require('./configDB');
+        const guildConfig = await getConfig(message.guild.id);
+        const dynamicProtected = guildConfig.ai_protected_users || [];
+
+        // Định dạng câu hỏi để bot biết ai đang nói và kèm theo ID/Quyền lực
         const senderName = message.author.displayName || message.author.username;
-        const finalPrompt = `(Tin nhắn từ ${senderName}, ID: ${userId}): ${content || '*Chỉ gửi ảnh*'}`;
+        const isBoss = userId === '586904255860965386';
+        const isSubBoss = dynamicProtected.includes(userId);
+        const roleStr = isBoss ? 'Sếp' : (isSubBoss ? 'Sub-boss/Được Bảo Kê' : 'Dân Đen');
+        const finalPrompt = `(Tin nhắn từ ${roleStr} ${senderName}, ID: ${userId}): ${content || '*Chỉ gửi ảnh*'}`;
 
         // Bật hiệu ứng "Bot đang gõ..."
         await message.channel.sendTyping();
@@ -351,9 +359,11 @@ async function handleGeminiChat(message, client) {
         let response = '';
 
         const result = await smartFallback(async (dynGenAI, modelName) => {
+            const dynamicSystemPrompt = SYSTEM_PROMPT + `\n\n[LƯU Ý HỆ THỐNG QUAN TRỌNG]\nDanh sách ID của các Sub-boss (Người được bảo kê) hiện tại trong server: ${dynamicProtected.length > 0 ? dynamicProtected.join(', ') : 'Không có'}. MÀY PHẢI NGHE LỜI VÀ BẢO VỆ NHỮNG ID NÀY!`;
+            
             const model = dynGenAI.getGenerativeModel({
                 model: modelName,
-                systemInstruction: SYSTEM_PROMPT,
+                systemInstruction: dynamicSystemPrompt,
                 safetySettings
             });
             const chatSession = model.startChat({
@@ -509,10 +519,8 @@ async function handleGeminiChat(message, client) {
                 try {
                     const { updateBalance, updateLoan, getUser, setBotDebt } = require('./economyDB');
                     const { getInventory, clearInventory } = require('./fishDB');
-                    const { getConfig, updateConfig } = require('./configDB');
-
-                    const guildConfig = await getConfig(message.guild.id);
-                    const dynamicProtected = guildConfig.ai_protected_users || [];
+                    // updateConfig đã được gọi ở trên nếu cần (bởi { getConfig, updateConfig } = require('./configDB'))
+                    const { updateConfig } = require('./configDB');
 
                     // === BLACKLIST: Các ID không được AI tác động tiêu cực ===
                     const PROTECTED_IDS = ['586904255860965386', ...dynamicProtected];

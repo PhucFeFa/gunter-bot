@@ -83,7 +83,7 @@ module.exports = {
                             return rank(a.status) - rank(b.status);
                         });
                         
-                        cachedMatches = validMatches.slice(0, 5);
+                        cachedMatches = validMatches.slice(0, 8); // Lấy tối đa 8 trận để không bị Discord cấm (max 10 embeds)
                         lastFetchTime = now;
                     }
                 }
@@ -96,8 +96,8 @@ module.exports = {
                 const embeds = [];
                 const components = [];
 
-                // Lấy tối đa 5 trận để tránh bị dài quá
-                const displayMatches = cachedMatches.slice(0, 5);
+                // Lấy tối đa 8 trận để tránh bị dài quá và lỗi Discord (max 10 embeds/tin nhắn)
+                const displayMatches = cachedMatches.slice(0, 8);
 
                 // Thêm 1 Embed làm Tiêu đề Tổng
                 const mainEmbed = new EmbedBuilder()

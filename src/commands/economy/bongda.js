@@ -77,8 +77,14 @@ module.exports = {
                     const res = await axios.get(`${API_URL}/fixtures?date=${today}`, { headers: HEADERS });
                     
                     if (res.data && res.data.response) {
-                        const hotLeagues = [39, 140, 135, 78, 61, 2, 4];
+                        const hotLeagues = [39, 140, 135, 78, 61, 2, 4, 15, 130]; // Thêm World Cup (15) và V-League (130)
                         cachedMatches = res.data.response.filter(match => hotLeagues.includes(match.league.id));
+                        
+                        // Fallback: Nếu không có giải hot nào hôm nay, bốc đại 5 trận bất kỳ cho dân đen có cái để cược
+                        if (cachedMatches.length === 0 && res.data.response.length > 0) {
+                            cachedMatches = res.data.response.slice(0, 5);
+                        }
+                        
                         lastFetchTime = now;
                     }
                 }

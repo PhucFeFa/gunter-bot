@@ -237,11 +237,6 @@ module.exports = {
                     return interaction.reply({ content: `❌ Trong túi còn có **${balance.toLocaleString()} 🪙** mà đòi cược ${amount.toLocaleString()}?`, flags: 64 });
                 }
 
-                await updateBalance(interaction.user.id, -amount);
-                
-                let data = { bets: [] };
-                try { data = JSON.parse(fs.readFileSync(BETS_FILE, 'utf-8')); } catch(e){}
-
                 const { getCachedMatches } = require('../commands/economy/bongda.js');
                 const cachedMatches = getCachedMatches();
                 const matchInfo = cachedMatches.find(m => m.matchId.toString() === matchId.toString());
@@ -253,6 +248,11 @@ module.exports = {
                 if (matchInfo.status !== 0) {
                     return interaction.reply({ content: '❌ Khôn như Sếp quê em đầy! Trận đấu đã bắt đầu hoặc kết thúc, không được phép cược nữa!', flags: 64 });
                 }
+
+                await updateBalance(interaction.user.id, -amount);
+                
+                let data = { bets: [] };
+                try { data = JSON.parse(fs.readFileSync(BETS_FILE, 'utf-8')); } catch(e){}
 
                 const homeName = matchInfo.homeName;
                 const awayName = matchInfo.awayName;

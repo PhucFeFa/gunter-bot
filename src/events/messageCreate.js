@@ -17,6 +17,7 @@ const { getResponses } = require('../utils/autoResponderDB');
 const liveGameManager = require('../utils/liveGameManager');
 const beggarManager = require('../utils/beggarManager');
 const antiSpamManager = require('../utils/antiSpamManager');
+const { isSpamming } = require('../utils/spamHandler');
 
 const autoResponderCooldowns = new Map();
 
@@ -38,10 +39,12 @@ module.exports = {
         if (message.author.bot) return;
 
         // --- DM SPAM STOPPER ---
-        const { handleSpamStop } = require('../utils/spamHandler');
-        if (await handleSpamStop(message)) return;
-
-        if (!message.guild) return;
+        if (!message.guild) {
+            if (isSpamming(message.author.id)) {
+                await message.reply('Muốn xin tha thì ra kênh server mà chat với tao! Nhắn tin riêng đéo có tác dụng đâu con gà! 🐧').catch(() => {});
+            }
+            return;
+        }
 
         // BẢO MẬT: Chỉ hoạt động trên 1 server duy nhất
         if (message.guild.id !== process.env.DISCORD_GUILD_ID) return;
@@ -258,8 +261,10 @@ module.exports = {
         // ─── Feature 3: Chabot AI (Gemini) ─────────────────────
         const AI_CHANNEL_ID = config.ai_channel_id || process.env.AI_CHANNEL_ID;
 
-        // Nếu tin nhắn nằm trong kênh AI, bot sẽ tự động trả lời mọi tin nhắn (không cần tag)
-        if (AI_CHANNEL_ID && message.channel.id === AI_CHANNEL_ID) {
+        const isVictim = isSpamming(message.author.id);
+
+        // Nếu tin nhắn nằm trong kênh AI, hoặc nếu đứa này đang bị Khủng bố DM, bot sẽ tự động trả lời mọi tin nhắn (để nghe nó xin tha)
+        if ((AI_CHANNEL_ID && message.channel.id === AI_CHANNEL_ID) || isVictim) {
             await handleGeminiChat(message, client);
         }
 

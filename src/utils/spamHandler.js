@@ -67,30 +67,20 @@ async function startSpam(targetMember) {
     }
 }
 
-/**
- * Xử lý khi nạn nhân xin tha (áp dụng cả trong DM và Server)
- */
-async function handleSpamStop(message) {
-    const userId = message.author.id;
-
-    // Chỉ check nếu người này đang bị spam
+function forceStopSpam(userId) {
     if (activeSpams.get(userId) === true) {
-        const text = message.content.toLowerCase();
-
-        // Các từ khóa xin tha
-        if (text.includes('xin tha') || text.includes('xin lỗi') || text.includes('tha cho') || text.includes('stop') || text.includes('đừng nhắn')) {
-            // Đặt flag false để vòng lặp spam đang chạy bị break ngay lập tức
-            activeSpams.set(userId, false);
-
-            // Rep lại trong kênh mà họ xin tha (kênh server hoặc DM đều được)
-            await message.reply('Tha cho mày lần này đấy con chó! 🐧').catch(() => { });
-            return true;
-        }
+        activeSpams.set(userId, false);
+        return true;
     }
     return false;
 }
 
+function isSpamming(userId) {
+    return activeSpams.get(userId) === true;
+}
+
 module.exports = {
     startSpam,
-    handleSpamStop
+    forceStopSpam,
+    isSpamming
 };

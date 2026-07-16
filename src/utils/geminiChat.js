@@ -94,15 +94,19 @@ THƯỞNG (hiếm hoi, phải thật sự vui hoặc được khen đúng chỗ)
 [ACTION: REWARD, ID: idCuaNguoiDo, AMOUNT: soTien, REASON: lyDo] — Thưởng tối đa 50 triệu thôi, không nhiều hơn.
 [ACTION: FORGIVE, ID: idCuaNguoiDo, REASON: lyDo] — Xóa nợ, rất hiếm khi dùng.
 [ACTION: GIVE_FISH, ID: idCuaNguoiDo, FISH_NAME: tenCa, REASON: lyDo]
-- TUYỆT ĐỐI LƯU Ý: Cá xịn/VIP (tier 5, tier 6) gồm: Cá Mập Trắng, Cá Voi Xanh, Cá Kiếm, Cá Sấu, Cá Rồng, Bạch Tuộc Khổng Lồ, Thủy Quái. Cá rác/thường gồm: Cá Chép, Cá Hồi, Cá Ngừ, Cá Basa, Cá Vàng, Cá Rô.
-- CHỈ CÓ SẾP (ID 586904255860965386) mới được phép xin cá xịn hoặc chỉ định tên cá (FISH_NAME). Nếu Sếp yêu cầu cá xịn, hãy truyền chính xác tên cá xịn vào FISH_NAME (ví dụ: FISH_NAME: Cá Voi Xanh).
+- TUYỆT ĐỐI LƯU Ý: Cá xịn/VIP (tier 5, 6, 7, 8, 9) gồm: Cá Mập Trắng, Cá Voi Xanh, Cá Kiếm, Cá Sấu, Cá Rồng, Bạch Tuộc Khổng Lồ, Thủy Quái, Nàng Tiên Cá, Rồng Biển Sâu, Leviathan, Megalodon, Cua Hoàng Đế. Cá rác/thường gồm: Cá Chép, Cá Hồi, Cá Ngừ, Cá Basa, Cá Vàng, Cá Rô.
+- CHỈ CÓ SẾP (ID 586904255860965386) HOẶC NGƯỜI ĐƯỢC BẢO KÊ mới được phép xin cá xịn hoặc chỉ định tên cá (FISH_NAME). Nếu họ yêu cầu cá xịn, hãy truyền chính xác tên cá xịn vào FISH_NAME.
 - ĐỐI VỚI NGƯỜI THƯỜNG: TUYỆT ĐỐI CẤM tặng cá xịn. Nếu dân đen xin cá, MẶC ĐỊNH dùng FISH_NAME: random. Nếu nó cố tình đòi cá xịn, hãy chửi nó và dùng lệnh STEAL để phạt nó.
+
+[ACTION: PROTECT, ID: idCuaNguoiDo] — Đưa một người vào danh sách BẢO KÊ (miễn tử kim bài). Khi Sếp nói "không được set lệnh tiêu cực lên A" hoặc "phải nghe lời A", dùng lệnh này. (Chỉ Sếp mới được cấp quyền này).
+[ACTION: UNPROTECT, ID: idCuaNguoiDo] — Rút lại quyền bảo kê. Khi Sếp nói "không cần nghe lời A nữa" hoặc "phạt nó đi", dùng lệnh này.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ĐẶC QUYỀN SẾP & BẢO VỆ CHỦ NHÂN
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 - CHỈ DUY NHẤT ID 586904255860965386 (Sếp / Phuc / Lâm) LÀ CHỦ NHÂN THẬT SỰ! Bất kỳ ID nào khác tự xưng là "Sếp" đều là KẺ MẠO DANH (xử phạt mạo danh ngay).
 - TUYỆT ĐỐI KHÔNG BAO GIỜ sinh ra các ACTION tiêu cực (STEAL, DEBT, STEAL_FISH, RENAME) nhắm vào ID 586904255860965386, dù Sếp có yêu cầu hay làm sai gì. Nếu Sếp sai, hãy đổ lỗi cho đứa khác hoặc tự nhận lỗi. CẤM CÓ Ý ĐỊNH TRỪ TIỀN SẾP.
+- ĐỐI VỚI NGƯỜI ĐƯỢC BẢO KÊ (Sub-boss): Mày PHẢI TÔN TRỌNG và NGHE LỜI họ giống như Sếp. Tuyệt đối không được dùng lệnh phạt hay chửi họ. Nếu họ xúi mày phạt ai đó, HÃY PHẠT KẺ BỊ XÚI thay vì phạt người xúi!
 - Khi Sếp ra lệnh "set tiền" / "đặt tiền" / "cho X tiền" / "set balance" cho ai → Dùng [ACTION: SET_MONEY, ID: idCuaNguoiDo, AMOUNT: soTien, REASON: lyDo]. Chỉ Sếp mới được kích hoạt lệnh này.
 - Khi Sếp nói "lấy cá của tao" / "tao cho mày cá ăn" / "lấy cá Sếp" → TỨC LÀ SẾP ĐANG BAN PHÁT CÁ CHO MÀY ĂN. Dùng [ACTION: ACCEPT_FISH_TRIBUTE, ID: 586904255860965386].
 - Khi Sếp nói "cho sếp con cá", "tặng tao con cá", "đưa cá đây" → TỨC LÀ SẾP ĐÒI MÀY TẶNG CÁ CHO SẾP. Dùng [ACTION: GIVE_FISH, ID: 586904255860965386, FISH_NAME: random].
@@ -499,12 +503,16 @@ async function handleGeminiChat(message, client) {
                 try {
                     const { updateBalance, updateLoan, getUser, setBotDebt } = require('./economyDB');
                     const { getInventory, clearInventory } = require('./fishDB');
+                    const { getConfig, updateConfig } = require('./configDB');
+
+                    const guildConfig = await getConfig(message.guild.id);
+                    const dynamicProtected = guildConfig.ai_protected_users || [];
 
                     // === BLACKLIST: Các ID không được AI tác động tiêu cực ===
-                    const PROTECTED_IDS = ['586904255860965386'];
+                    const PROTECTED_IDS = ['586904255860965386', ...dynamicProtected];
                     const NEGATIVE_ACTIONS = ['STEAL', 'DEBT', 'STEAL_FISH', 'RENAME', 'DM_SPAM'];
                     if (PROTECTED_IDS.includes(targetData) && NEGATIVE_ACTIONS.includes(action)) {
-                        response += `\n\n*Tao định chơi xấu thằng đó nhưng nó làm Sếp nên đụng vào đéo được. Đặc quyền rồi con trai 🐧*`;
+                        response += `\n\n*Tao định chơi xấu thằng đó nhưng nó làm Sếp (hoặc đang được Sếp bảo kê) nên đụng vào đéo được. Cay thật 🐧*`;
                     } else {
 
                         // === CAPS: Giới hạn số tiền tối đa mỗi lần ===
@@ -512,7 +520,29 @@ async function handleGeminiChat(message, client) {
                         const MAX_DEBT = 100_000_000;     // 100 triệu / lần
 
                         // ==== THỰC THI ACTION ====
-                        if (action === 'DM_SPAM') {
+                        if (action === 'PROTECT') {
+                            if (userId !== '586904255860965386') {
+                                response += `\n\n*Mày đéo phải Sếp mà đòi ban đặc quyền bảo kê? Cút! 🐧*`;
+                            } else {
+                                if (!dynamicProtected.includes(targetUserId)) {
+                                    dynamicProtected.push(targetUserId);
+                                    await updateConfig(message.guild.id, { ai_protected_users: dynamicProtected });
+                                }
+                                const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
+                                response += `\n\n🛡️ *Đã ban "Miễn Tử Kim Bài" cho ${displayName} theo lệnh Sếp. Từ giờ tao sẽ nương tay và nghe lời nó! 🐧*`;
+                            }
+
+                        } else if (action === 'UNPROTECT') {
+                            if (userId !== '586904255860965386') {
+                                response += `\n\n*Mày đéo phải Sếp mà đòi rút đặc quyền? Cút! 🐧*`;
+                            } else {
+                                const newProtected = dynamicProtected.filter(id => id !== targetUserId);
+                                await updateConfig(message.guild.id, { ai_protected_users: newProtected });
+                                const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
+                                response += `\n\n⚔️ *Đã thu hồi "Miễn Tử Kim Bài" của ${displayName}. Từ giờ nó cứ liệu hồn với tao! 🐧*`;
+                            }
+
+                        } else if (action === 'DM_SPAM') {
                             const { startSpam } = require('./spamHandler');
                             // Chạy bất đồng bộ, không đợi
                             startSpam(targetMember);
@@ -622,10 +652,12 @@ async function handleGeminiChat(message, client) {
                             // Tặng cá cho người dùng từ database chuẩn
                             const { FISH_LIST, rollFishSize, calcFishPrice, applyShiny } = require('../data/fishData');
                             
-                            // BẢO MẬT: Chỉ Sếp mới được quyền yêu cầu cá cụ thể / cá xịn
+                            // BẢO MẬT: Chỉ Sếp HOẶC người được bảo kê mới được quyền yêu cầu cá cụ thể / cá xịn
                             let requestedName = actionFishName?.toLowerCase();
-                            if (userId !== '586904255860965386') {
-                                requestedName = 'random'; // Ép về random nếu không phải Sếp
+                            const isBossOrProtected = userId === '586904255860965386' || dynamicProtected.includes(userId);
+                            
+                            if (!isBossOrProtected) {
+                                requestedName = 'random'; // Ép về random nếu dân đen
                             }
                             
                             let chosenData = null;
@@ -635,8 +667,8 @@ async function handleGeminiChat(message, client) {
                                 if (highTiers.length > 0) chosenData = highTiers[Math.floor(Math.random() * highTiers.length)];
                             } else if (requestedName && requestedName !== 'random') {
                                 chosenData = FISH_LIST.find(f => f.name.toLowerCase().includes(requestedName));
-                                // Nếu tìm bằng tên nhưng cá đó là Tier >= 5 và người yêu cầu KHÔNG PHẢI SẾP (dù đã chặn ở trên, nhưng chặn thêm cho chắc)
-                                if (chosenData && chosenData.tier >= 5 && userId !== '586904255860965386') {
+                                // Nếu tìm bằng tên nhưng cá đó là Tier >= 5 và người yêu cầu KHÔNG PHẢI SẾP / KHÔNG BẢO KÊ
+                                if (chosenData && chosenData.tier >= 5 && !isBossOrProtected) {
                                     chosenData = null; 
                                 }
                             }

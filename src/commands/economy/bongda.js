@@ -11,13 +11,9 @@ if (!fs.existsSync(BETS_FILE)) {
     fs.writeFileSync(BETS_FILE, JSON.stringify({ bets: [] }));
 }
 
-// Cấu hình API-Football
+// Cấu hình API-Football (Chuyển sang dùng iSportsAPI theo key của Sếp)
 const API_KEY = 'WbHWnasCOMlZ57y2';
-const API_URL = 'https://v3.football.api-sports.io';
-const HEADERS = {
-    'x-apisports-key': API_KEY,
-    'x-rapidapi-host': 'v3.football.api-sports.io'
-};
+const API_URL = `http://api.isportsapi.com/sport/football/livescores?api_key=${API_KEY}`;
 
 // Cache danh sách trận đấu để tối ưu RAM và Request
 let cachedMatches = [];
@@ -72,25 +68,22 @@ module.exports = {
                 // Tối ưu: Nếu cache < 30 phút, dùng cache. Nếu không, gọi API (Tiết kiệm Request cực độ)
                 const now = Date.now();
                 if (now - lastFetchTime > 30 * 60 * 1000 || cachedMatches.length === 0) {
-                    const today = new Date().toISOString().split('T')[0];
-                    // Lấy các giải hot (Premier League 39, La Liga 140, Serie A 135, Bundesliga 78, Ligue 1 61, Champions League 2)
-                    const res = await axios.get(`${API_URL}/fixtures?date=${today}`, { headers: HEADERS });
+                    const res = await axios.get(API_URL);
                     
-                    if (res.data && res.data.response) {
-                        const hotLeagues = [39, 140, 135, 78, 61, 2, 4, 15, 130]; // Thêm World Cup (15) và V-League (130)
-                        cachedMatches = res.data.response.filter(match => hotLeagues.includes(match.league.id));
+                    if (res.data && res.data.data) {
+                        // API trả về mảng trực tiếp trong data.data
+                        let allMatches = res.data.data;
                         
-                        // Fallback: Nếu không có giải hot nào hôm nay, bốc đại 5 trận bất kỳ cho dân đen có cái để cược
-                        if (cachedMatches.length === 0 && res.data.response.length > 0) {
-                            cachedMatches = res.data.response.slice(0, 5);
-                        }
+                        // Lấy các trận chưa kết thúc (status >= 0) hoặc lấy tạm 5 trận bất kỳ
+                        let liveOrUpcoming = allMatches.filter(m => m.status !== -10 && m.status !== -14);
                         
+                        cachedMatches = liveOrUpcoming.slice(0, 5);
                         lastFetchTime = now;
                     }
                 }
 
                 if (cachedMatches.length === 0) {
-                    return interaction.editReply('⚽ Hiện tại không có trận siêu kinh điển nào thuộc các giải đấu lớn diễn ra hôm nay. Sếp quay lại sau nhé!');
+                    return interaction.editReply('⚽ Hiện tại không có trận bóng đá nào diễn ra hôm nay. Sếp quay lại sau nhé!');
                 }
 
                 // Thiết kế UI Embed nhiều trận với cờ/logo
@@ -109,45 +102,45 @@ module.exports = {
                 embeds.push(mainEmbed);
 
                 displayMatches.forEach(m => {
-                    const status = m.fixture.status.short;
-                    const home = m.teams.home.name;
-                    const homeLogo = m.teams.home.logo;
-                    const away = m.teams.away.name;
-                    const awayLogo = m.teams.away.logo;
-                    const leagueFlag = m.league.flag || m.league.logo;
-                    const time = new Date(m.fixture.date).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+                    const status = m.status;
+                    const home = m.homeName;
+                    const homeLogo = 'https://cdn-icons-png.flaticon.com/512/5103/5103099.png'; // Thay tạm logo mặc định do iSports không trả logo
+                    const away = m.awayName;
+                    const awayLogo = 'https://cdn-icons-png.flaticon.com/512/5103/5103099.png';
+                    const leagueFlag = 'https://cdn-icons-png.flaticon.com/512/3017/3017367.png';
+                    const time = new Date(m.matchTime * 1000).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
                     
                     let statusDisplay = `🕒 Sắp đá: ${time}`;
                     let color = 0x3498DB; // Xanh lam cho sắp đá
 
-                    if (['1H', '2H', 'HT', 'LIVE'].includes(status)) {
-                        statusDisplay = `🔴 LIVE: ${m.goals.home} - ${m.goals.away}`;
+                    if (status > 0) {
+                        statusDisplay = `🔴 LIVE: ${m.homeScore} - ${m.awayScore} (Phút ${status})`;
                         color = 0xE74C3C; // Đỏ cho Live
-                    } else if (status === 'FT') {
-                        statusDisplay = `✅ FT: ${m.goals.home} - ${m.goals.away}`;
+                    } else if (status === -1) {
+                        statusDisplay = `✅ FT: ${m.homeScore} - ${m.awayScore}`;
                         color = 0x2ECC71; // Xanh lá cho FT
                     }
 
                     const matchEmbed = new EmbedBuilder()
                         .setColor(color)
                         .setAuthor({ name: `${away}`, iconURL: awayLogo })
-                        .setTitle(`🔥 MÃ TRẬN: ${m.fixture.id} | 🏆 ${m.league.name}`)
+                        .setTitle(`🔥 MÃ TRẬN: ${m.matchId} | 🏆 ${m.leagueName}`)
                         .setThumbnail(homeLogo)
-                        .setDescription(`**${home}** (Nhà) 🆚 **${away}** (Khách)\n\n📊 **Trạng thái:** ${statusDisplay}\n🏟️ **Sân:** ${m.fixture.venue.name || 'Đang cập nhật'}`)
+                        .setDescription(`**${home}** (Nhà) 🆚 **${away}** (Khách)\n\n📊 **Trạng thái:** ${statusDisplay}\n🏟️ **Thời tiết:** ${m.weather || 'Đang cập nhật'}`)
                         .setFooter({ text: 'Home Logo (Phải) | Away Logo (Trái)', iconURL: leagueFlag });
                     
                     const actionRow = new ActionRowBuilder()
                         .addComponents(
                             new ButtonBuilder()
-                                .setCustomId(`bongdabet_${m.fixture.id}_home`)
+                                .setCustomId(`bongdabet_${m.matchId}_home`)
                                 .setLabel(home.length > 20 ? home.substring(0, 20) + '...' : home)
                                 .setStyle(ButtonStyle.Primary),
                             new ButtonBuilder()
-                                .setCustomId(`bongdabet_${m.fixture.id}_draw`)
+                                .setCustomId(`bongdabet_${m.matchId}_draw`)
                                 .setLabel('Hòa (Draw)')
                                 .setStyle(ButtonStyle.Secondary),
                             new ButtonBuilder()
-                                .setCustomId(`bongdabet_${m.fixture.id}_away`)
+                                .setCustomId(`bongdabet_${m.matchId}_away`)
                                 .setLabel(away.length > 20 ? away.substring(0, 20) + '...' : away)
                                 .setStyle(ButtonStyle.Danger)
                         );

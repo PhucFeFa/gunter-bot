@@ -30,7 +30,19 @@ module.exports = {
         .setDescription('Hệ thống cá độ bóng đá Live (Cập nhật liên tục)')
         .addSubcommand(sub => sub
             .setName('list')
-            .setDescription('Xem danh sách các trận đấu đang diễn ra hoặc sắp đá hôm nay'))
+            .setDescription('Xem danh sách các trận đấu đang diễn ra hoặc sắp đá hôm nay')
+            .addStringOption(opt => opt
+                .setName('khuvuc')
+                .setDescription('Lọc theo khu vực/giải đấu (Mặc định: Tất cả)')
+                .setRequired(false)
+                .addChoices(
+                    { name: '🔥 Đang HOT (Mặc định)', value: 'all' },
+                    { name: '🏴󠁧󠁢󠁥󠁮󠁧󠁿 Bóng đá Anh', value: 'england' },
+                    { name: '🇪🇸 Bóng đá Tây Ban Nha', value: 'spain' },
+                    { name: '🇻🇳 Bóng đá Việt Nam', value: 'vietnam' },
+                    { name: '🌍 Giao hữu / Quốc tế', value: 'intl' },
+                    { name: '🌱 Bóng đá cỏ (Giải nhỏ)', value: 'other' }
+                )))
         .addSubcommand(sub => sub
             .setName('bet')
             .setDescription('Đặt cược vào một trận đấu')
@@ -74,8 +86,24 @@ module.exports = {
                         // API trả về mảng trực tiếp trong data.data
                         let allMatches = res.data.data;
                         
+                        // Lọc theo khu vực nếu User chọn
+                        const khuvuc = interaction.options.getString('khuvuc') || 'all';
+                        
+                        let filteredByRegion = allMatches;
+                        if (khuvuc !== 'all') {
+                            filteredByRegion = allMatches.filter(m => {
+                                const lname = m.leagueName.toLowerCase();
+                                if (khuvuc === 'england') return lname.includes('england') || lname.includes('premier league');
+                                if (khuvuc === 'spain') return lname.includes('spain') || lname.includes('la liga');
+                                if (khuvuc === 'vietnam') return lname.includes('vietnam') || lname.includes('v-league');
+                                if (khuvuc === 'intl') return lname.includes('friendly') || lname.includes('world') || lname.includes('euro');
+                                if (khuvuc === 'other') return !lname.includes('england') && !lname.includes('spain') && !lname.includes('friendly');
+                                return true;
+                            });
+                        }
+                        
                         // Cắt bỏ các trận bị huỷ
-                        let validMatches = allMatches.filter(m => m.status !== -10 && m.status !== -14);
+                        let validMatches = filteredByRegion.filter(m => m.status !== -10 && m.status !== -14);
                         
                         // Sắp xếp: Đang đá (status > 0) lên đầu -> Sắp đá (status === 0) -> Đã đá xong (status === -1)
                         validMatches.sort((a, b) => {
@@ -85,6 +113,11 @@ module.exports = {
                         
                         cachedMatches = validMatches.slice(0, 8); // Lấy tối đa 8 trận để không bị Discord cấm (max 10 embeds)
                         lastFetchTime = now;
+                        
+                        // Nếu lọc xong mà không có trận nào, trả về lỗi ngay
+                        if (cachedMatches.length === 0) {
+                            return interaction.editReply(`⚽ Hiện tại khu vực này không có trận bóng đá nào diễn ra hôm nay. Sếp chọn khu vực khác nhé!`);
+                        }
                     }
                 }
 

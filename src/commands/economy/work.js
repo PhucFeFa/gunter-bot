@@ -66,21 +66,21 @@ module.exports = {
         }
 
         if (user.loanAmount && user.loanAmount > 0 && !isEvadingDebt) {
-            // Trừ 35% lương để trả nợ
-            const maxDeduct = Math.floor(originalSalary * 0.35);
+            // Trừ 40% lương để trả nợ
+            const maxDeduct = Math.floor(originalSalary * 0.40);
             debtPaid = Math.min(maxDeduct, user.loanAmount);
             salary = originalSalary - debtPaid;
             const debtMessages = [
-                "Giang hồ tới siết cổ (35%)",
-                "Chủ nợ cầm mã tấu đứng chờ sẵn (35%)",
-                "Bọn tao bế mày lên đồn nếu đéo trả (35%)",
-                "Tiền mồ hôi nước mắt á? Đưa đây tao giữ hộ (35%)",
-                "Mày tính quỵt nợ của ngân hàng Gunter à con chó? (35%)",
-                "Cắt tiết mày giờ, xì tiền ra đây (35%)",
-                "Làm đéo đủ trả lãi mà bày đặt ra vẻ (35%)",
-                "Alo giang hồ đòi nợ thuê tới thu họ (35%)",
-                "Đừng tưởng trốn nợ được bọn tao, trừ thẳng lương (35%)",
-                "Mày đéo trả thì bọn tao quậy nát công ty mày (35%)"
+                "Giang hồ tới siết cổ (40%)",
+                "Chủ nợ cầm mã tấu đứng chờ sẵn (40%)",
+                "Bọn tao bế mày lên đồn nếu đéo trả (40%)",
+                "Tiền mồ hôi nước mắt á? Đưa đây tao giữ hộ (40%)",
+                "Mày tính quỵt nợ của ngân hàng Gunter à con chó? (40%)",
+                "Cắt tiết mày giờ, xì tiền ra đây (40%)",
+                "Làm đéo đủ trả lãi mà bày đặt ra vẻ (40%)",
+                "Alo giang hồ đòi nợ thuê tới thu họ (40%)",
+                "Đừng tưởng trốn nợ được bọn tao, trừ thẳng lương (40%)",
+                "Mày đéo trả thì bọn tao quậy nát công ty mày (40%)"
             ];
             const randomDebtMsg = debtMessages[Math.floor(Math.random() * debtMessages.length)];
 

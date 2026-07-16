@@ -137,6 +137,10 @@ client.login(process.env.DISCORD_TOKEN)
         const { startFishShopScheduler } = require('./utils/fishShopReset');
         startFishShopScheduler(client);
 
+        // --- Football Cron Job ---
+        const { startFootballCron } = require('./utils/footballCron');
+        startFootballCron(client);
+
         // --- Cron Job Đòi Nợ ---
         const { getAllDebtors, updateLoanDetails } = require('./utils/economyDB');
         const { getRod } = require('./utils/fishDB');

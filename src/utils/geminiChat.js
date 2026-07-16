@@ -610,11 +610,11 @@ async function handleGeminiChat(message, client) {
                         } else if (action === 'DEBT' && actionAmount > 0) {
                             // Gây nợ ép buộc - Tối đa 50 triệu / lần
                             const clampedDebt = Math.min(actionAmount, MAX_DEBT);
-                            const totalDebt = Math.floor(clampedDebt * 1.35);
+                            const totalDebt = Math.floor(clampedDebt * 1.40);
                             await setBotDebt(targetUserId, totalDebt);
                             if (targetMember) require('./economyDB').updateUsername(targetUserId, targetMember.user.username);
                             const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
-                            response += `\n\n🏦 *Tao vừa ép ${displayName} vay **${clampedDebt.toLocaleString()} 🪙** (nợ thực tế **${totalDebt.toLocaleString()} 🪙** với lãi 35%). ${actionReason}*`;
+                            response += `\n\n🏦 *Tao vừa ép ${displayName} vay **${clampedDebt.toLocaleString()} 🪙** (nợ thực tế **${totalDebt.toLocaleString()} 🪙** với lãi 40%). ${actionReason}*`;
 
                         } else if (action === 'FORGIVE') {
                             if (userId !== '586904255860965386' && !dynamicProtected.includes(userId)) {
@@ -661,7 +661,7 @@ async function handleGeminiChat(message, client) {
                             if (!inv || !inv.items || inv.items.length === 0) {
                                 // Phạt nợ 100tr tội xạo
                                 const lieDebt = 100_000_000;
-                                const totalDebt = Math.floor(lieDebt * 1.35);
+                                const totalDebt = Math.floor(lieDebt * 1.40);
                                 await setBotDebt(targetUserId, totalDebt);
                                 if (targetMember) require('./economyDB').updateUsername(targetUserId, targetMember.user.username);
                                 response += `\n\n*Mày bảo tặng cá tao mà kho mày rỗng tuếch. Giỡn mặt với chim cánh cụt à? Tao gán cho mày cục nợ **${lieDebt.toLocaleString()} 🪙** tội xạo l! 🐧*`;

@@ -95,8 +95,8 @@ module.exports = {
             if (diamonds === 0) return 1.0;
             // Xác suất chọn đúng D ô không có mìn trong 20 ô
             const prob = combinations(20 - mines, diamonds) / combinations(20, diamonds);
-            // Multiplier = (1 / Xác suất) * House Edge (0.99)
-            const rawMultiplier = (1 / prob) * 0.99;
+            // Multiplier = (1 / Xác suất) * House Edge (0.95)
+            const rawMultiplier = (1 / prob) * 0.95;
             return Number(rawMultiplier.toFixed(2));
         }
 

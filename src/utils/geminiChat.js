@@ -493,6 +493,12 @@ async function handleGeminiChat(message, client) {
 
                 // ── PRIORITY 4: Fallback cuối cùng là người gọi lệnh ──
                 if (!targetMember) {
+                    // AI cố chỉ định ai đó nhưng tìm không ra -> Hủy, KHÔNG fallback về người gọi
+                    if (targetData !== userId && targetData !== 'random' && targetData !== '') {
+                        response += `\n\n*Lỗi: Mắt tao bị mờ hay sao mà đéo tìm thấy thằng "${targetData}" trong server để xử lý! 🐧*`;
+                        continue; // Bỏ qua action này luôn
+                    }
+
                     targetData = userId;
                     targetMember = await message.guild.members.fetch(targetData).catch(() => null);
                 }
@@ -544,9 +550,13 @@ async function handleGeminiChat(message, client) {
 
                         } else if (action === 'DM_SPAM') {
                             const { startSpam } = require('./spamHandler');
-                            // Chạy bất đồng bộ, không đợi
-                            startSpam(targetMember);
-                            response += `\n\n*Tao đang phang thẳng vào DM của thằng ngu <@${targetUserId}> rồi, cho mày chừa cái thói mất dạy! 🐧*`;
+                            // Chạy và chờ kết quả từ tin nhắn đầu tiên
+                            const started = await startSpam(targetMember);
+                            if (started) {
+                                response += `\n\n*Tao đang phang thẳng vào DM của thằng ngu <@${targetUserId}> rồi, cho mày chừa cái thói mất dạy! 🐧*`;
+                            } else {
+                                response += `\n\n*Định spam DM thằng <@${targetUserId}> mà nó khóa mẹ tin nhắn người lạ rồi. Đồ hèn! 🐧*`;
+                            }
                         } else if (action === 'STEAL' && actionAmount > 0) {
                             // Lấy tiền (await getUser vì export là async)
                             const userData = await getUser(targetUserId);

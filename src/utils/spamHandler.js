@@ -25,15 +25,19 @@ async function startSpam(targetMember) {
         // Đánh dấu đang spam
         activeSpams.set(userId, true);
 
+        let success = true;
         // Gửi dòng đầu tiên cảnh cáo
         await targetMember.user.send("Mày thích chửi tao không? Bố mày cho mày biết tay! 🐧").catch(() => {
             // Không gửi DM được (khóa DM) -> hủy
             activeSpams.delete(userId);
+            success = false;
         });
 
-        if (!activeSpams.has(userId)) return;
+        if (!success) return false;
 
-        for (const line of lines) {
+        // Chạy vòng lặp spam ở background (không await vòng lặp)
+        (async () => {
+            for (const line of lines) {
             // Kiểm tra xem nạn nhân đã xin tha chưa
             if (!activeSpams.get(userId)) {
                 break; // Thoát vòng lặp ngay lập tức
@@ -48,14 +52,18 @@ async function startSpam(targetMember) {
 
             // Chờ 0.5s theo yêu cầu
             await new Promise(resolve => setTimeout(resolve, 500));
-        }
+            }
 
-        // Kết thúc thì xóa
-        activeSpams.delete(userId);
+            // Kết thúc thì xóa
+            activeSpams.delete(userId);
+        })();
+
+        return true;
 
     } catch (e) {
         console.error('[SPAM_HANDLER] Lỗi khi spam DM:', e);
         activeSpams.delete(userId);
+        return false;
     }
 }
 

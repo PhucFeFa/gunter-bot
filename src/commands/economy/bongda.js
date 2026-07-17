@@ -80,7 +80,7 @@ module.exports = {
                 // Tối ưu: Nếu cache < 30 phút, dùng cache. Nếu không, gọi API (Tiết kiệm Request cực độ)
                 const now = Date.now();
                 if (now - lastFetchTime > 30 * 60 * 1000 || cachedMatches.length === 0) {
-                    const res = await axios.get(API_URL);
+                    const res = await axios.get(API_URL, { timeout: 10000 });
                     
                     if (res.data && res.data.data) {
                         // API trả về mảng trực tiếp trong data.data

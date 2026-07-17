@@ -29,7 +29,7 @@ async function checkAndResolveBets(client) {
         let resolvedCount = 0;
         
         // Gọi API lấy toàn bộ trận đấu hôm nay
-        const res = await axios.get(API_URL);
+        const res = await axios.get(API_URL, { timeout: 15000 });
         
         if (res.data && res.data.data) {
             const allMatches = res.data.data;

@@ -132,8 +132,8 @@ async function triggerAirdrop(client) {
     });
 }
 
-async function triggerRobinHood(client) {
-    const channel = client.channels.cache.get(MAIN_CHAT_ID);
+async function triggerRobinHood(client, targetChannel = null) {
+    const channel = targetChannel || client.channels.cache.get(MAIN_CHAT_ID);
     if (!channel) return;
 
     const { getTop, updateBalance } = require('../utils/economyDB');

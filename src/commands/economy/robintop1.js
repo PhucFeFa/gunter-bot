@@ -15,8 +15,8 @@ module.exports = {
         await interaction.deferReply({ ephemeral: true });
 
         try {
-            await triggerRobinHood(interaction.client);
-            return interaction.editReply('✅ Đã kích hoạt sự kiện Robin Hood thành công, hãy ra kênh chat chính để xem kết quả!');
+            await triggerRobinHood(interaction.client, interaction.channel);
+            return interaction.editReply('✅ Đã kích hoạt sự kiện Robin Hood thành công tại kênh này!');
         } catch (error) {
             console.error('[RobinTop1] Lỗi kích hoạt:', error);
             return interaction.editReply('❌ Có lỗi xảy ra khi gọi sự kiện Robin Hood.');

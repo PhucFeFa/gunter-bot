@@ -136,9 +136,9 @@ async function triggerRobinHood(client, targetChannel = null) {
     const channel = targetChannel || client.channels.cache.get(MAIN_CHAT_ID);
     if (!channel) return;
 
-    const { getTop, updateBalance } = require('../utils/economyDB');
-    // Lấy top 1 server (đã loại trừ Boss/Admin trong hàm getTop)
-    const topUsers = getTop('balance', 1);
+    const { getTopUsers, updateBalance } = require('../utils/economyDB');
+    // Lấy top 1 server (đã loại trừ Boss/Admin trong hàm getTopUsers)
+    const topUsers = await getTopUsers('balance', 1);
     
     if (topUsers.length === 0) return; // Không có ai có tiền
     

@@ -16,11 +16,11 @@ const API_KEY = 'WbHWnasCOMlZ57y2';
 const API_URL = `http://api.isportsapi.com/sport/football/livescores?api_key=${API_KEY}`;
 
 // Cache danh sách trận đấu để tối ưu RAM và Request
-let cachedMatches = [];
+let cachedAllMatches = [];
 let lastFetchTime = 0;
 
 function getCachedMatches() {
-    return cachedMatches;
+    return cachedAllMatches;
 }
 
 module.exports = {
@@ -72,65 +72,67 @@ module.exports = {
         const subcommand = interaction.options.getSubcommand();
         const userId = interaction.user.id;
 
-        // Cho riêng lệnh list chạy ngầm (ephemeral) để không trôi tin nhắn
-        await interaction.deferReply({ ephemeral: subcommand === 'list' });
+        // Cho lệnh list và mybets chạy ngầm (ephemeral)
+        await interaction.deferReply({ ephemeral: subcommand === 'list' || subcommand === 'mybets' });
 
         if (subcommand === 'list') {
             try {
                 // Tối ưu: Nếu cache < 30 phút, dùng cache. Nếu không, gọi API (Tiết kiệm Request cực độ)
                 const now = Date.now();
-                if (now - lastFetchTime > 30 * 60 * 1000 || cachedMatches.length === 0) {
+                if (now - lastFetchTime > 30 * 60 * 1000 || cachedAllMatches.length === 0) {
                     const res = await axios.get(API_URL, { timeout: 10000 });
                     
                     if (res.data && res.data.data) {
-                        // API trả về mảng trực tiếp trong data.data
-                        let allMatches = res.data.data;
-                        
-                        // Lọc theo khu vực nếu User chọn
-                        const khuvuc = interaction.options.getString('khuvuc') || 'all';
-                        
-                        let filteredByRegion = allMatches;
-                        if (khuvuc !== 'all') {
-                            filteredByRegion = allMatches.filter(m => {
-                                const lname = m.leagueName.toLowerCase();
-                                if (khuvuc === 'england') return lname.includes('england') || lname.includes('premier league');
-                                if (khuvuc === 'spain') return lname.includes('spain') || lname.includes('la liga');
-                                if (khuvuc === 'vietnam') return lname.includes('vietnam') || lname.includes('v-league');
-                                if (khuvuc === 'intl') return lname.includes('friendly') || lname.includes('world') || lname.includes('euro');
-                                if (khuvuc === 'other') return !lname.includes('england') && !lname.includes('spain') && !lname.includes('friendly');
-                                return true;
-                            });
-                        }
-                        
-                        // Cắt bỏ các trận bị huỷ
-                        let validMatches = filteredByRegion.filter(m => m.status !== -10 && m.status !== -14);
-                        
-                        // Sắp xếp: Đang đá (status > 0) lên đầu -> Sắp đá (status === 0) -> Đã đá xong (status === -1)
-                        validMatches.sort((a, b) => {
-                            const rank = (s) => (s > 0 ? 1 : (s === 0 ? 2 : 3));
-                            return rank(a.status) - rank(b.status);
-                        });
-                        
-                        cachedMatches = validMatches.slice(0, 5); // TRẢ LẠI 5 trận vì Discord chỉ cho tối đa 5 Hàng Nút Bấm (ActionRow) mỗi tin nhắn!
+                        cachedAllMatches = res.data.data;
                         lastFetchTime = now;
-                        
-                        // Nếu lọc xong mà không có trận nào, trả về lỗi ngay
-                        if (cachedMatches.length === 0) {
-                            return interaction.editReply(`⚽ Hiện tại khu vực này không có trận bóng đá nào diễn ra hôm nay. Sếp chọn khu vực khác nhé!`);
-                        }
                     }
                 }
 
-                if (cachedMatches.length === 0) {
-                    return interaction.editReply('⚽ Hiện tại không có trận bóng đá nào diễn ra hôm nay. Sếp quay lại sau nhé!');
+                // Lọc theo khu vực nếu User chọn
+                const khuvuc = interaction.options.getString('khuvuc') || 'all';
+                
+                let filteredByRegion = cachedAllMatches;
+                if (khuvuc !== 'all') {
+                    filteredByRegion = cachedAllMatches.filter(m => {
+                        const lname = m.leagueName.toLowerCase();
+                        if (khuvuc === 'england') return lname.includes('england') || lname.includes('premier league');
+                        if (khuvuc === 'spain') return lname.includes('spain') || lname.includes('la liga');
+                        if (khuvuc === 'vietnam') return lname.includes('vietnam') || lname.includes('v-league');
+                        if (khuvuc === 'intl') return lname.includes('friendly') || lname.includes('world') || lname.includes('euro');
+                        if (khuvuc === 'other') return !lname.includes('england') && !lname.includes('spain') && !lname.includes('friendly');
+                        return true;
+                    });
+                }
+                
+                // CHỈ LẤY CÁC TRẬN CHƯA BẮT ĐẦU (status === 0)
+                let validMatches = filteredByRegion.filter(m => m.status === 0);
+                
+                // Sắp xếp: Ưu tiên các giải đấu lớn, sau đó theo thời gian đá gần nhất
+                validMatches.sort((a, b) => {
+                    const getLeagueRank = (league) => {
+                        const l = league.toLowerCase();
+                        if (l.includes('world cup') || l.includes('euro ')) return 1;
+                        if (l.includes('champions league') || l.includes('premier league')) return 2;
+                        if (l.includes('la liga') || l.includes('serie a') || l.includes('bundesliga')) return 3;
+                        if (l.includes('ligue 1') || l.includes('v-league') || l.includes('copa')) return 4;
+                        return 5; // Giải cỏ
+                    };
+                    const rankA = getLeagueRank(a.leagueName);
+                    const rankB = getLeagueRank(b.leagueName);
+                    
+                    if (rankA !== rankB) return rankA - rankB; // Xếp theo độ Hot của giải
+                    return a.matchTime - b.matchTime; // Sắp đá sớm hơn thì lên đầu
+                });
+                
+                const displayMatches = validMatches.slice(0, 5); // Tối đa 5 Hàng Nút Bấm (ActionRow) mỗi tin nhắn!
+
+                if (displayMatches.length === 0) {
+                    return interaction.editReply('⚽ Hiện tại khu vực này không có trận bóng đá nào SẮP ĐÁ hôm nay. Thử chọn khu vực khác hoặc đợi Sếp nhé!');
                 }
 
                 // Thiết kế UI Embed nhiều trận với cờ/logo
                 const embeds = [];
                 const components = [];
-
-                // Lấy tối đa 5 trận để tránh lỗi Discord (max 5 ActionRows)
-                const displayMatches = cachedMatches.slice(0, 5);
 
                 // Thêm 1 Embed làm Tiêu đề Tổng
                 const mainEmbed = new EmbedBuilder()
@@ -209,14 +211,25 @@ module.exports = {
             }
 
             // Ghi nhận cược
-            await updateBalance(userId, -amount);
             
-            let data = JSON.parse(fs.readFileSync(BETS_FILE, 'utf-8'));
+            let data = { bets: [] };
+            try { data = JSON.parse(fs.readFileSync(BETS_FILE, 'utf-8')); } catch(e){}
 
             // Tìm tên đội từ cache nếu có
-            const matchInfo = cachedMatches.find(m => m.fixture.id === matchId);
-            const homeName = matchInfo ? matchInfo.teams.home.name : 'Đội Nhà';
-            const awayName = matchInfo ? matchInfo.teams.away.name : 'Đội Khách';
+            const matchInfo = cachedAllMatches.find(m => m.matchId.toString() === matchId.toString());
+            
+            if (!matchInfo) {
+                return interaction.editReply('❌ Mã trận này tao tìm không thấy, hoặc nó đã cũ quá rồi! Dùng `/bongda list` kiểm tra lại nhé.');
+            }
+            if (matchInfo.status !== 0) {
+                return interaction.editReply('❌ Trận đấu này đã bắt đầu hoặc đã kết thúc rồi! Khôn như mày quê tao xích đầy!');
+            }
+            
+            const homeName = matchInfo.homeName;
+            const awayName = matchInfo.awayName;
+
+            // Trừ tiền SAU KHI đã qua hết vòng kiểm tra hợp lệ
+            await updateBalance(userId, -amount);
 
             data.bets.push({
                 userId,
@@ -246,11 +259,26 @@ module.exports = {
         }
 
         if (subcommand === 'mybets') {
-            let data = JSON.parse(fs.readFileSync(BETS_FILE, 'utf-8'));
+            let data = { bets: [] };
+            try { data = JSON.parse(fs.readFileSync(BETS_FILE, 'utf-8')); } catch(e){}
             const myBets = data.bets.filter(b => b.userId === userId && b.status === 'PENDING');
 
             if (myBets.length === 0) {
                 return interaction.editReply('❌ Mày chưa có cái vé cược nào đang chờ kết quả cả!');
+            }
+
+            // Tự động làm mới dữ liệu Live nếu cache cũ hơn 2 phút
+            const now = Date.now();
+            if (now - lastFetchTime > 2 * 60 * 1000 || cachedAllMatches.length === 0) {
+                try {
+                    const res = await axios.get(API_URL, { timeout: 10000 });
+                    if (res.data && res.data.data) {
+                        cachedAllMatches = res.data.data;
+                        lastFetchTime = now;
+                    }
+                } catch(e) {
+                    console.error('[FOOTBALL] Lỗi tải dữ liệu live trong mybets:', e.message);
+                }
             }
 
             const embed = new EmbedBuilder()
@@ -262,14 +290,34 @@ module.exports = {
                 const hName = b.homeName || 'Đội Nhà';
                 const aName = b.awayName || 'Đội Khách';
                 let choiceDisplay = b.choice === 'home' ? `[${hName}]` : (b.choice === 'away' ? `[${aName}]` : '[Hòa]');
+                
+                // Tìm thông tin trận đấu thực tế
+                let liveStatus = '⏳ Không có thông tin (Đang chờ...)';
+                const matchInfo = cachedAllMatches.find(m => m.matchId.toString() === b.matchId.toString());
+                
+                if (matchInfo) {
+                    if (matchInfo.status === 0) {
+                        liveStatus = '🗓️ Chưa bắt đầu';
+                    } else if (matchInfo.status > 0) {
+                        liveStatus = `🔴 Đang đá (Phút ${matchInfo.status}) | Tỷ số: **${matchInfo.homeScore} - ${matchInfo.awayScore}**`;
+                    } else if (matchInfo.status === -1) {
+                        liveStatus = `🏁 Đã xong (FT: ${matchInfo.homeScore} - ${matchInfo.awayScore}) - Đang chờ trả thưởng...`;
+                    } else if (matchInfo.status === -10 || matchInfo.status === -14) {
+                        liveStatus = `❌ Trận đấu bị huỷ / hoãn`;
+                    } else {
+                        liveStatus = `🔄 Tình trạng: ${matchInfo.status}`;
+                    }
+                }
+
                 embed.addFields({
-                    name: `#${index + 1} - Trận: ${b.matchId} (${hName} vs ${aName})`,
-                    value: `Cửa cược: **${choiceDisplay}**\nTiền cược: **${b.amount.toLocaleString()} 🪙**\nTrạng thái: ⏳ Đang chờ...`,
+                    name: `#${index + 1} - Mã: ${b.matchId} (${hName} vs ${aName})`,
+                    value: `Cửa cược: **${choiceDisplay}**\nTiền cược: **${b.amount.toLocaleString()} 🪙**\nCập nhật: ${liveStatus}`,
                     inline: false
                 });
             });
 
             return interaction.editReply({ embeds: [embed] });
         }
-    }
+    },
+    getCachedMatches: () => cachedAllMatches 
 };

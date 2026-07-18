@@ -6,7 +6,7 @@ const MAIN_CHAT_ID = process.env.MAIN_CHAT_ID;
 const THREAD_CHANNEL_ID = process.env.THREAD_CHANNEL_ID;
 
 function initRandomEvents(client) {
-    // Chạy bộ đếm mỗi 1 tiếng một lần
+    // Chạy bộ đếm mỗi 1 tiếng một lần cho các event nhỏ
     setInterval(async () => {
         try {
             // Lắc xúc xắc (1-100) để quyết định event
@@ -27,6 +27,11 @@ function initRandomEvents(client) {
             console.error('[RandomEvents] Lỗi khi chạy random event:', error);
         }
     }, 1 * 60 * 60 * 1000); // 1 tiếng
+
+    // Chạy bộ đếm RobinHood cướp Top 1 mỗi 24 tiếng
+    setInterval(async () => {
+        await triggerRobinHood(client);
+    }, 24 * 60 * 60 * 1000); // 24 tiếng
 }
 
 async function triggerRandomJoke(client) {
@@ -127,4 +132,93 @@ async function triggerAirdrop(client) {
     });
 }
 
-module.exports = { initRandomEvents };
+}
+
+async function triggerRobinHood(client) {
+    const channel = client.channels.cache.get(MAIN_CHAT_ID);
+    if (!channel) return;
+
+    const { getTop, updateBalance } = require('../utils/economyDB');
+    // Lấy top 1 server (đã loại trừ Boss/Admin trong hàm getTop)
+    const topUsers = getTop('balance', 1);
+    
+    if (topUsers.length === 0) return; // Không có ai có tiền
+    
+    const top1 = topUsers[0];
+    if (top1.balance < 10000) return; // Nghèo quá tha không cướp
+    
+    const stolenAmount = Math.floor(top1.balance * 0.1); // Cướp 10%
+    const splitAmount = Math.floor(stolenAmount / 5);    // Chia 5 phần
+    
+    if (splitAmount < 1) return;
+
+    // Trừ tiền Top 1
+    await updateBalance(top1.userId, -stolenAmount);
+
+    let top1Name = 'ID ' + top1.userId;
+    try {
+        const topMember = await channel.guild.members.fetch(top1.userId);
+        if (topMember) top1Name = `<@${top1.userId}>`;
+    } catch(e){}
+
+    const embed = new EmbedBuilder()
+        .setColor(0x9B59B6)
+        .setTitle('🦅 SỰ KIỆN ROBIN HOOD CƯỚP PHÚ TẾ BẦN 🦅')
+        .setDescription(`Đại gia **${top1Name}** ngủ quên, Gunter đã trộm **10%** tổng tài sản (trị giá **${stolenAmount.toLocaleString()} 🪙**) của hắn!\n\nSố tiền này đã được chia đều thành **5 hộp quà**, mỗi hộp **${splitAmount.toLocaleString()} 🪙**!\n\n🏃‍♂️ Nhanh tay bấm vào nút bên dưới để hôi của! (Tối đa 5 người nhanh nhất, mỗi người 1 phát)`)
+        .setImage('https://media.giphy.com/media/l41lFw057lAJQMwg0/giphy.gif')
+        .setTimestamp();
+
+    const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+            .setCustomId('claim_robinhood')
+            .setLabel('Hôi của!')
+            .setStyle(ButtonStyle.Danger)
+            .setEmoji('💰')
+    );
+
+    const msg = await channel.send({ embeds: [embed], components: [row] });
+
+    // Thu thập tương tác cho 5 người
+    const collector = msg.createMessageComponentCollector({ time: 60 * 60 * 1000 }); // Tồn tại 1 tiếng
+    
+    const claimers = new Set();
+    const claimerNames = [];
+
+    collector.on('collect', async (interaction) => {
+        if (interaction.customId === 'claim_robinhood') {
+            if (claimers.has(interaction.user.id)) {
+                return interaction.reply({ content: '❌ Tham lam! Mày đã hôi của rồi, nhường người khác đi!', flags: 64 });
+            }
+            
+            if (interaction.user.id === top1.userId) {
+                return interaction.reply({ content: '❌ Tiền của mày mà còn đi hôi của à? Bấm ra chỗ khác!', flags: 64 });
+            }
+
+            claimers.add(interaction.user.id);
+            claimerNames.push(`<@${interaction.user.id}>`);
+            await updateBalance(interaction.user.id, splitAmount);
+            
+            await interaction.reply({ content: `🎉 Bú thành công **${splitAmount.toLocaleString()} 🪙** từ gia sản của đại gia!`, flags: 64 });
+
+            // Cập nhật giao diện nếu đã đủ 5 người hôi của
+            if (claimers.size >= 5) {
+                collector.stop('full');
+            } else {
+                const currentEmbed = EmbedBuilder.from(msg.embeds[0]);
+                currentEmbed.setFooter({ text: `Đã có ${claimers.size}/5 người hôi của thành công!` });
+                await msg.edit({ embeds: [currentEmbed] }).catch(()=>{});
+            }
+        }
+    });
+
+    collector.on('end', (collected, reason) => {
+        const resultEmbed = new EmbedBuilder()
+            .setColor(0x34495E)
+            .setTitle('🦅 SỰ KIỆN ROBIN HOOD ĐÃ KẾT THÚC 🦅')
+            .setDescription(`Hộp quà đã trống rỗng!\n\nNhững người đã bú được tiền của đại gia:\n${claimerNames.length > 0 ? claimerNames.join('\n') : 'Không có ma nào nhặt.'}\n\nĐại gia **${top1Name}** có thể khóc được rồi đó! 🐧`);
+        
+        msg.edit({ embeds: [resultEmbed], components: [] }).catch(() => {});
+    });
+}
+
+module.exports = { initRandomEvents, triggerRobinHood };

@@ -132,8 +132,6 @@ async function triggerAirdrop(client) {
     });
 }
 
-}
-
 async function triggerRobinHood(client) {
     const channel = client.channels.cache.get(MAIN_CHAT_ID);
     if (!channel) return;

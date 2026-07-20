@@ -11,6 +11,11 @@ async function startSpam(targetMember) {
     if (!targetMember || !targetMember.user) return;
     const userId = targetMember.user.id;
 
+    // TUYỆT ĐỐI BẢO VỆ SẾP - Không ai được phép spam Sếp
+    if (userId === '586904255860965386') {
+        return false;
+    }
+
     // Nếu đang spam rồi thì thôi
     if (activeSpams.get(userId)) return;
 

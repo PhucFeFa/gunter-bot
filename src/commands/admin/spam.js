@@ -25,6 +25,10 @@ module.exports = {
             return interaction.reply({ content: '❌ Không tìm thấy đứa này trong server!', flags: 64 });
         }
 
+        if (targetUser.id === '586904255860965386') {
+            return interaction.reply({ content: '❌ GAN TO BẰNG TRỜI! ĐỊNH KHỦNG BỐ SẾP À? CÚT!!!', flags: 64 });
+        }
+
         if (isSpamming(targetUser.id)) {
             // Đang spam thì tắt
             forceStopSpam(targetUser.id);

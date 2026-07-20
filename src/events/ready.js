@@ -33,8 +33,7 @@ module.exports = {
         initRateUpManager(client);
 
 
-        // Cập nhật Server Stats ngầm mỗi 15 phút (900000ms)
-        setInterval(async () => {
+        const updateServerStats = async () => {
             try {
                 const snapshot = await db.collection('server_configs').where('feature_stats', '==', true).get();
                 if (snapshot.empty) return;
@@ -51,9 +50,6 @@ module.exports = {
                     // Lấy chính xác memberCount từ Discord API để tránh kẹt cache
                     const updatedGuild = await guild.fetch();
 
-                    // Lấy số member từ updatedGuild.memberCount trực tiếp (KHÔNG fetch toàn bộ members vào RAM)
-                    // guild.members.fetch() đã bị XÓA vì nó gây RAM leak nghiêm trọng
-
                     // Cập nhật tổng thành viên (Cả người và bot)
                     if (stats.all_members_id) {
                         const allMemChan = updatedGuild.channels.cache.get(stats.all_members_id);
@@ -64,8 +60,8 @@ module.exports = {
 
                     // Cập nhật người thực (Không tính bot)
                     if (stats.members_id) {
-                        const memChan = guild.channels.cache.get(stats.members_id);
-                        const realMemberCount = guild.members.cache.filter(m => !m.user.bot).size;
+                        const memChan = updatedGuild.channels.cache.get(stats.members_id);
+                        const realMemberCount = updatedGuild.members.cache.filter(m => !m.user.bot).size;
                         if (memChan && memChan.name !== `Members: ${realMemberCount}`) {
                             await memChan.setName(`Members: ${realMemberCount}`).catch(() => { });
                         }
@@ -74,10 +70,10 @@ module.exports = {
                     // Cập nhật từng Role
                     if (stats.roles) {
                         for (const [channelId, roleId] of Object.entries(stats.roles)) {
-                            const roleChan = guild.channels.cache.get(channelId);
-                            const role = guild.roles.cache.get(roleId);
+                            const roleChan = updatedGuild.channels.cache.get(channelId);
+                            const role = updatedGuild.roles.cache.get(roleId);
                             if (roleChan && role) {
-                                const roleCount = guild.members.cache.filter(m => m.roles.cache.has(role.id)).size;
+                                const roleCount = updatedGuild.members.cache.filter(m => m.roles.cache.has(role.id)).size;
                                 const newName = `${role.name}: ${roleCount}`;
                                 if (roleChan.name !== newName) {
                                     await roleChan.setName(newName).catch(() => { });
@@ -89,6 +85,12 @@ module.exports = {
             } catch (err) {
                 console.error('[STATS] Lỗi khi cập nhật Server Stats:', err.message);
             }
-        }, 15 * 60 * 1000); // 15 phút
+        };
+
+        // Chạy ngay 1 lần lúc mới khởi động
+        updateServerStats();
+
+        // Và cập nhật ngầm mỗi 15 phút (900000ms)
+        setInterval(updateServerStats, 15 * 60 * 1000);
     },
 };

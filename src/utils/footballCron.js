@@ -57,7 +57,7 @@ async function checkAndResolveBets(client) {
                         const user = await client.users.fetch(bet.userId).catch(() => null);
                         if (bet.choice === winningChoice) {
                             bet.status = 'WON';
-                            const winnings = Math.floor(bet.amount * bet.odds);
+                            const winnings = bet.amount + Math.floor(bet.amount * bet.odds);
                             await updateBalance(bet.userId, winnings);
                             
                             if (user) {

@@ -251,7 +251,7 @@ module.exports = {
                 .setTitle('🎰 XUỐNG XÁC THÀNH CÔNG!')
                 .setThumbnail('https://cdn-icons-png.flaticon.com/512/3067/3067576.png')
                 .setDescription(`Mày vừa vứt **${amount.toLocaleString()} 🪙** vào cửa **${choiceDisplay}** cho trận \`${homeName} vs ${awayName}\` (Mã \`${matchId}\`).\n\n` +
-                                `💰 Nếu thắng mày húp: **${(amount * 1.95).toLocaleString()} 🪙**\n` +
+                                `💰 Nếu thắng mày húp: **${(amount + amount * 1.95).toLocaleString()} 🪙** (Đã bao gồm vốn)\n` +
                                 `💀 Nếu thua: Ra đê ở!`)
                 .setFooter({ text: 'Kết quả sẽ được tự động quyết toán khi trận đấu kết thúc (FT).' });
 

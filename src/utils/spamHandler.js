@@ -37,25 +37,21 @@ async function startSpam(targetMember) {
 
         // Chạy vòng lặp spam ở background (không await vòng lặp)
         (async () => {
-            for (const line of lines) {
-                // Kiểm tra xem nạn nhân đã xin tha chưa
-                if (!activeSpams.get(userId)) {
-                    break; // Thoát vòng lặp ngay lập tức
-                }
-
+            while (activeSpams.get(userId)) {
+                // Lấy một câu ngẫu nhiên
+                const randomLine = lines[Math.floor(Math.random() * lines.length)];
+                
                 try {
-                    await targetMember.user.send(line);
+                    await targetMember.user.send(`${randomLine} <@${userId}>`);
                 } catch (err) {
                     // Lỗi (VD block bot giữa chừng) -> hủy
+                    activeSpams.delete(userId);
                     break;
                 }
 
-                // Chờ 0.5s theo yêu cầu
+                // Chờ 1s theo yêu cầu
                 await new Promise(resolve => setTimeout(resolve, 1000));
             }
-
-            // Kết thúc thì xóa
-            activeSpams.delete(userId);
         })();
 
         return true;

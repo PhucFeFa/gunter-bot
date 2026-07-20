@@ -12,10 +12,9 @@ module.exports = {
                 .setRequired(true)),
                 
     async execute(interaction) {
-        // Kiểm tra Bot Owner
-        const ownerIds = (process.env.BOT_OWNER_IDS || '').split(',').map(id => id.trim());
-        if (!ownerIds.includes(interaction.user.id)) {
-            return interaction.reply({ content: '❌ Cút Cút! Chỉ có "Sếp" mới được xài lệnh này.', flags: 64 });
+        // BẢO MẬT TUYỆT ĐỐI - CHỈ CÓ ID SẾP MỚI ĐƯỢC DÙNG
+        if (interaction.user.id !== '586904255860965386') {
+            return interaction.reply({ content: '❌ Cút Cút! Chỉ có "Sếp" đích thực mới được xài lệnh này.', flags: 64 });
         }
 
         const targetUser = interaction.options.getUser('user');

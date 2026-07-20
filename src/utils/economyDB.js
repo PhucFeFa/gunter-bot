@@ -15,6 +15,7 @@ try { db.prepare('ALTER TABLE users ADD COLUMN botDebt INTEGER DEFAULT 0').run()
 try { db.prepare('ALTER TABLE users ADD COLUMN weaponId INTEGER DEFAULT 1').run(); } catch (e) { /* Cột đã tồn tại */ }
 try { db.prepare('ALTER TABLE users ADD COLUMN armorId INTEGER DEFAULT 1').run(); } catch (e) { /* Cột đã tồn tại */ }
 try { db.prepare('ALTER TABLE users ADD COLUMN username TEXT').run(); } catch (e) { /* Cột đã tồn tại */ }
+try { db.prepare('ALTER TABLE users ADD COLUMN limitDisabled INTEGER DEFAULT 0').run(); } catch (e) { /* Cột đã tồn tại */ }
 try { db.prepare('CREATE TABLE IF NOT EXISTS server_config (key TEXT PRIMARY KEY, value TEXT)').run(); } catch (e) {}
 
 function getUser(userId) {
@@ -144,8 +145,7 @@ function transferMoney(fromUserId, toUserId, amount) {
             return { success: false, reason: `Bạn đang nợ giang hồ ${currentLoan.toLocaleString()} 🪙 nên phần tiền này bị phong tỏa! Số dư hợp pháp có thể chuyển: ${ownMoney.toLocaleString()} 🪙.` };
         }
 
-        const configRow = db.prepare('SELECT value FROM server_config WHERE key = ?').get('disable_transfer_limit');
-        const isLimitDisabled = configRow && configRow.value === 'true';
+        const isLimitDisabled = sender.limitDisabled === 1;
 
         if (!isLimitDisabled) {
             const MAX_GIVE = 100000000;
@@ -246,11 +246,11 @@ module.exports = {
     getUserEquipment: async (id) => getUserEquipment(id),
     setUserEquipment: async (id, type, itemId) => setUserEquipment(id, type, itemId),
     updateUsername: async (id, name) => updateUsername(id, name),
-    setTransferLimit: async (disabled) => {
-        db.prepare('INSERT OR REPLACE INTO server_config (key, value) VALUES (?, ?)').run('disable_transfer_limit', disabled ? 'true' : 'false');
+    setTransferLimit: async (userId, disabled) => {
+        db.prepare('UPDATE users SET limitDisabled = ? WHERE userId = ?').run(disabled ? 1 : 0, userId);
     },
-    getTransferLimit: async () => {
-        const row = db.prepare('SELECT value FROM server_config WHERE key = ?').get('disable_transfer_limit');
-        return row && row.value === 'true';
+    getTransferLimit: async (userId) => {
+        const row = db.prepare('SELECT limitDisabled FROM users WHERE userId = ?').get(userId);
+        return row && row.limitDisabled === 1;
     }
 };

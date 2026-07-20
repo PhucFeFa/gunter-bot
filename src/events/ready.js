@@ -48,14 +48,17 @@ module.exports = {
                     const guild = client.guilds.cache.get(guildId);
                     if (!guild) return;
 
-                    // Lấy số member từ guild.memberCount trực tiếp (KHÔNG fetch toàn bộ vào RAM)
+                    // Lấy chính xác memberCount từ Discord API để tránh kẹt cache
+                    const updatedGuild = await guild.fetch();
+
+                    // Lấy số member từ updatedGuild.memberCount trực tiếp (KHÔNG fetch toàn bộ members vào RAM)
                     // guild.members.fetch() đã bị XÓA vì nó gây RAM leak nghiêm trọng
 
                     // Cập nhật tổng thành viên (Cả người và bot)
                     if (stats.all_members_id) {
-                        const allMemChan = guild.channels.cache.get(stats.all_members_id);
-                        if (allMemChan && allMemChan.name !== `All members: ${guild.memberCount}`) {
-                            await allMemChan.setName(`All members: ${guild.memberCount}`).catch(() => { });
+                        const allMemChan = updatedGuild.channels.cache.get(stats.all_members_id);
+                        if (allMemChan && allMemChan.name !== `All members: ${updatedGuild.memberCount}`) {
+                            await allMemChan.setName(`All members: ${updatedGuild.memberCount}`).catch(() => { });
                         }
                     }
 

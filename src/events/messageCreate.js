@@ -263,9 +263,22 @@ module.exports = {
 
         const isVictim = isSpamming(message.author.id);
 
-        // Nếu tin nhắn nằm trong kênh AI, hoặc nếu đứa này đang bị Khủng bố DM, bot sẽ tự động trả lời mọi tin nhắn (để nghe nó xin tha)
-        if ((AI_CHANNEL_ID && message.channel.id === AI_CHANNEL_ID) || isVictim) {
+        // Nếu đang bị spam DM: bot tự trả lời mọi tin nhắn để nghe xin tha
+        if (isVictim) {
             await handleGeminiChat(message, client);
+        }
+        // Trong kênh AI: chỉ trả lời khi được tag bot hoặc reply vào tin nhắn bot
+        else if (AI_CHANNEL_ID && message.channel.id === AI_CHANNEL_ID) {
+            const isMentioned = message.mentions.has(client.user);
+            const isReplyToBot = message.reference && (() => {
+                try {
+                    const refMsg = message.channel.messages.cache.get(message.reference.messageId);
+                    return refMsg && refMsg.author.id === client.user.id;
+                } catch { return false; }
+            })();
+            if (isMentioned || isReplyToBot) {
+                await handleGeminiChat(message, client);
+            }
         }
 
         // ─── Feature 4: Chabot AI Ticket (Gemini) ─────────────────────

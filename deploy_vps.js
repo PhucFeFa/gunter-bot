@@ -11,40 +11,52 @@ const TARGET_DIR = '/root/gunter-bot';
 conn.on('ready', () => {
     console.log('[SSH] Connected to VPS!');
     
-    // SFTP to transfer local secret files (.env, serviceAccountKey.json)
-    conn.sftp((err, sftp) => {
-        if (err) throw err;
-        console.log('[SFTP] Started file transfer...');
+    // 1. Ensure directory exists via exec
+    conn.exec(`mkdir -p ${TARGET_DIR}`, (err, stream) => {
+        if (err) {
+            console.error('[SSH] mkdir error:', err);
+            return conn.end();
+        }
         
-        // Make sure target dir exists first
-        conn.exec(`mkdir -p ${TARGET_DIR}`, (err, stream) => {
-            if (err) throw err;
-            stream.on('close', () => {
+        stream.resume();
+        stream.stderr.on('data', (d) => process.stderr.write(d));
+        stream.on('close', () => {
+            console.log('[SSH] Target directory ready.');
+            
+            // 2. Open SFTP for uploading .env & serviceAccountKey.json
+            conn.sftp((err, sftp) => {
+                if (err) {
+                    console.error('[SFTP] Error:', err);
+                    return conn.end();
+                }
+                console.log('[SFTP] Started file transfer...');
                 
-                // Upload files
                 const filesToUpload = ['.env', 'serviceAccountKey.json'];
                 let uploadsCompleted = 0;
                 
+                function checkDone() {
+                    uploadsCompleted++;
+                    if (uploadsCompleted === filesToUpload.length) {
+                        sftp.end();
+                        console.log('[SFTP] All files transferred.');
+                        executeDeployment();
+                    }
+                }
+
                 filesToUpload.forEach(file => {
                     const localPath = path.join(__dirname, file);
                     const remotePath = `${TARGET_DIR}/${file}`;
                     
                     if (fs.existsSync(localPath)) {
-                        sftp.fastPut(localPath, remotePath, (err) => {
+                        const content = fs.readFileSync(localPath);
+                        sftp.writeFile(remotePath, content, (err) => {
                             if (err) console.error(`[SFTP] Failed to upload ${file}:`, err);
                             else console.log(`[SFTP] Uploaded ${file} successfully.`);
-                            
-                            uploadsCompleted++;
-                            if (uploadsCompleted === filesToUpload.length) {
-                                executeDeployment();
-                            }
+                            checkDone();
                         });
                     } else {
                         console.log(`[SFTP] File ${file} not found locally, skipping...`);
-                        uploadsCompleted++;
-                        if (uploadsCompleted === filesToUpload.length) {
-                            executeDeployment();
-                        }
+                        checkDone();
                     }
                 });
             });
@@ -90,9 +102,10 @@ function executeDeployment() {
     
     conn.exec(commands, (err, stream) => {
         if (err) throw err;
-        stream.on('close', (code, signal) => {
+        stream.on('close', (code) => {
             console.log(`[SSH] Deployment completed with code ${code}.`);
             conn.end();
+            process.exit(code || 0);
         }).on('data', (data) => {
             process.stdout.write(data.toString());
         }).stderr.on('data', (data) => {

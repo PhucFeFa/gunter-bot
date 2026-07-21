@@ -262,32 +262,28 @@ module.exports = {
         const AI_CHANNEL_ID = config.ai_channel_id || process.env.AI_CHANNEL_ID;
 
         const isVictim = isSpamming(message.author.id);
+        const isMentioned = message.mentions.has(client.user);
+        const isReplyToBot = message.reference && (() => {
+            try {
+                const refMsg = message.channel.messages.cache.get(message.reference.messageId);
+                return refMsg && refMsg.author.id === client.user.id;
+            } catch { return false; }
+        })();
 
         // Nếu đang bị spam DM: bot tự trả lời mọi tin nhắn để nghe xin tha
         if (isVictim) {
             await handleGeminiChat(message, client);
         }
-        // Trong kênh AI: chỉ trả lời khi được tag bot hoặc reply vào tin nhắn bot
+        // Kênh AI chuyên dụng: Trả lời mọi tin nhắn (không cần tag)
         else if (AI_CHANNEL_ID && message.channel.id === AI_CHANNEL_ID) {
-            const isMentioned = message.mentions.has(client.user);
-            const isReplyToBot = message.reference && (() => {
-                try {
-                    const refMsg = message.channel.messages.cache.get(message.reference.messageId);
-                    return refMsg && refMsg.author.id === client.user.id;
-                } catch { return false; }
-            })();
-            if (isMentioned || isReplyToBot) {
-                await handleGeminiChat(message, client);
-            }
+            await handleGeminiChat(message, client);
+        }
+        // Ở các kênh khác: Chỉ trả lời khi được tag hoặc reply
+        else if (isMentioned || isReplyToBot) {
+            await handleGeminiChat(message, client);
         }
 
-        // ─── Feature 4: Chabot AI Ticket (Gemini) ─────────────────────
-        // Nếu trong kênh ticket và có tag bot, sử dụng não phụ Gemini để hỗ trợ
-        if (message.channel.name && message.channel.name.startsWith('ticket-')) {
-            if (message.mentions.has(client.user)) {
-                await handleGeminiChat(message, client);
-            }
-        }
+        // Kênh Ticket (được xử lý chung bởi isMentioned ở trên)
 
         // ─── Feature 5: Auto-Responder (Tự động trả lời theo từ khóa) ───
         await handleAutoResponder(message);

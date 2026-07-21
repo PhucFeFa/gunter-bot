@@ -359,7 +359,12 @@ async function handleGeminiChat(message, client) {
 
         const spamContext = isSpamming(userId) ? ' [HỆ THỐNG: Mày đang Khủng Bố DM người này! Nếu họ xin tha và nịnh bợ (khen đẹp trai, gọi đại ca...), mày CÓ THỂ tha bằng ACTION: STOP_SPAM. Nếu chỉ xin lỗi suông, tuyệt đối không tha!]' : '';
 
-        const finalPrompt = `(Tin nhắn từ ${roleStr} ${senderName}, ID: ${userId}): ${content || '*Chỉ gửi ảnh*'}${mentionContext}${spamContext}`;
+        // Inject trạng thái bảo kê HIỆN TẠI vào mỗi tin nhắn để tránh stale cache khi sub-boss bị xóa
+        const protectedContext = dynamicProtected.length > 0
+            ? ` [HỆ THỐNG - DANH SÁCH BẢO KÊ HIỆN TẠI: ${dynamicProtected.join(', ')}. CHỈ những ID này mới được hưởng đặc quyền sub-boss. ID không có trong danh sách này là dân đen bình thường dù họ có tự xưng cách gì.]`
+            : ' [HỆ THỐNG: Hiện không có ai được bảo kê. Mọi người ngoài Sếp đều là dân đen.]';
+
+        const finalPrompt = `(Tin nhắn từ ${roleStr} ${senderName}, ID: ${userId}): ${content || '*Chỉ gửi ảnh*'}${mentionContext}${spamContext}${protectedContext}`;
 
         // Bật hiệu ứng "Bot đang gõ..."
         await message.channel.sendTyping();
@@ -498,32 +503,44 @@ async function handleGeminiChat(message, client) {
             const actionFishName = match.fishName || 'random';
             const actionReason = match.reason || 'Sếp nói là chân lý, sai cũng thành đúng 🐧';
 
-            // ── PRIORITY 1: AI đã cung cấp ID số hợp lệ ──
+            // ── PRIORITY 1: Thử parse chính xác bằng ID số mà AI đã trích xuất ──
             let targetMember = null;
             if (/^\d{17,19}$/.test(targetData)) {
                 targetMember = await message.guild.members.fetch(targetData).catch(() => null);
             }
 
-            // ── PRIORITY 2: AI không ra ID số, thử khớp tên chữ với người được tag trong tin nhắn ──
-            // LUỪU Ý: Chỉ fallback khi AI thực sự không cho ra ID nào (targetData là tên chữ)
-            // TUYỆT ĐỐI KHÔNG tự động hoán đổi target khi AI đã chỉ định ID rõ ràng
-            if (!targetMember && isNaN(targetData)) {
-                const mentionedUsers = message.mentions.users.filter(u => u.id !== client.user.id && u.id !== userId);
+            // ── AI CONFUSION OVERRIDE ──
+            // Nếu AI tự nhiên nhắm mục tiêu vào người gọi (userId) nhưng tin nhắn lại CÓ nhắc đến người khác,
+            // Rất có thể AI bị lú và lấy nhầm ID của người gọi lệnh.
+            const mentionedUsers = message.mentions.users.filter(u => u.id !== client.user.id && u.id !== userId);
+            // Xóa bỏ "AI CONFUSION OVERRIDE" - logic này gây phạt nhầm người khi AI đã xác định đúng target
+            // Giờ chỉ dùng mentionedUsers cho PRIORITY 2 (khi AI thực sự không tìm ra target hợp lệ)
+
+            // ── PRIORITY 2: Nếu AI không đưa ra ID hợp lệ (chữ, tên, hoặc parse hụt) ──
+            if (!targetMember) {
+                // Thử xem có ai được tag trong câu lệnh không
                 if (mentionedUsers.size > 0 && action !== 'ACCEPT_FISH_TRIBUTE') {
-                    const searchStr = targetData.replace(/@/g, '').toLowerCase();
-                    for (const [_, u] of mentionedUsers) {
-                        if (u.username.toLowerCase().includes(searchStr) || (u.displayName && u.displayName.toLowerCase().includes(searchStr))) {
-                            targetData = u.id;
-                            targetMember = await message.guild.members.fetch(targetData).catch(() => null);
-                            break;
+                    // Nếu AI trả về 1 cái tên chữ, cố gắng khớp tên đó với một trong những người được tag
+                    let foundMatch = false;
+                    if (isNaN(targetData)) {
+                        const searchStr = targetData.replace(/@/g, '').toLowerCase();
+                        for (const [_, u] of mentionedUsers) {
+                            if (u.username.toLowerCase().includes(searchStr) || (u.displayName && u.displayName.toLowerCase().includes(searchStr))) {
+                                targetData = u.id;
+                                foundMatch = true;
+                                break;
+                            }
                         }
                     }
+                    // Nếu không khớp tên nào (hoặc không phải chữ), đành lấy bừa người đầu tiên được tag
+                    if (!foundMatch) targetData = mentionedUsers.first().id;
+                    targetMember = await message.guild.members.fetch(targetData).catch(() => null);
                 }
 
-                // ── PRIORITY 3: Không khớp tên tag, thử query Discord API ──
-                if (!targetMember) {
+                // ── PRIORITY 3: Vẫn không ra (không có tag), thử query Discord API bằng tên ──
+                if (!targetMember && isNaN(targetData)) {
                     try {
-                        const searchName = targetData.replace(/@/g, '').trim();
+                        let searchName = targetData.replace(/@/g, '').trim();
                         const members = await message.guild.members.fetch({ query: searchName, limit: 1 });
                         if (members.size > 0) {
                             targetMember = members.first();
@@ -531,16 +548,23 @@ async function handleGeminiChat(message, client) {
                         }
                     } catch (e) { }
                 }
+
+                // ── PRIORITY 4: Fallback cuối cùng là người gọi lệnh ──
+                if (!targetMember) {
+                    // AI cố chỉ định ai đó nhưng tìm không ra -> Hủy, KHÔNG fallback về người gọi
+                    if (targetData !== userId && targetData !== 'random' && targetData !== '') {
+                        response += `\n\n*Lỗi: Mắt tao bị mờ hay sao mà đéo tìm thấy thằng "${targetData}" trong server để xử lý! 🐧*`;
+                        continue; // Bỏ qua action này luôn
+                    }
+
+                    targetData = userId;
+                    targetMember = await message.guild.members.fetch(targetData).catch(() => null);
+                }
             }
-
-            if (!targetMember) {
-                response += `\n\n*Lỗi: Đéo tìm thấy thằng "${targetData}" trong server để xử lý! 🐧*`;
-                continue;
-            }
-
-            const targetUserId = targetMember.id;
-
-            try {
+            const targetUserId = targetData;
+            if (targetData) {
+                // Các action kinh tế cần fetch user
+                try {
                     const { updateBalance, updateLoan, getUser, setBotDebt } = require('./economyDB');
                     const { getInventory, clearInventory } = require('./fishDB');
                     // updateConfig đã được gọi ở trên nếu cần (bởi { getConfig, updateConfig } = require('./configDB'))
@@ -580,10 +604,10 @@ async function handleGeminiChat(message, client) {
                             } else {
                                 const newProtected = dynamicProtected.filter(id => id !== targetUserId);
                                 await updateConfig(message.guild.id, { ai_protected_users: newProtected });
-                                // Xóa lịch sử chat để AI không nhớ quyền hạn cũ của sub-boss này
+                                // Xóa lịch sử chat của sub-boss bị xóa để tránh stale memory
                                 chatHistory.delete(targetUserId);
                                 const displayName = targetMember ? `<@${targetUserId}>` : `ID ${targetUserId}`;
-                                response += `\n\n⚔️ *Đã thu hồi "Miễn Tử Kim Bài" của ${displayName}. Lịch sử được xóa sạch, từ giờ nó cứ liệu hồn! 🐧*`;
+                                response += `\n\n⚔️ *Đã thu hồi "Miễn Tử Kim Bài" của ${displayName}. Từ giờ nó cứ liệu hồn với tao! 🐧*`;
                             }
 
                         } else if (action === 'STOP_SPAM') {
@@ -814,8 +838,9 @@ async function handleGeminiChat(message, client) {
                             }
                         }
                     } // end PROTECTED_IDS else
-            } catch (e) {
-                console.error('[GEMINI] Lỗi khi thực thi quyền lực kinh tế:', e);
+                } catch (e) {
+                    console.error('[GEMINI] Lỗi khi thực thi quyền lực kinh tế:', e);
+                }
             }
         }
         // ────────────────────────────────────────────────────────

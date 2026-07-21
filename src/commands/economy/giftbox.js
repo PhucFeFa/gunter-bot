@@ -65,9 +65,13 @@ module.exports = {
         const creatorData = await getUser(creator.id);
         const currentBalance = creatorData.balance;
 
+        const { getTransferLimit } = require('../../utils/economyDB');
+        const isLimitDisabled = await getTransferLimit(creator.id);
+
         const ownerIds = (process.env.BOT_OWNER_IDS || '').split(',');
         const isAdmin = ownerIds.includes(creator.id);
-        const MAX_GIFT = isAdmin ? Infinity : 100000000;
+        const canExceedLimit = isAdmin || isLimitDisabled;
+        const MAX_GIFT = canExceedLimit ? Infinity : 100000000;
 
         let tongTien = 0;
         if (tongTienRaw.toLowerCase() === 'all') {
@@ -76,7 +80,7 @@ module.exports = {
         } else {
             tongTien = parseInt(tongTienRaw.replace(/,/g, ''));
             if (isNaN(tongTien) || tongTien < 100) return interaction.editReply('❌ Số tiền không hợp lệ! (Tối thiểu 100 $)');
-            if (!isAdmin && tongTien > MAX_GIFT) return interaction.editReply('❌ Hộp quà chỉ giới hạn tối đa **100,000,000 $** (100 triệu) thôi đại gia ơi!');
+            if (!canExceedLimit && tongTien > MAX_GIFT) return interaction.editReply('❌ Hộp quà chỉ giới hạn tối đa **100,000,000 $** (100 triệu) thôi đại gia ơi!');
         }
 
         if (currentBalance < tongTien) {

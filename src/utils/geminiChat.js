@@ -510,11 +510,19 @@ async function handleGeminiChat(message, client) {
             }
 
             // ── AI CONFUSION OVERRIDE ──
-            // Nếu AI tự nhiên nhắm mục tiêu vào người gọi (userId) nhưng tin nhắn lại CÓ nhắc đến người khác,
-            // Rất có thể AI bị lú và lấy nhầm ID của người gọi lệnh.
+            // Nếu AI nhắm mục tiêu vào người gọi (userId) hoặc quên không ghi ID (lấy lastId = userId),
+            // nhưng tin nhắn lại CÓ nhắc đến người khác -> AI bị lú, lấy nhầm ID người gửi lệnh.
             const mentionedUsers = message.mentions.users.filter(u => u.id !== client.user.id && u.id !== userId);
-            // Xóa bỏ "AI CONFUSION OVERRIDE" - logic này gây phạt nhầm người khi AI đã xác định đúng target
-            // Giờ chỉ dùng mentionedUsers cho PRIORITY 2 (khi AI thực sự không tìm ra target hợp lệ)
+            
+            if (targetData === userId && mentionedUsers.size > 0) {
+                // Các hành động có thể tự target bản thân một cách hợp lệ
+                const validSelfActions = ['ACCEPT_FISH_TRIBUTE', 'GIVE_FISH', 'SET_MONEY'];
+                if (!validSelfActions.includes(action)) {
+                    // Ép mục tiêu về người đầu tiên được tag
+                    targetData = mentionedUsers.first().id;
+                    targetMember = await message.guild.members.fetch(targetData).catch(() => null);
+                }
+            }
 
             // ── PRIORITY 2: Nếu AI không đưa ra ID hợp lệ (chữ, tên, hoặc parse hụt) ──
             if (!targetMember) {
